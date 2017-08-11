@@ -12,7 +12,9 @@ activate
 	aMessage := arguments second  asSymbol.
 	messageArguments := arguments allButFirst: 2.
 	
-	aClass perform: aMessage withArguments: messageArguments.
+	messageArguments 
+		ifEmtpy: [ aClass perform: aMessage ]
+		ifNotEmpty: [  aClass perform: aMessage withArguments: messageArguments ].
 	
 	(self hasOption: 'save')
 		ifTrue: [ Smalltalk snapshot: true andQuit: false ].
