@@ -3,4 +3,4 @@ runAll
 
 	"runs all tests in the image"
 
-	TestCase suite run
+	TestCase suite run logCr
