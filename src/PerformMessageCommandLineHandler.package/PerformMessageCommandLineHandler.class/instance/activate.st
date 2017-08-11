@@ -13,7 +13,7 @@ activate
 	messageArguments := arguments allButFirst: 2.
 	
 	messageArguments 
-		ifEmtpy: [ aClass perform: aMessage ]
+		ifEmpty: [ aClass perform: aMessage ]
 		ifNotEmpty: [  aClass perform: aMessage withArguments: messageArguments ].
 	
 	(self hasOption: 'save')
