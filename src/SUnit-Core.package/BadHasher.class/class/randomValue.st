@@ -10,7 +10,8 @@ randomValue
 
 	lastRandomIndex ifNil: [ lastRandomIndex := randomNumbers size ].
 	
-	lastRandomIndex = randomNumbers size 
-		ifTrue: [ lastRandomIndex := lastRandomIndex + 1 ].
+	lastRandomIndex := lastRandomIndex + 1.	
+	lastRandomIndex > randomNumbers size 
+		ifTrue: [ lastRandomIndex := 1 ].
 	
 	^ randomNumbers at: lastRandomIndex.
