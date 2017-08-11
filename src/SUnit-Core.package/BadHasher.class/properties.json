@@ -3,7 +3,7 @@
 	"super" : "Object",
 	"category" : "SUnit-Core-Utilities",
 	"classinstvars" : [
-		"lastValue"
+		"lastRandomIndex"
 	],
 	"pools" : [ ],
 	"classvars" : [ ],

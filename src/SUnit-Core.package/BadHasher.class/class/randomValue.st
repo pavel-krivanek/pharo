@@ -4,10 +4,13 @@ randomValue
 	"For every call return different value. Not really random but we do not want to create
 	dependency on random number generators."
 
-	lastValue ifNil: [ lastValue := 2 ].
+	| randomNumbers |
 	
-	lastValue = 1 
-		ifTrue: [ lastValue := 2 ]
-		ifFalse: [ lastValue := 1 ].
-		
-	^ lastValue.
+	randomNumbers := #(2 2 1 2 2 1 2 2 2 2 1 2 1 2 2 2 2 2 1 2). 
+
+	lastRandomIndex ifNil: [ lastRandomIndex := randomNumbers size ].
+	
+	lastRandomIndex = randomNumbers size 
+		ifTrue: [ lastRandomIndex := lastRandomIndex + 1 ].
+	
+	^ randomNumbers at: lastRandomIndex.
