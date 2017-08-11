@@ -1,5 +1,5 @@
 utility
-runAll
+runAllAndLogResult
 
 	"runs all tests in the image"
 
