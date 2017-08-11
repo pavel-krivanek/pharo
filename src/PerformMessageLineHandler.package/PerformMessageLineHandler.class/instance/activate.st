@@ -3,7 +3,7 @@ activate
 	| aClass aMessage arguments messageArguments |
 	self activateHelp
 		ifTrue: [ ^ self ].
-	arguments := self commandLine arguments.
+	arguments := self commandLine arguments reject: [ :argument | argument beginsWith: '-' ].
 	(arguments size <= 2)
 		ifFalse: [ ^ self exitFailure: 'Not enough arguments' ].
 		
