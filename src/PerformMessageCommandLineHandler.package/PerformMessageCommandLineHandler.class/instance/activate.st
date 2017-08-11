@@ -7,7 +7,7 @@ activate
 	(arguments size <= 2)
 		ifFalse: [ ^ self exitFailure: 'Not enough arguments' ].
 		
-	aClass := self class environment globals at: arguments first asSymbol ifAbsent: [ 
+	aClass := Smalltalk globals at: arguments first asSymbol ifAbsent: [ 
 		  ^ self exitFailure: 'Unknown class' ].
 	aMessage := arguments second.
 	messageArguments := arguments allButFirst: 2.
