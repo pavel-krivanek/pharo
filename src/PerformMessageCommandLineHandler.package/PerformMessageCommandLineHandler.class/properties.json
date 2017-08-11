@@ -1,5 +1,5 @@
 {
-	"commentStamp" : "",
+	"commentStamp" : "PavelKrivanek 8/11/2017 15:19",
 	"super" : "CommandLineHandler",
 	"category" : "PerformMessageCommandLineHandler",
 	"classinstvars" : [ ],
