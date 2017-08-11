@@ -9,8 +9,8 @@ activate
 		
 	aClass := Smalltalk globals at: arguments first asSymbol ifAbsent: [ 
 		  ^ self exitFailure: 'Unknown class' ].
-	aMessage := arguments second.
-	messageArguments := (arguments allButFirst: 2) asSymbol.
+	aMessage := arguments second  asSymbol.
+	messageArguments := arguments allButFirst: 2.
 	
 	aClass perform: aMessage withArguments: messageArguments.
 	
