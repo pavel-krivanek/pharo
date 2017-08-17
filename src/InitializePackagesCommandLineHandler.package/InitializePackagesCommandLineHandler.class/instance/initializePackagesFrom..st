@@ -9,5 +9,7 @@ initializePackagesFrom: aFileName
 		[stream atEnd] whileFalse: [ 
 			packages add: (stream upTo: Character cr)]].
 	
+	packages logCr.
+	
 	RPackageOrganizer default basicInitializeFromPackagesList: packages.
 	RPackageOrganizer registerInterestToSystemAnnouncement.
