@@ -54,6 +54,11 @@ baseline: spec
 		spec package: 'FileSystem-Disk'.
 		spec package: 'Deprecated70'.
 
+		spec package: 'SUnit-Core'.
+		spec package: 'SUnit-Tests'.
+		spec package: 'JenkinsTools-Core'.
+		
+
 		spec group: 'KernelGroup' with: {
 			'AST-Core'.
 			'Announcements-Core'.
@@ -109,4 +114,9 @@ baseline: spec
 			'FileSystem-Core'.
 			'FileSystem-Disk'.
 			'Deprecated70' }.
+
+		spec group: 'SUnitGroup' with: {
+			'SUnit-Core'.
+			'SUnit-Tests'.
+			'JenkinsTools-Core' }.
 	]

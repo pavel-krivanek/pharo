@@ -3,8 +3,13 @@ setUp
 	progressFile nextPutAll: 'running suite: ';
 		nextPutAll: suite name ; crlf; flush.
 		
-	stream := StandardFileStream forceNewFileNamed: suite name , '-Test.xml'.
-	stream := MultiByteFileStream newFrom: stream.
+	stream := ZnCrPortableWriteStream on: (ZnCharacterWriteStream
+		on:
+			((File named: (suite name , '-Test.xml')) writeStream
+				setToEnd;
+				yourself)
+		encoding: 'utf8').	
+		
 	stream nextPutAll: '<?xml version="1.0" encoding="UTF-8"?>'; lf.
 	stream nextPutAll: '<testsuite name="'; nextPutAll: (self encode: suite name); 
 		nextPutAll: '" tests="'; print: suite tests size; nextPutAll: '">'.
