@@ -3,8 +3,6 @@ initializePackagesFrom: aFileName
 
 	| packages |
 
-	Behavior initialize.
-	
 	packages := OrderedCollection new.
 	(File named: aFileName) readStreamDo: [:binaryStream | | stream |
 		stream := ZnCharacterReadStream on: binaryStream encoding: 'utf8'.
