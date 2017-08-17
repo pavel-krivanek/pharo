@@ -2,6 +2,8 @@ activation
 initializePackagesFrom: aFileName
 
 	| packages |
+
+	Behavior initialize.
 	
 	packages := OrderedCollection new.
 	(File named: aFileName) readStreamDo: [:binaryStream | | stream |
