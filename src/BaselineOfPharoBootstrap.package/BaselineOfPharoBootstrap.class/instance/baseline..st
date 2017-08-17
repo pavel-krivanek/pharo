@@ -57,6 +57,7 @@ baseline: spec
 		spec package: 'SUnit-Core'.
 		spec package: 'SUnit-Tests'.
 		spec package: 'JenkinsTools-Core'.
+		spec package: 'InitializePackagesCommandLineHandler'.
 		
 
 		spec group: 'KernelGroup' with: {
@@ -118,5 +119,6 @@ baseline: spec
 		spec group: 'SUnitGroup' with: {
 			'SUnit-Core'.
 			'SUnit-Tests'.
-			'JenkinsTools-Core' }.
+			'JenkinsTools-Core'.
+			'InitializePackagesCommandLineHandler' }.
 	]
