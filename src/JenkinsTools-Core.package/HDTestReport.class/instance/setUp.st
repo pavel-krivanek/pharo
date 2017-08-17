@@ -1,14 +1,17 @@
 running
 setUp
+
+	| aFile |
+	
 	progressFile nextPutAll: 'running suite: ';
 		nextPutAll: suite name ; crlf; flush.
 		
-	stream := ZnCrPortableWriteStream on: (ZnCharacterWriteStream
-		on:
-			((File named: (suite name , '-Test.xml')) writeStream
-				setToEnd;
-				yourself)
-		encoding: 'utf8').	
+	aFile := File named: suite name , '-Test.xml'.
+	aFile delete.
+	stream := ZnCrPortableWriteStream on: (
+		ZnCharacterWriteStream
+			on: (aFile writeStream setToEnd; yourself)
+			encoding: 'utf8').	
 		
 	stream nextPutAll: '<?xml version="1.0" encoding="UTF-8"?>'; lf.
 	stream nextPutAll: '<testsuite name="'; nextPutAll: (self encode: suite name); 
