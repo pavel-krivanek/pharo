@@ -8,10 +8,9 @@ setUp
 		
 	aFile := File named: suite name , '-Test.xml'.
 	aFile delete.
-	stream := ZnCrPortableWriteStream on: (
-		ZnCharacterWriteStream
+	stream := ZnCharacterWriteStream
 			on: (aFile writeStream setToEnd; yourself)
-			encoding: 'utf8').	
+			encoding: 'utf8'.	
 		
 	stream nextPutAll: '<?xml version="1.0" encoding="UTF-8"?>'; lf.
 	stream nextPutAll: '<testsuite name="'; nextPutAll: (self encode: suite name); 
