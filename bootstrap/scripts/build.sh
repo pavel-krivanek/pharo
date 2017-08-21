@@ -118,9 +118,13 @@ cd ..
 #Required for the correct work of metacello baselines and unicode initialization
 ln -s .. pharo-core
 
+# Installing RPackage
+echo "[Compiler] Installing RPackage"
+${VM} "${COMPILER_IMAGE_NAME}.image" # I have to run once the image so the next time it starts the CommandLineHandler.
+${VM} "${CORE_IMAGE_NAME}.image" initializePackages -protocols=protocolsKernel.txt --packages=packagesKernel.txt --save
+
 # Installing compiler through Hermes 
 echo "[Compiler] Installing compiler through Hermes"
-${VM} "${COMPILER_IMAGE_NAME}.image" # I have to run once the image so the next time it starts the CommandLineHandler.
 ${VM} "${COMPILER_IMAGE_NAME}.image" loadHermes OpalCompiler-Core.hermes CodeExport.hermes CodeImport.hermes CodeImportCommandLineHandlers.hermes --save
 ${VM} "${COMPILER_IMAGE_NAME}.image" eval --save "CompilationContext initialize. OCASTTranslator initialize." 
 ${VM} "${COMPILER_IMAGE_NAME}.image" st ../bootstrap/scripts/01-initialization/01-init.st --no-source --save --quit
@@ -131,7 +135,6 @@ zip "${COMPILER_IMAGE_NAME}.zip" "${COMPILER_IMAGE_NAME}.image"
 #Bootstrap Initialization: Class and RPackage initialization
 echo "[Core] Class and RPackage initialization"
 ${VM} "${COMPILER_IMAGE_NAME}.image" save ${CORE_IMAGE_NAME}
-${VM} "${CORE_IMAGE_NAME}.image" initializePackages -protocols=protocolsKernel.txt --packages=packagesKernel.txt --save
 ${VM} "${CORE_IMAGE_NAME}.image" st ../bootstrap/scripts/01-initialization/03-initUnicode.st --no-source --save --quit
 zip "${CORE_IMAGE_NAME}.zip" "${CORE_IMAGE_NAME}.image"
 
