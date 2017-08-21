@@ -126,8 +126,8 @@ ln -s .. pharo-core
 
 # Installing RPackage
 echo "[Compiler] Installing RPackage"
-${VM} "${CORE_IMAGE_NAME}.image" # I have to run once the image so the next time it starts the CommandLineHandler.
-${VM} "${CORE_IMAGE_NAME}.image" initializePackages -protocols=protocolsKernel.txt --packages=packagesKernel.txt --save
+${VM} "${COMPILER_IMAGE_NAME}.image" # I have to run once the image so the next time it starts the CommandLineHandler.
+${VM} "${COMPILER_IMAGE_NAME}.image" initializePackages -protocols=protocolsKernel.txt --packages=packagesKernel.txt --save
 
 # Installing compiler through Hermes 
 echo "[Compiler] Installing compiler through Hermes"
