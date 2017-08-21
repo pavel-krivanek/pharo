@@ -108,7 +108,7 @@ cp "${BOOTSTRAP_IMAGE_NAME}.image" "${COMPILER_IMAGE_NAME}.image"
 
 # Archive bootstrap image
 cp "${BOOTSTRAP_IMAGE_NAME}.image" "${BOOTSTRAP_ARCHIVE_IMAGE_NAME}.image"
-zip "${BOOTSTRAP_ARCHIVE_IMAGE_NAM}.zip" "${BOOTSTRAP_ARCHIVE_IMAGE_NAM}.image"
+zip "${BOOTSTRAP_ARCHIVE_IMAGE_NAME}.zip" "${BOOTSTRAP_ARCHIVE_IMAGE_NAME}.image"
 
 ../bootstrap/scripts/download_vm.sh
 
