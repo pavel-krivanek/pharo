@@ -131,7 +131,7 @@ zip "${COMPILER_IMAGE_NAME}.zip" "${COMPILER_IMAGE_NAME}.image"
 #Bootstrap Initialization: Class and RPackage initialization
 echo "[Core] Class and RPackage initialization"
 ${VM} "${COMPILER_IMAGE_NAME}.image" save ${CORE_IMAGE_NAME}
-${VM} "${CORE_IMAGE_NAME}.image" st ../bootstrap/scripts/01-initialization/02-initRPackageOrganizer.st --no-source --save --quit
+${VM} "${CORE_IMAGE_NAME}.image" initializePackages -protocols=protocolsKernel.txt --packages=packagesKernel.txt --save
 ${VM} "${CORE_IMAGE_NAME}.image" st ../bootstrap/scripts/01-initialization/03-initUnicode.st --no-source --save --quit
 zip "${CORE_IMAGE_NAME}.zip" "${CORE_IMAGE_NAME}.image"
 
