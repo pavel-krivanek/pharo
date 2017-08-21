@@ -2,8 +2,17 @@ preparation
 exportMonticelloInStFile
 
 	self
-		exportPackages: #( 'RingChunkImporter' 'Zinc-Resource-Meta-Core' 'System-Changes' 'Ring-Core-Kernel' 'Ring-Core-Containers' 'RingChunkImporter'  'Compression' 'Monticello' 'Ring-Monticello' )
-		usingInitializeScript: '
+		exportPackages: #( 'RingChunkImporter' 'Multilingual-Languages' 'Multilingual-Encodings' 'Multilingual-TextConversion' 'Zinc-Resource-Meta-Core' 'System-Changes' 'Ring-Core-Kernel' 'Ring-Core-Containers' 'RingChunkImporter'  'Compression' 'Monticello' 'Ring-Monticello' )
+		usingInitializeScript: '		
+		
+		EncodedCharSet initialize.
+
+		Unicode initializeTagConstants.
+		UnicodeDefinitions initializeUnicodeClass.
+		Character characterSet: Unicode.
+		
+		ByteTextConverter initialize.
+		
 		ChangeSet initialize.
 		
 		ZipConstants initialize.

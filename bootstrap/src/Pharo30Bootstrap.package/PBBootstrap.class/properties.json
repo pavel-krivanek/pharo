@@ -8,8 +8,8 @@
 	"instvars" : [
 		"architecture",
 		"kernelPackageNames",
-		"imageReference",
-		"buildNumber"
+		"sUnitPackageNames",
+		"imageReference"
 	],
 	"name" : "PBBootstrap",
 	"type" : "normal"
