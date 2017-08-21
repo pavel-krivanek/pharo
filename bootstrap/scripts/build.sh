@@ -86,6 +86,7 @@ if [[ ${DESCRIBE} -eq "1" ]]; then
 fi
 
 BOOTSTRAP_IMAGE_NAME=bootstrap
+BOOTSTRAP_ARCHIVE_IMAGE_NAME=${PREFIX}-bootstrap-${SUFFIX}
 CORE_IMAGE_NAME=${PREFIX}-core-${SUFFIX}
 COMPILER_IMAGE_NAME=${PREFIX}-compiler-${SUFFIX}
 MC_BOOTSTRAP_IMAGE_NAME=${PREFIX}-monticello_bootstrap-${SUFFIX}
@@ -104,6 +105,11 @@ wget http://files.pharo.org/sources/PharoV60.sources
 #Prepare
 echo "Prepare Bootstrap files"
 cp "${BOOTSTRAP_IMAGE_NAME}.image" "${COMPILER_IMAGE_NAME}.image"
+
+# Archive bootstrap image
+cp "${BOOTSTRAP_IMAGE_NAME}.image" "${BOOTSTRAP_ARCHIVE_IMAGE_NAME}.image"
+zip "${BOOTSTRAP_ARCHIVE_IMAGE_NAM}.zip" "${BOOTSTRAP_ARCHIVE_IMAGE_NAM}.image"
+
 ../bootstrap/scripts/download_vm.sh
 
 echo "Prepare fonts"
@@ -120,7 +126,7 @@ ln -s .. pharo-core
 
 # Installing RPackage
 echo "[Compiler] Installing RPackage"
-${VM} "${COMPILER_IMAGE_NAME}.image" # I have to run once the image so the next time it starts the CommandLineHandler.
+${VM} "${CORE_IMAGE_NAME}.image" # I have to run once the image so the next time it starts the CommandLineHandler.
 ${VM} "${CORE_IMAGE_NAME}.image" initializePackages -protocols=protocolsKernel.txt --packages=packagesKernel.txt --save
 
 # Installing compiler through Hermes 
