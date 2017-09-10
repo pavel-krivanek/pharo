@@ -4,7 +4,6 @@ SystemOrganization addCategory: #'Tests-Files'!
 SystemOrganization addCategory: #'Tests-Finalization'!
 SystemOrganization addCategory: #'Tests-Object Events'!
 SystemOrganization addCategory: #'Tests-ObjectsAsMethods'!
-SystemOrganization addCategory: #'Tests-ScaledDecimal'!
 SystemOrganization addCategory: #'Tests-System'!
 SystemOrganization addCategory: #'Tests-System-CommandLine'!
 SystemOrganization addCategory: #'Tests-System-Hashing'!
