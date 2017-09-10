@@ -1,4 +1,4 @@
-testing
+support
 testRenaming
 	"self debug: #testRenaming"
 
