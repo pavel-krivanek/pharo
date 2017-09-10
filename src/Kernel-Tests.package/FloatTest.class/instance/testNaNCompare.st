@@ -10,7 +10,7 @@ testNaNCompare
 	compareSelectors := #(#< #<= #> #>= #=).
 	theNaN := Float nan.
 	anotherNaN := Float infinity - Float infinity.
-	comparand := {1. 2.3. Float infinity. 2/3. 1.25s2. 2 raisedTo: 50}.
+	comparand := {1. 2.3. Float infinity. 2/3. "1.25s2." 2 raisedTo: 50}.
 	comparand := comparand , (comparand collect: [:e | e negated]).
 	comparand := comparand , {theNaN. anotherNaN}.
 
