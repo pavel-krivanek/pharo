@@ -1,7 +1,7 @@
 {
 	"commentStamp" : "<historical>",
 	"super" : "ClassTestCase",
-	"category" : "Kernel-Tests-Numbers",
+	"category" : "Tests-ScaledDecimal",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
