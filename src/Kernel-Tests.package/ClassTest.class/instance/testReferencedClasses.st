@@ -1,8 +1,8 @@
 testing - navigation
 testReferencedClasses
-	{(RBLintRuleTest -> { Object. Array. WriteStream. String}). 
-	 (RBBasicLintRuleTest -> {RBSelectorEnvironment}).
-	 (RBCompositeLintRuleTest -> {OrderedCollection})
+	{(ExceptionTester -> { MyTestNotification. Warning. String. MyResumableTestError. OrderedCollection. MyTestError}). 
+	 (CollectionCombinator -> {Array}).
+	 (ExecutionEnvironmentStub -> {OrderedCollection})
 	}
 		do: [ :assoc | 
 			self assert: assoc key referencedClasses notEmpty.
