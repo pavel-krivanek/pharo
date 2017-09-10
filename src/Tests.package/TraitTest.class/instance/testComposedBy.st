@@ -1,4 +1,4 @@
-tests
+testing
 testComposedBy
 	"tests the #isComposedBy: aTrait method"
 	
