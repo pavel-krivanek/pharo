@@ -1,7 +1,7 @@
 {
 	"commentStamp" : "TorstenBergmann 2/5/2014 08:41",
 	"super" : "TestCase",
-	"category" : "Kernel-Tests-Methods",
+	"category" : "OpalCompiler-Tests-Misc",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
