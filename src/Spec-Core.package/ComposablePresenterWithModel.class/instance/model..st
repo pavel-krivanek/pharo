@@ -1,4 +1,7 @@
 accessing
-model: aModel
+model: aDomainObject
 
-	 self modelHolder value: aModel
+	(aDomainObject isSpecCompatibleModel not and: [ self specCompatibleModel isValueHolder ])
+		ifTrue: [ self specCompatibleModel value: aDomainObject ]
+		ifFalse: [ self specCompatibleModel: aDomainObject ]
+	

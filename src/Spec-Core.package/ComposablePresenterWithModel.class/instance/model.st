@@ -1,4 +1,4 @@
 accessing
 model
 
-	 ^ self modelHolder value
+	 ^ self specCompatibleModel value

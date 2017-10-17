@@ -1,12 +1,12 @@
 {
-	"commentStamp" : "PavelKrivanek 10/16/2017 13:48",
+	"commentStamp" : "PavelKrivanek 10/17/2017 15:26",
 	"super" : "ComposablePresenter",
 	"category" : "Spec-Core",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"modelHolder"
+		"specCompatibleModel"
 	],
 	"name" : "ComposablePresenterWithModel",
 	"type" : "normal"

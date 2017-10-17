@@ -1,5 +1,5 @@
 initialization
 on: aDomainObject
 
-	self modelHolder: aDomainObject .
+	self specCompatibleModel: aDomainObject.
 	self initialize
