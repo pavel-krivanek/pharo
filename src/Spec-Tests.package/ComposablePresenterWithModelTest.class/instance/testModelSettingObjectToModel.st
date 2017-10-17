@@ -4,7 +4,7 @@ testModelSettingObjectToModel
 	| point model presenter |
 	
 	"we had a Model, new model is a regular object"
-	model := TestingPointModel new x: 1; y: 2; yourself.
+	model := TestingPointModel x: 1 y: 2.
 	point := 40@54.
 	presenter := TestingComposablePresenterWithModel on: model.
 	self assert: presenter specCompatibleModel isSpecCompatibleModel.

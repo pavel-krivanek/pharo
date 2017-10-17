@@ -7,7 +7,7 @@ testModelSettingModelToValueHolder
 	point := 40@54.
 
 	presenter := TestingComposablePresenterWithModel on: point.
-	model := TestingPointModel new x: 1; y: 2; yourself.
+	model := TestingPointModel x: 1 y: 2.
 	self assert: presenter specCompatibleModel isSpecCompatibleModel.
 	self assert: presenter specCompatibleModel isValueHolder.
 	self assert: model isSpecCompatibleModel.

@@ -3,7 +3,7 @@ testUpdateModel
 
 	| aPoint presenter |
 	
-	aPoint := TestingPointModel new x: 40; y:54; yourself.
+	aPoint := TestingPointModel x: 40 y: 54.
 	presenter := TestingComposablePresenterWithModel on: aPoint.
 	
 	self assert: presenter x text equals: aPoint x asString.
