@@ -1,6 +1,6 @@
 {
 	"commentStamp" : "PavelKrivanek 10/17/2017 15:00",
-	"super" : "ComposablePresenterWithModel",
+	"super" : "Model",
 	"category" : "Spec-Tests-Utils",
 	"classinstvars" : [ ],
 	"pools" : [ ],
@@ -9,6 +9,6 @@
 		"x",
 		"y"
 	],
-	"name" : "TestingComposablePresenterWithModel",
+	"name" : "TestingPointModel",
 	"type" : "normal"
 }

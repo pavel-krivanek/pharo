@@ -1,5 +1,5 @@
 initialization
 on: aDomainObject
 
-	self modelHolder: aDomainObject asValueHolder.
+	self modelHolder: aDomainObject .
 	self initialize
