@@ -50,6 +50,7 @@ baseline: spec
 		spec package: 'Kernel-Tests-WithCompiler'.
 		spec package: 'Manifest-Core'.
 		spec package: 'Manifest-Resources-Tests'.
+		spec package: 'RPackage-Tests'.
 		spec package: 'Monticello-Tests'.
 		spec package: 'OpalCompiler-Tests'.
 		spec package: 'Refactoring-Tests-Core'.
@@ -75,8 +76,6 @@ baseline: spec
 		spec package: 'Metacello-TestsMCCore'.	"standalone"
 		spec package: 'Metacello-TestsPlatform'.	"standalone"
 		spec package: 'Metacello-TestsReference'.	"standalone"
-
-		spec package: 'RPackage-Tests'.
 
 		spec package: 'Glamour-Announcements'.
 		spec package: 'Glamour-Helpers'.
