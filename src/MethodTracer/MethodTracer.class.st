@@ -26,7 +26,8 @@ MethodTracer class >> canInstall: aMethod [
 		| classBlackList blackList |
 	
 	classBlackList := {
-		MethodTracer. MethodTracer class.
+		MethodTracer. MethodTracer class. Context. Context class.
+
 	}.
 	
 	classBlackList do: [ :each | (aMethod methodClass == each) ifTrue: [ ^ false ] ].
