@@ -211,6 +211,8 @@ PharoBootstrapInitialization class >> initializeClasses [
 { #category : #'public api' }
 PharoBootstrapInitialization class >> initializeCommandLineHandlerAndErrorHandling [
 	"This method is run before the new bootstrapped image is saved!"
+
+	MethodTracer installOn: ((Smalltalk globals values select: [ :each | each isClassOrTrait ] ) flatCollect: [ :each | each localMethods, each classSide localMethods ]).
 	
 	ProcessorScheduler initialize.
 	
@@ -268,8 +270,6 @@ PharoBootstrapInitialization class >> initializeCommandLineHandlerAndErrorHandli
 	ExternalObject initialize.
 	ExternalFunction initialize.
 	ExternalType initialize.
-
-	MethodTracer installOn: ((Smalltalk globals values select: [ :each | each isClassOrTrait ] ) flatCollect: [ :each | each localMethods, each classSide localMethods ]).
 
 	"Initialize basic command line behaviour"
 	Stdio initialize.
