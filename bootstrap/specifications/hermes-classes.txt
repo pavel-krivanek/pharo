@@ -64,7 +64,6 @@ Context
 CurrentExecutionEnvironment
 CurrentJob
 DangerousClassNotifier
-Date
 DateAndTime
 DefaultExecutionEnvironment
 Delay
