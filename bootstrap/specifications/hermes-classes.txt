@@ -327,3 +327,5 @@ ShTraitCompositionChangedDetector
 ManifestShiftClassInstaller
 ShiftAnonymousClassInstaller
 ShiftClassInstaller
+WideString
+PackageManifest

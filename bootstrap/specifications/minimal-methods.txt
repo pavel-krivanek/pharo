@@ -1,0 +1,722 @@
+AbstractLayout>>#checkSanity
+AbstractLayout>>#fieldSize
+AbstractLayout>>#hasFields
+AbstractLayout>>#host:
+AbstractLayout>>#slotScope
+AbstractLayout>>#slots
+Announcement>>#asAnnouncement
+Announcer>>#announce:
+Announcer>>#initialize
+Array class>>#new:
+Array>>#elementsForwardIdentityTo:
+Array>>#replaceFrom:to:with:startingAt:
+ArrayedCollection class>>#new
+ArrayedCollection class>>#new:withAll:
+ArrayedCollection class>>#newFrom:
+ArrayedCollection class>>#with:
+ArrayedCollection class>>#withAll:
+ArrayedCollection>>#size
+AsciiCharset class>>#isDigit:
+AsciiCharset class>>#isLetter:
+AsciiCharset class>>#isUppercase:
+Association class>>#key:value:
+Association>>#key:value:
+Association>>#value
+Association>>#value:
+Behavior>>#addSelectorSilently:withMethod:
+Behavior>>#allInstances
+Behavior>>#allInstancesDo:
+Behavior>>#allInstancesOrNil
+Behavior>>#allSubInstances
+Behavior>>#allSubInstancesDo:
+Behavior>>#allSubclassesDo:
+Behavior>>#basicAddSelector:withMethod:
+Behavior>>#basicIdentityHash
+Behavior>>#basicNew
+Behavior>>#basicNew:
+Behavior>>#classLayout
+Behavior>>#emptyMethodDictionary
+Behavior>>#environment
+Behavior>>#flushCache
+Behavior>>#format
+Behavior>>#hasTraitComposition
+Behavior>>#initialize
+Behavior>>#isBehavior
+Behavior>>#lookupSelector:
+Behavior>>#methodDict
+Behavior>>#methodDict:
+Behavior>>#methodDictionary:
+Behavior>>#methods
+Behavior>>#new
+Behavior>>#new:
+Behavior>>#registerLocalSelector:
+Behavior>>#setFormat:
+Behavior>>#setTraitComposition:
+Behavior>>#superclass
+Behavior>>#superclass:
+Behavior>>#superclass:methodDictionary:format:
+Behavior>>#users:
+ByteLayout class>>#extending:scope:host:
+ByteLayout>>#instanceSpecification
+ByteString class>>#compare:with:collated:
+ByteString class>>#indexOfAscii:inString:startingAt:
+ByteString class>>#stringHash:initialHash:
+ByteString>>#at:
+ByteString>>#at:put:
+ByteString>>#isByteString
+ByteString>>#isOctetString
+ByteString>>#replaceFrom:to:with:startingAt:
+ByteSymbol class>>#stringHash:initialHash:
+ByteSymbol>>#at:
+ByteSymbol>>#isByteString
+ByteSymbol>>#privateAt:put:
+ByteSymbol>>#species
+ByteSymbol>>#string:
+Categorizer>>#addCategory:
+Categorizer>>#addCategory:before:
+Categorizer>>#assertInvariant
+Categorizer>>#categories
+Categorizer>>#categoryOfElement:
+Categorizer>>#classify:under:
+Categorizer>>#classify:under:suppressIfDefault:
+Categorizer>>#listAtCategoryNamed:
+Categorizer>>#numberOfCategoryOfElement:
+Categorizer>>#removeCategory:
+CategoryAdded class>>#categoryName:
+CategoryAdded>>#categoryName:
+Character class>>#characterSet
+Character class>>#cr
+Character class>>#initialize
+Character class>>#initializeDigitValues
+Character class>>#space
+Character class>>#tab
+Character class>>#value:
+Character>>#>
+Character>>#asInteger
+Character>>#asString
+Character>>#asSymbol
+Character>>#asciiValue
+Character>>#characterSet
+Character>>#isAlphaNumeric
+Character>>#isCharacter
+Character>>#isDigit
+Character>>#isLetter
+Character>>#isUppercase
+Character>>#join:
+ChronologyConstants class>>#initialize
+Class>>#addSubclass:
+Class>>#baseClass
+Class>>#basicLocalSelectors
+Class>>#binding
+Class>>#classClass
+Class>>#classPool
+Class>>#classPool:
+Class>>#classVariables
+Class>>#declareClassVariables:
+Class>>#environment
+Class>>#environment:
+Class>>#innerBindingOf:
+Class>>#name
+Class>>#setName:
+Class>>#sharedPools
+Class>>#sharedPools:
+Class>>#sharing:
+Class>>#subclasses
+Class>>#subclasses:
+Class>>#subclassesDo:
+Class>>#superclass:methodDictionary:format:
+Class>>#traitComposition
+Class>>#traitComposition:
+ClassAdded class>>#class:category:
+ClassAdded>>#classAdded:
+ClassAdded>>#classCategory:
+ClassDescription>>#addSelectorSilently:withMethod:
+ClassDescription>>#basicOrganization:
+ClassDescription>>#classSide
+ClassDescription>>#instanceSide
+ClassDescription>>#isClassSide
+ClassDescription>>#isMeta
+ClassDescription>>#noteAddedSelector:meta:
+ClassDescription>>#organization:
+ClassDescription>>#superclass:layout:
+ClassDescription>>#superclass:methodDictionary:format:
+ClassDescription>>#superclass:withLayoutType:slots:
+ClassDescription>>#theMetaClass
+ClassDescription>>#theNonMetaClass
+ClassSessionHandler class>>#forClassNamed:
+ClassSessionHandler>>#handledId
+ClassSessionHandler>>#registeredClassName:
+ClassTrait class>>#for:
+ClassTrait>>#baseTrait
+ClassTrait>>#baseTrait:
+ClassTrait>>#binding
+ClassTrait>>#initializeWithBaseTrait:
+ClassTrait>>#isMeta
+ClassTrait>>#noteNewBaseTraitCompositionApplied:
+Collection class>>#withAll:
+Collection>>#addAll:
+Collection>>#allSatisfy:
+Collection>>#anyOne
+Collection>>#asDictionary
+Collection>>#associationsDo:
+Collection>>#copyWithoutAll:
+Collection>>#detect:
+Collection>>#detect:ifFound:ifNone:
+Collection>>#detect:ifNone:
+Collection>>#emptyCheck
+Collection>>#ifEmpty:
+Collection>>#ifEmpty:ifNotEmpty:
+Collection>>#isEmpty
+Collection>>#notEmpty
+CompiledCode>>#header
+CompiledCode>>#literalAt:
+CompiledCode>>#literalAt:put:
+CompiledCode>>#numLiterals
+CompiledCode>>#objectAt:
+CompiledCode>>#objectAt:put:
+CompiledMethod class>>#initialize
+CompiledMethod>>#classBinding
+CompiledMethod>>#methodClass:
+CompiledMethod>>#penultimateLiteral
+CompiledMethod>>#selector:
+CompiledMethodLayout class>>#extending:scope:host:
+CompiledMethodLayout>>#instanceSpecification
+DangerousClassNotifier class>>#check:
+DangerousClassNotifier class>>#disable
+DangerousClassNotifier class>>#enabled
+DateAndTime class>>#clock
+DateAndTime class>>#current
+DateAndTime class>>#initialize
+DateAndTime class>>#localOffset
+DateAndTime class>>#localTimeZone
+DateAndTime class>>#now
+DateAndTime>>#normalizeSecondsAndNanos
+DateAndTime>>#setJdn:seconds:nano:offset:
+Dictionary class>>#newFrom:
+Dictionary>>#add:
+Dictionary>>#associationAt:
+Dictionary>>#associationAt:ifAbsent:
+Dictionary>>#associationAt:ifPresent:
+Dictionary>>#associations
+Dictionary>>#associationsDo:
+Dictionary>>#at:
+Dictionary>>#at:ifAbsent:
+Dictionary>>#at:ifAbsentPut:
+Dictionary>>#at:put:
+Dictionary>>#bindingOf:
+Dictionary>>#declareVariable:from:
+Dictionary>>#do:
+Dictionary>>#includes:
+Dictionary>>#includesKey:
+Dictionary>>#noCheckAdd:
+Dictionary>>#scanFor:
+Dictionary>>#values
+Dictionary>>#valuesDo:
+Duration class>>#hours:
+Duration class>>#seconds:nanoSeconds:
+Duration class>>#zero
+Duration>>#=
+Duration>>#asNanoSeconds
+Duration>>#seconds:nanoSeconds:
+EmptyLayout class>>#instance
+EmptyLayout>>#extend:
+False>>#&
+False>>#and:
+False>>#ifFalse:ifTrue:
+False>>#not
+False>>#or:
+FixedLayout class>>#extending:scope:host:
+FixedLayout>>#instanceSpecification
+HashTableSizes class>>#atLeast:
+HashTableSizes class>>#basicAtLeast:
+HashTableSizes class>>#maxSmallSize
+HashTableSizes class>>#sizes
+HashTableSizes class>>#smallSizesLookupTable
+HashedCollection class>>#new
+HashedCollection class>>#new:
+HashedCollection class>>#sizeFor:
+HashedCollection>>#atNewIndex:put:
+HashedCollection>>#findElementOrNil:
+HashedCollection>>#fullCheck
+HashedCollection>>#grow
+HashedCollection>>#initialize:
+HashedCollection>>#size
+IdentityDictionary>>#scanFor:
+ImmediateLayout>>#initialize
+IndexedSlot>>#index
+IndexedSlot>>#index:
+IndexedSlot>>#isVirtual
+Integer>>#'<='
+Integer>>#'>>'
+Integer>>#*
+Integer>>#+
+Integer>>#asLargerPowerOfTwo
+Integer>>#ceiling
+Integer>>#digitAdd:
+Integer>>#digitCompare:
+Integer>>#digitMultiply:neg:
+Integer>>#isInteger
+Integer>>#isPowerOfTwo
+Integer>>#rounded
+Integer>>#truncated
+Interval class>>#from:to:by:
+Interval class>>#new
+Interval>>#at:
+Interval>>#collect:
+Interval>>#setFrom:to:by:
+Interval>>#size
+Interval>>#species
+LargeInteger>>#'//'
+LargeInteger>>#'\\'
+LargeInteger>>#*
+LargePositiveInteger>>#negative
+LargePositiveInteger>>#normalize
+LayoutAbstractScope>>#extend:
+LayoutAbstractScope>>#extend:as:
+LayoutAbstractScope>>#firstFieldIndex
+LayoutClassScope>>#allVisibleSlots
+LayoutClassScope>>#do:
+LayoutClassScope>>#fieldSize
+LayoutClassScope>>#flatten
+LayoutClassScope>>#hasFields
+LayoutClassScope>>#ownFieldSize
+LayoutClassScope>>#parentScope:
+LayoutClassScope>>#slots
+LayoutClassScope>>#withIndexDo:
+LayoutEmptyScope class>>#instance
+LayoutEmptyScope>>#allVisibleSlots
+LayoutEmptyScope>>#fieldSize
+LayoutEmptyScope>>#flatten
+LayoutEmptyScope>>#hasFields
+LiteralVariable class>>#checkValidName:
+LiteralVariable class>>#named:
+LiteralVariable>>#name:
+LookupKey class>>#key:
+LookupKey>>#key
+LookupKey>>#key:
+Magnitude>>#'<='
+Magnitude>>#'>='
+Magnitude>>#between:and:
+Magnitude>>#max:
+Magnitude>>#min:
+Metaclass>>#baseClass
+Metaclass>>#basicLocalSelectors
+Metaclass>>#binding
+Metaclass>>#isMeta
+Metaclass>>#new
+Metaclass>>#traitComposition
+Metaclass>>#traitComposition:
+MethodDictionary class>>#new
+MethodDictionary class>>#new:
+MethodDictionary class>>#newForCapacity:
+MethodDictionary class>>#sizeFor:
+MethodDictionary>>#at:ifPresent:
+MethodDictionary>>#at:put:
+MethodDictionary>>#grow
+MethodDictionary>>#scanFor:
+MethodDictionary>>#valuesDo:
+Number class>>#one
+Number>>#fractionPart
+Number>>#hours
+Number>>#integerPart
+Number>>#isZero
+Number>>#negative
+Number>>#raisedTo:
+Number>>#raisedToInteger:
+Number>>#to:
+Object class>>#initialize
+Object class>>#initializeDependentsFields
+Object>>#'~='
+Object>>#=
+Object>>#as:
+Object>>#asSetElement
+Object>>#assert:
+Object>>#at:
+Object>>#at:put:
+Object>>#basicAt:
+Object>>#basicAt:put:
+Object>>#basicSize
+Object>>#becomeForward:
+Object>>#copy
+Object>>#enclosedSetElement
+Object>>#hash
+Object>>#instVarAt:put:
+Object>>#isClass
+Object>>#isKindOf:
+Object>>#isMethodProperties
+Object>>#isString
+Object>>#isSymbol
+Object>>#isTrait
+Object>>#postCopy
+Object>>#shallowCopy
+Object>>#size
+Object>>#species
+Object>>#value
+Object>>#yourself
+ObjectLayout>>#extendByte
+ObjectLayout>>#extendCompiledMethod
+ObjectLayout>>#extendWord
+ObjectLayout>>#format
+ObjectLayout>>#initialize
+OrderedCollection class>>#arrayType
+OrderedCollection class>>#new
+OrderedCollection class>>#new:
+OrderedCollection>>#add:
+OrderedCollection>>#addAll:
+OrderedCollection>>#addAllLast:
+OrderedCollection>>#addLast:
+OrderedCollection>>#asArray
+OrderedCollection>>#at:
+OrderedCollection>>#collect:
+OrderedCollection>>#copyEmpty
+OrderedCollection>>#do:
+OrderedCollection>>#growAtLast
+OrderedCollection>>#makeRoomAtLast
+OrderedCollection>>#postCopy
+OrderedCollection>>#reject:
+OrderedCollection>>#removeFirst
+OrderedCollection>>#removeLast
+OrderedCollection>>#reset
+OrderedCollection>>#resetTo:
+OrderedCollection>>#select:
+OrderedCollection>>#select:thenCollect:
+OrderedCollection>>#setCollection:
+OrderedCollection>>#size
+PointerLayout>>#checkSanity
+PointerLayout>>#checkSlotIndices
+PointerLayout>>#checkSlotNames
+PointerLayout>>#extend:
+PointerLayout>>#extendVariable:
+PointerLayout>>#extendWeak:
+PointerLayout>>#fieldSize
+PointerLayout>>#hasFields
+PointerLayout>>#slotScope
+PointerLayout>>#slotScope:
+PointerLayout>>#slots
+PositionableStream class>>#on:
+PositionableStream>>#on:
+ProtoObject>>#'=='
+ProtoObject>>#'~~'
+ProtoObject>>#basicIdentityHash
+ProtoObject>>#class
+ProtoObject>>#identityHash
+ProtoObject>>#initialize
+ProtoObject>>#isNil
+RBBlockNode>>#arguments
+Semaphore class>>#forMutualExclusion
+Semaphore class>>#new
+Semaphore>>#initSignals
+Semaphore>>#signal
+SequenceableCollection class>>#new:streamContents:
+SequenceableCollection class>>#ofSize:
+SequenceableCollection class>>#streamContents:
+SequenceableCollection class>>#streamSpecies
+SequenceableCollection>>#asArray
+SequenceableCollection>>#asTraitComposition
+SequenceableCollection>>#atAllPut:
+SequenceableCollection>>#collect:
+SequenceableCollection>>#copyFrom:to:
+SequenceableCollection>>#copyReplaceFrom:to:with:
+SequenceableCollection>>#copyWith:
+SequenceableCollection>>#do:
+SequenceableCollection>>#do:separatedBy:
+SequenceableCollection>>#first
+SequenceableCollection>>#flatCollect:
+SequenceableCollection>>#from:to:put:
+SequenceableCollection>>#grownBy:
+SequenceableCollection>>#includes:
+SequenceableCollection>>#indexOf:
+SequenceableCollection>>#indexOf:ifAbsent:
+SequenceableCollection>>#indexOf:startingAt:ifAbsent:
+SequenceableCollection>>#joinUsing:
+SequenceableCollection>>#last
+SequenceableCollection>>#reject:
+SequenceableCollection>>#replaceFrom:to:with:
+SequenceableCollection>>#replaceFrom:to:with:startingAt:
+SequenceableCollection>>#select:
+SequenceableCollection>>#withIndexDo:
+SequenceableCollection>>#writeStream
+SessionCategory>>#initialize
+SessionCategory>>#listAtPriority:
+SessionCategory>>#name:
+SessionCategory>>#register:atPriority:
+SessionCategory>>#unregisterHandler:
+SessionManager class>>#default
+SessionManager>>#basicCreateCategory:
+SessionManager>>#createCategory:
+SessionManager>>#defaultPriority
+SessionManager>>#initialize
+SessionManager>>#register:inCategory:atPriority:
+SessionManager>>#registerSystemClassNamed:
+SessionManager>>#systemCategory
+SessionManager>>#unregisterHandler:
+Set class>>#sizeFor:
+Set>>#do:
+ShDefaultBuilderEnhancer>>#afterMethodsCompiled:
+ShDefaultBuilderEnhancer>>#classCreated:
+ShDefaultBuilderEnhancer>>#configureClass:superclass:withLayoutType:slots:
+ShDefaultBuilderEnhancer>>#configureMetaclass:superclass:withLayoutType:slots:
+ShDefaultBuilderEnhancer>>#initializeBuilder:
+ShDefaultBuilderEnhancer>>#metaclassCreated:
+ShDefaultBuilderEnhancer>>#on:declareClassVariables:sharing:
+ShGlobalsEnvironment>>#environment
+ShGlobalsEnvironment>>#environment:
+ShGlobalsEnvironment>>#hasClassNamed:
+ShLayoutDefinition>>#builder:
+ShLayoutDefinition>>#classSlots
+ShLayoutDefinition>>#classSlots:
+ShLayoutDefinition>>#copySlotsIfUsedIn:
+ShLayoutDefinition>>#initialize
+ShLayoutDefinition>>#layoutClass
+ShLayoutDefinition>>#layoutClass:
+ShLayoutDefinition>>#sharedPools
+ShLayoutDefinition>>#sharedPools:
+ShLayoutDefinition>>#sharedPoolsString
+ShLayoutDefinition>>#sharedVariables
+ShLayoutDefinition>>#sharedVariables:
+ShLayoutDefinition>>#slots
+ShLayoutDefinition>>#slots:
+ShOldTraitsBuilderEnhancer>>#afterMethodsCompiled:
+ShOldTraitsBuilderEnhancer>>#afterMigratingClass:installer:
+ShOldTraitsBuilderEnhancer>>#beforeMigratingClass:installer:
+ShOldTraitsBuilderEnhancer>>#classTraitCompositionOf:
+ShOldTraitsBuilderEnhancer>>#initializeBuilder:
+ShOldTraitsBuilderEnhancer>>#installTraitComposition:on:from:
+ShOldTraitsBuilderEnhancer>>#traitCompositionOf:
+ShSmalltalkGlobalsEnvironment>>#classNamed:
+ShSmalltalkGlobalsEnvironment>>#initialize
+ShiftClassBuilder class>>#defaultBuildEnhancer
+ShiftClassBuilder>>#addChangeComparer:
+ShiftClassBuilder>>#build
+ShiftClassBuilder>>#buildEnvironment
+ShiftClassBuilder>>#buildEnvironment:
+ShiftClassBuilder>>#builderEnhancer
+ShiftClassBuilder>>#category
+ShiftClassBuilder>>#category:
+ShiftClassBuilder>>#classSlots:
+ShiftClassBuilder>>#classTraitComposition
+ShiftClassBuilder>>#comment
+ShiftClassBuilder>>#compareWithOldClass
+ShiftClassBuilder>>#createClass
+ShiftClassBuilder>>#createMetaclass
+ShiftClassBuilder>>#createSharedVariables
+ShiftClassBuilder>>#environment
+ShiftClassBuilder>>#environment:
+ShiftClassBuilder>>#initialize
+ShiftClassBuilder>>#installSlots
+ShiftClassBuilder>>#layoutClass:
+ShiftClassBuilder>>#layoutDefinition
+ShiftClassBuilder>>#metaclassClass
+ShiftClassBuilder>>#name
+ShiftClassBuilder>>#name:
+ShiftClassBuilder>>#newClass
+ShiftClassBuilder>>#newMetaclass
+ShiftClassBuilder>>#notifyChanges
+ShiftClassBuilder>>#oldClass
+ShiftClassBuilder>>#oldClass:
+ShiftClassBuilder>>#oldMetaclass
+ShiftClassBuilder>>#propertyAt:put:
+ShiftClassBuilder>>#sharedPools:
+ShiftClassBuilder>>#sharedVariablesFromString:
+ShiftClassBuilder>>#slots:
+ShiftClassBuilder>>#superclass
+ShiftClassBuilder>>#superclass:
+ShiftClassBuilder>>#traitComposition
+ShiftClassBuilder>>#tryToFillOldClass
+ShiftClassBuilder>>#validateClassName
+ShiftClassBuilder>>#validateSuperclass
+ShiftClassInstaller class>>#make:
+ShiftClassInstaller>>#comment:
+ShiftClassInstaller>>#initialize
+ShiftClassInstaller>>#installInEnvironment:
+ShiftClassInstaller>>#lookupOldClass
+ShiftClassInstaller>>#make:
+ShiftClassInstaller>>#migrateClassTo:
+ShiftClassInstaller>>#notifyChanges
+ShiftClassInstaller>>#recategorize:to:
+ShiftClassInstaller>>#updateBindings:of:
+Slot class>>#checkValidName:
+Slot class>>#named:
+Slot>>#asSlot
+Slot>>#definingClass:
+Slot>>#installingIn:
+Slot>>#isVisible
+Slot>>#layoutChanged:
+Slot>>#name
+Slot>>#name:
+Slot>>#scope:
+Slot>>#size
+Slot>>#wantsInitalization
+SmallInteger>>#'//'
+SmallInteger>>#'<='
+SmallInteger>>#'>='
+SmallInteger>>#'\\'
+SmallInteger>>#'~='
+SmallInteger>>#*
+SmallInteger>>#+
+SmallInteger>>#-
+SmallInteger>>#<
+SmallInteger>>#=
+SmallInteger>>#>
+SmallInteger>>#asCharacter
+SmallInteger>>#bitAnd:
+SmallInteger>>#bitShift:
+SmallInteger>>#hash
+SmallInteger>>#highBit
+SmallInteger>>#highBitOfPositiveReceiver
+SmalltalkImage>>#at:
+SmalltalkImage>>#at:put:
+SmalltalkImage>>#globals
+SmalltalkImage>>#specialObjectsArray:
+String class>>#new:
+String class>>#with:
+String>>#'>='
+String>>#=
+String>>#asSlot
+String>>#asSlotCollection
+String>>#asSymbol
+String>>#asValidInstVarName
+String>>#compare:with:collated:
+String>>#hash
+String>>#indexOf:
+String>>#isString
+String>>#isValidGlobalName
+String>>#join:
+String>>#replaceFrom:to:with:startingAt:
+String>>#substrings:
+SubscriptionRegistry>>#deliver:
+SubscriptionRegistry>>#initialize
+SubscriptionRegistry>>#reset
+Symbol class>>#hasInterned:ifTrue:
+Symbol class>>#initSelectorTable
+Symbol class>>#initialize
+Symbol class>>#intern:
+Symbol class>>#internCharacter:
+Symbol class>>#internSelector:
+Symbol class>>#lookup:
+Symbol class>>#pseudovariablesNames
+Symbol class>>#rebuildSelectorTable
+Symbol class>>#rehash
+Symbol class>>#selectorTable
+Symbol>>#'=>'
+Symbol>>#=
+Symbol>>#asSlot
+Symbol>>#asString
+Symbol>>#asSymbol
+Symbol>>#flushCache
+Symbol>>#isPseudovariableName
+Symbol>>#isSymbol
+SystemAnnouncement>>#initialize
+SystemAnnouncement>>#setTimeStamp
+SystemAnnouncer class>>#uniqueInstance
+SystemAnnouncer>>#announce:
+SystemAnnouncer>>#classAdded:inCategory:
+SystemAnnouncer>>#classCategoryAdded:
+SystemAnnouncer>>#isSuspended
+SystemAnnouncer>>#private
+SystemDictionary class>>#withOrganizer:
+SystemDictionary>>#at:put:
+SystemDictionary>>#declare:from:
+SystemDictionary>>#flushClassNameCache
+SystemDictionary>>#hasClassNamed:
+SystemDictionary>>#organization
+SystemDictionary>>#organization:
+SystemOrganizer>>#addCategory:
+SystemOrganizer>>#environment:
+SystemOrganizer>>#includesCategory:
+SystemOrganizer>>#initialize
+SystemOrganizer>>#removeCategory:
+Time class>>#microsecondClockValue
+Time class>>#primUTCMicrosecondsClock
+TimeZone class>>#default
+TimeZone class>>#offset:name:abbreviation:
+TimeZone class>>#timeZones
+TimeZone>>#abbreviation:
+TimeZone>>#name:
+TimeZone>>#offset
+TimeZone>>#offset:
+Trait class>>#named:uses:category:
+Trait class>>#named:uses:category:env:
+Trait>>#baseTrait
+Trait>>#binding
+Trait>>#classTrait
+Trait>>#environment
+Trait>>#environment:
+Trait>>#initialize
+Trait>>#isBaseTrait
+Trait>>#isValidTraitName:
+Trait>>#name
+Trait>>#name:
+Trait>>#setName:andRegisterInCategory:environment:
+TraitBehavior>>#addSelectorSilently:withMethod:
+TraitBehavior>>#basicAddSelector:withMethod:
+TraitBehavior>>#basicLocalSelectors
+TraitBehavior>>#emptyMethodDictionary
+TraitBehavior>>#hasTraitComposition
+TraitBehavior>>#initialize
+TraitBehavior>>#isTrait
+TraitBehavior>>#lookupSelector:
+TraitBehavior>>#methodDict
+TraitBehavior>>#methodDict:
+TraitBehavior>>#methodDictionary:
+TraitBehavior>>#notifyUsersOfChangedSelector:
+TraitBehavior>>#registerLocalSelector:
+TraitBehavior>>#setFormat:
+TraitBehavior>>#setTraitComposition:
+TraitBehavior>>#superclass
+TraitBehavior>>#superclass:
+TraitBehavior>>#traitComposition
+TraitBehavior>>#traitComposition:
+TraitBehavior>>#traitUsers
+TraitBehavior>>#users:
+TraitComposition>>#allSelectors
+TraitComposition>>#allTraits
+TraitComposition>>#asTraitComposition
+TraitComposition>>#assertValidUser:
+TraitComposition>>#copyTraitExpression
+TraitComposition>>#initialize
+TraitComposition>>#isEmpty
+TraitComposition>>#notEmpty
+TraitComposition>>#traits
+TraitComposition>>#transformations
+TraitComposition>>#transformations:
+TraitDescription>>#addSelectorSilently:withMethod:
+TraitDescription>>#classSide
+TraitDescription>>#instanceSide
+TraitDescription>>#isClassSide
+TraitDescription>>#isMeta
+TraitDescription>>#noteAddedSelector:meta:
+TraitDescription>>#notifyUsersOfChangedSelectors:
+TraitDescription>>#theMetaClass
+TraitDescription>>#theNonMetaClass
+True>>#and:
+True>>#ifFalse:ifTrue:
+True>>#not
+True>>#or:
+UndefinedObject>>#addSubclass:
+UndefinedObject>>#environment
+UndefinedObject>>#isNil
+UndefinedObject>>#notNil
+UndefinedObject>>#shallowCopy
+VariableLayout class>>#extending:scope:host:
+VariableLayout>>#instanceSpecification
+WeakKeyDictionary>>#initialize:
+WeakLayout class>>#extending:scope:host:
+WeakLayout>>#instanceSpecification
+WeakSet>>#add:
+WeakSet>>#grow
+WeakSet>>#growTo:
+WeakSet>>#initialize:
+WeakSet>>#like:
+WeakSet>>#noCheckNoGrowFillFrom:
+WeakSet>>#scanFor:
+WeakSet>>#scanForEmptySlotFor:
+WordLayout class>>#extending:scope:host:
+WordLayout>>#instanceSpecification
+WriteStream>>#contents
+WriteStream>>#growTo:
+WriteStream>>#nextPut:
+WriteStream>>#nextPutAll:
+WriteStream>>#on:
+WriteStream>>#pastEndPut:
+WriteStream>>#reset
