@@ -10,10 +10,6 @@ AbstractBinaryFileStream>>#next:into:
 AbstractBinaryFileStream>>#nextPutAll:
 AbstractBinaryFileStream>>#primRead:into:startingAt:count:
 AbstractBinaryFileStream>>#primWrite:from:startingAt:count:
-AbstractClassInstaller class>>#make:
-AbstractClassInstaller>>#builder
-AbstractClassInstaller>>#initialize
-AbstractClassInstaller>>#installTraitComposition:on:
 AbstractLayout>>#checkSanity
 AbstractLayout>>#extendImmediate
 AbstractLayout>>#fieldSize
@@ -239,13 +235,6 @@ Categorizer>>#removeCategory:
 CategoryAdded class>>#categoryName:
 CategoryAdded>>#categoryName
 CategoryAdded>>#categoryName:
-ChangeSet>>#addClass:
-ChangeSet>>#addCoherency:
-ChangeSet>>#atClass:add:
-ChangeSet>>#changeRecorderFor:
-ChangeSet>>#classAdded:
-ChangeSet>>#methodAdded:
-ChangeSet>>#noteNewMethod:forClass:selector:priorMethod:
 ChangesLog class>>#default
 ChangesLog class>>#registerInterestToSystemAnnouncement
 ChangesLog>>#logSnapshot:andQuit:
@@ -329,11 +318,6 @@ ClassAdded>>#classAdded
 ClassAdded>>#classAdded:
 ClassAdded>>#classAffected
 ClassAdded>>#classCategory:
-ClassChangeRecord>>#checkCoherence
-ClassChangeRecord>>#findOrMakeMethodChangeAt:priorMethod:
-ClassChangeRecord>>#initFor:
-ClassChangeRecord>>#noteChangeType:fromClass:
-ClassChangeRecord>>#noteNewMethod:selector:priorMethod:
 ClassDescription>>#addAndClassifySelector:withMethod:inProtocol:notifying:
 ClassDescription>>#addSelectorSilently:withMethod:
 ClassDescription>>#applyChangesOfNewTraitCompositionReplacing:
@@ -1174,15 +1158,6 @@ LiteralVariable>>#write:
 LookupKey class>>#key:
 LookupKey>>#key
 LookupKey>>#key:
-MCPackage>>#packageSet
-MCPackageManager class>>#classModified:
-MCPackageManager class>>#managersForClass:category:do:
-MCPackageManager class>>#managersForClass:do:
-MCPackageManager class>>#managersForClass:selector:do:
-MCPackageManager class>>#methodModified:
-MCPackageManager class>>#registry
-MCPackageManager>>#modified:
-MCPackageManager>>#packageSet
 MacOSPlatform class>>#isActivePlatform
 MacOSPlatform class>>#isMacOS
 MacOSXPlatform class>>#isActivePlatform
@@ -1215,7 +1190,6 @@ MethodAnnouncement>>#method:
 MethodAnnouncement>>#methodClass
 MethodAnnouncement>>#methodOrigin
 MethodAnnouncement>>#selector
-MethodChangeRecord>>#noteChangeType:
 MethodDictionary class>>#new
 MethodDictionary class>>#new:
 MethodDictionary class>>#newForCapacity:
@@ -1375,11 +1349,6 @@ OrderedCollection>>#size
 OrderedCollection>>#sort:
 PharoBootstrapInitialization class>>#initializeCommandLineHandlerAndErrorHandling
 PharoBootstrapInitialization class>>#initializeImageOfType:majorVersion:minor:suffix:buid:commitHash:
-PharoClassInstaller>>#classAdded:inCategory:
-PharoClassInstaller>>#classAt:ifAbsent:
-PharoClassInstaller>>#environment:
-PharoClassInstaller>>#initialize
-PharoClassInstaller>>#systemAnnouncer
 PharoCommandLineHandler class>>#activateWith:
 PharoCommandLineHandler class>>#isResponsibleFor:
 PharoCommandLineHandler class>>#priority
@@ -1711,24 +1680,6 @@ Slot>>#name:
 Slot>>#scope:
 Slot>>#size
 Slot>>#wantsInitalization
-SlotClassBuilder>>#build
-SlotClassBuilder>>#buildNewClass
-SlotClassBuilder>>#category:
-SlotClassBuilder>>#classSlots:
-SlotClassBuilder>>#environment:
-SlotClassBuilder>>#initialize
-SlotClassBuilder>>#installer:
-SlotClassBuilder>>#layoutClass
-SlotClassBuilder>>#layoutClass:
-SlotClassBuilder>>#name:
-SlotClassBuilder>>#sharedPools:
-SlotClassBuilder>>#sharedVariablesFromString:
-SlotClassBuilder>>#slots:
-SlotClassBuilder>>#superMetaclass
-SlotClassBuilder>>#superclass:
-SlotClassBuilder>>#validateClassName
-SlotClassBuilder>>#validateSuperclass:
-SlotClassBuilder>>#warnOfDangerousClasses
 SmallInteger class>>#initialize
 SmallInteger class>>#startUp:
 SmallInteger>>#''<=''

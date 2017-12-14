@@ -1,0 +1,469 @@
+AbstractLayout>>#extendImmediate
+AnnouncementSet>>#handlesAnnouncement:
+BasicCommandLineHandler>>#handleExit:for:
+Behavior>>#''>>''
+Behavior>>#>>
+Behavior>>#byteSizeOfInstanceOfSize:
+Behavior>>#handleFailingBasicNew:
+Behavior>>#handleFailingFailingBasicNew:
+Behavior>>#isVariable
+BlockClosure>>#method
+BlockClosure>>#sender
+BlockClosure>>#value:
+BlockClosure>>#value:value:value:
+BlockClosure>>#whileTrue
+BoxedFloat64 class>>#basicNew
+BoxedFloat64 class>>#basicNew:
+BoxedFloat64>>#+
+BoxedFloat64>>#<=
+BoxedFloat64>>#>=
+BoxedFloat64>>#~=
+Character>>#charCode
+Character>>#leadingChar
+Class>>#addClassSlot:
+Class>>#addSlot:
+Class>>#removeSlot:
+ClassDescription>>#wantsChangeSetLogging
+ClassOrganization>>#copyFrom:
+ClassTrait>>#name
+Context class>>#allInstances
+Context class>>#allInstancesDo:
+Context class>>#basicNew:
+Context class>>#carefullyPrint:on:
+Context class>>#contextEnsure:
+Context class>>#contextOn:do:
+Context class>>#initialize
+Context class>>#initializePrimitiveSimulators
+Context class>>#initializeTryNamedPrimitiveTemplateMethod
+Context class>>#inspectorClass
+Context class>>#isContextClass
+Context class>>#new
+Context class>>#new:
+Context class>>#newForMethod:
+Context class>>#newFromFrameSize:
+Context class>>#primitiveFailToken
+Context class>>#primitiveFailTokenFor:
+Context class>>#runSimulated:
+Context class>>#sender:receiver:method:arguments:
+Context class>>#simulatePrimitive:module:with:
+Context class>>#simulatePrimitiveNumber:with:
+Context class>>#specialPrimitiveSimulators
+Context class>>#tallyInstructions:
+Context class>>#tallyMethods:
+Context class>>#theReturnMethod
+Context class>>#tryNamedPrimitiveTemplateMethod
+Context>>#aboutToReturn:through:
+Context>>#activateMethod:withArgs:receiver:class:
+Context>>#activateReturn:value:
+Context>>#activeHome
+Context>>#activeOuterContext
+Context>>#arguments
+Context>>#asContext
+Context>>#assertWellMaterializedInto:in:
+Context>>#at:
+Context>>#at:put:
+Context>>#basicAt:
+Context>>#basicAt:put:
+Context>>#basicSize
+Context>>#blockReturnConstant:
+Context>>#blockReturnTop
+Context>>#bottomContext
+Context>>#callChainAnySatisfy:
+Context>>#callPrimitive:
+Context>>#canHandleSignal:
+Context>>#cannotReturn:
+Context>>#cannotReturn:to:
+Context>>#cleanCopy
+Context>>#client
+Context>>#closure
+Context>>#closureCopy:copiedValues:
+Context>>#completeCallee:
+Context>>#contextClass
+Context>>#contextStack
+Context>>#contextTag
+Context>>#copyStack
+Context>>#copyTo:
+Context>>#cut:
+Context>>#debugStack:on:
+Context>>#debugStackOn:
+Context>>#depthBelow:
+Context>>#doDup
+Context>>#doNop
+Context>>#doPop
+Context>>#doPrimitive:method:receiver:args:
+Context>>#endPC
+Context>>#errorReportOn:
+Context>>#evaluateSignal:
+Context>>#exception
+Context>>#exceptionClass
+Context>>#exceptionHandlerBlock
+Context>>#executedPC
+Context>>#failPrimitiveWith:
+Context>>#findContextMatchingPredicate:
+Context>>#findContextSuchThat:
+Context>>#findNextHandlerContext
+Context>>#findNextHandlerOrSignalingContext
+Context>>#findNextUnwindContextUpTo:
+Context>>#findSecondToOldestSimilarSender
+Context>>#findSimilarSender
+Context>>#fuelAccept:
+Context>>#gtBytecodeDebuggerRetrieveContextValues
+Context>>#gtConstructDebuggerInspectorIn:for:
+Context>>#gtDebuggerDoItBindings
+Context>>#gtDebuggerRetrieveVariableValuePairs
+Context>>#gtInspectorSourceIn:
+Context>>#gtInspectorTempNodes
+Context>>#gtInspectorVariableNodesIn:
+Context>>#handleSignal:
+Context>>#hasContext:
+Context>>#hasInstVarRef
+Context>>#hasMethodReturn
+Context>>#hasSender:
+Context>>#hasTemporaryVariableNamed:
+Context>>#home
+Context>>#initializeWith:stackPtr:method:receiver:sender:
+Context>>#insertSender:
+Context>>#instVarAt:put:
+Context>>#isBlockContext
+Context>>#isBlockReturn:
+Context>>#isBottomContext
+Context>>#isContext
+Context>>#isDead
+Context>>#isExecutingBlock
+Context>>#isFailToken:
+Context>>#isHandlerContext
+Context>>#isHandlerOrSignalingContext
+Context>>#isPrimFailToken:
+Context>>#isPushLiteralNil:
+Context>>#isPushTemp:
+Context>>#isReturnAt:
+Context>>#isUnwindContext
+Context>>#jump
+Context>>#jump:
+Context>>#jump:if:
+Context>>#longStack
+Context>>#method
+Context>>#methodClass
+Context>>#methodNode
+Context>>#methodReturnConstant:
+Context>>#methodReturnContext
+Context>>#methodReturnReceiver
+Context>>#methodReturnTop
+Context>>#methodSelector
+Context>>#namedTempAt:
+Context>>#namedTempAt:put:
+Context>>#neighborPCWithCorrectMapping
+Context>>#nextHandlerContext
+Context>>#numArgs
+Context>>#numTemps
+Context>>#object:basicAt:
+Context>>#object:basicAt:put:
+Context>>#object:eqeq:
+Context>>#object:instVarAt:
+Context>>#object:instVarAt:put:
+Context>>#object:perform:withArguments:inClass:
+Context>>#objectClass:
+Context>>#objectSize:
+Context>>#outerContext
+Context>>#outerMostContext
+Context>>#pop
+Context>>#popIntoLiteralVariable:
+Context>>#popIntoReceiverVariable:
+Context>>#popIntoRemoteTemp:inVectorAt:
+Context>>#popIntoTemporaryVariable:
+Context>>#previousPcWithCorrectMapping
+Context>>#print:on:
+Context>>#printDebugOn:
+Context>>#printDetails:
+Context>>#printOn:
+Context>>#privRefresh
+Context>>#privRefreshWith:
+Context>>#privSender:
+Context>>#push:
+Context>>#pushActiveContext
+Context>>#pushActiveProcess
+Context>>#pushArgs:from:
+Context>>#pushClosureCopyNumCopiedValues:numArgs:blockSize:
+Context>>#pushClosureTemps:
+Context>>#pushConsArrayWithElements:
+Context>>#pushConstant:
+Context>>#pushFullClosure:numCopied:receiverOnStack:ignoreOuterContext:
+Context>>#pushLiteralVariable:
+Context>>#pushNewArrayOfSize:
+Context>>#pushReceiver
+Context>>#pushReceiverVariable:
+Context>>#pushRemoteTemp:inVectorAt:
+Context>>#pushTemporaryVariable:
+Context>>#quickSend:to:with:super:
+Context>>#quickStep
+Context>>#receiver
+Context>>#receiver:
+Context>>#release
+Context>>#releaseTo:
+Context>>#removeSelf
+Context>>#reservedNames
+Context>>#respondsToUnknownBytecode
+Context>>#restart
+Context>>#restartWithNewReceiver:
+Context>>#resume
+Context>>#resume:
+Context>>#resume:through:
+Context>>#return
+Context>>#return:
+Context>>#return:from:
+Context>>#return:through:
+Context>>#return:to:
+Context>>#runSimulated:contextAtEachStep:
+Context>>#runUntilErrorOrReturnFrom:
+Context>>#secondFromBottom
+Context>>#selector
+Context>>#send:super:numArgs:
+Context>>#send:to:with:lookupIn:
+Context>>#send:to:with:super:
+Context>>#sender
+Context>>#setNamedPrimitiveInformationFrom:toMethod:
+Context>>#setSender:receiver:method:arguments:
+Context>>#setSender:receiver:method:closure:startpc:
+Context>>#shortDebugStack
+Context>>#shortDebugStackOn:
+Context>>#shortStack
+Context>>#simulatePrimitive:in:receiver:arguments:
+Context>>#singleRelease
+Context>>#size
+Context>>#sourceCode
+Context>>#sourceNode
+Context>>#sourceNodeExecuted
+Context>>#stack
+Context>>#stackOfSize:
+Context>>#stackPtr
+Context>>#stackp:
+Context>>#startpc
+Context>>#step
+Context>>#stepToCallee
+Context>>#stepToHome:
+Context>>#stepToSendOrReturn
+Context>>#stepUntilSomethingOnStack
+Context>>#storeIntoLiteralVariable:
+Context>>#storeIntoReceiverVariable:
+Context>>#storeIntoRemoteTemp:inVectorAt:
+Context>>#storeIntoTemporaryVariable:
+Context>>#swapReceiver:
+Context>>#swapSender:
+Context>>#tempAt:
+Context>>#tempAt:put:
+Context>>#tempNamed:
+Context>>#tempNamed:put:
+Context>>#tempNames
+Context>>#temporaryVariableNamed:
+Context>>#temporaryVariables
+Context>>#tempsAndValues
+Context>>#tempsAndValuesLimitedTo:indent:
+Context>>#terminate
+Context>>#terminateTo:
+Context>>#top
+Context>>#tryNamedPrimitiveIn:for:withArgs:
+Context>>#tryPrimitiveFor:receiver:args:
+Context>>#unusedBytecode
+Context>>#unwindBlock
+Context>>#unwindComplete
+Context>>#unwindComplete:
+Context>>#unwindTo:
+Context>>#withoutPrimitiveTryNamedPrimitiveIn:for:withArgs:
+DateAndTime class>>#year:month:day:hour:minute:offset:
+Exception class>>#handles:
+Exception>>#messageText:
+Exception>>#privHandlerContext:
+Exception>>#receiver
+Exception>>#signal
+Exception>>#signal:
+Exception>>#signalerContext
+Exit class>>#failure
+Exit class>>#signalFailure
+Exit class>>#signalFailure:
+Exit class>>#signalSuccess
+Exit class>>#signalSuccess:
+Exit class>>#status:
+Exit class>>#success
+Exit>>#defaultAction
+Exit>>#isSuccess
+Exit>>#printMessage
+Exit>>#printOn:
+Exit>>#status
+Exit>>#status:
+Float>>#at:
+Float>>#at:put:
+Float>>#basicAt:
+Float>>#basicAt:put:
+Float>>#literalEqual:
+Float>>#signBit
+HEFloat>>#asLiteralIn:
+HEFloat>>#doReadFrom:
+ImmediateLayout class>>#extending:scope:host:
+ImmediateLayout>>#extend:
+ImmediateLayout>>#instanceSpecification
+Integer>>#''<=''
+Integer>>#''>>''
+Integer>>#<=
+Integer>>#>=
+Integer>>#>>
+Integer>>#bitShift:
+Integer>>#bitShiftMagnitude:
+LargeInteger>>#''//''
+LargeInteger>>#''\\''
+LargeInteger>>#//
+LargeInteger>>#\\
+LegacyWeakSubscription>>#makeStrong
+LimitedWriteStream>>#nextPutAll:
+Magnitude>>#<=
+Magnitude>>#>=
+Message>>#lookupClass
+Metaclass>>#instanceVariableNames:
+Metaclass>>#isObsolete
+MethodAnnouncement>>#isProvidedByATrait
+MethodAnnouncement>>#methodOrigin
+MethodAnnouncement>>#selector
+Object>>#''~=''
+Object>>#->
+Object>>#doesNotUnderstand:
+Object>>#literalEqual:
+Object>>#~=
+PharoBootstrapInitialization class>>#initializeCommandLineHandlerAndErrorHandling
+PharoBootstrapInitialization class>>#initializeImageOfType:majorVersion:minor:suffix:buid:commitHash:
+ProtoObject>>#==
+ProtoObject>>#doesNotUnderstand:
+ProtoObject>>#~~
+RPackageSet class>>#basicNamed:
+RPackageSet class>>#isCacheActive
+RPackageSet class>>#named:
+RPackageSet>>#includesClass:
+RPackageSet>>#initialize:
+RPackageSet>>#packages
+SequenceableCollection>>#join:
+ShAbstractChange>>#=
+ShAbstractChange>>#announceChanges
+ShAbstractChange>>#builder
+ShAbstractChange>>#builder:
+ShAbstractChange>>#hasChangeInstanceSideShape
+ShAbstractChange>>#hasToMigrateInstances
+ShAbstractChange>>#hash
+ShAbstractChange>>#oldClass
+ShAbstractChange>>#oldClass:
+ShAbstractChange>>#propagateToSubclasses:
+ShAbstractChangeDetector class>>#compareClass:with:
+ShAbstractChangeDetector>>#builder
+ShAbstractChangeDetector>>#builder:
+ShAbstractChangeDetector>>#compareClass
+ShAbstractClassChangeDetector>>#compareClass
+ShAbstractClassChangeDetector>>#compareSlotCollection:with:
+ShAbstractClassChangeDetector>>#initialize
+ShAbstractClassChangeDetector>>#newChanges
+ShAbstractInstanceSideClassChangeDetector>>#newChanges
+ShBitLayoutChangeDetector>>#compareClass
+ShBitLayoutChanged>>#propagateToSubclasses:
+ShClassChanged>>#announceChanges
+ShClassChanged>>#builder:
+ShClassSlotChangeDetector>>#initialize
+ShClassSlotChangeDetector>>#newChanges
+ShClassTraitCompositionChangedDetector>>#initialize
+ShDefaultBuilderEnhancer>>#afterMigratingClass:installer:
+ShDefaultBuilderEnhancer>>#beforeMigratingClass:installer:
+ShDefaultBuilderEnhancer>>#compileMethodsFor:
+ShGlobalsEnvironment>>#classNamed:
+ShInstanceShapeChanged>>#hasToMigrateInstances
+ShInstanceShapeChanged>>#propagateToSubclasses:
+ShLayoutChangeDetector>>#initialize
+ShLayoutDefinition>>#isBits
+ShLayoutDefinition>>#sharedVariablesString
+ShMetaclassChanged>>#announceChanges
+ShMetaclassChanged>>#builder:
+ShSharedPoolChangeDetector>>#initialize
+ShSharedVariablesChangeDetector>>#compareFrom:to:
+ShSharedVariablesChangeDetector>>#initialize
+ShSlotChangeDetector>>#initialize
+ShSuperclassChangedDetector>>#initialize
+ShTraitCompositionChangedDetector>>#enhancer
+ShTraitCompositionChangedDetector>>#initialize
+ShiftAnonymousClassInstaller>>#comment:
+ShiftAnonymousClassInstaller>>#installInEnvironment:
+ShiftAnonymousClassInstaller>>#lookupOldClass
+ShiftAnonymousClassInstaller>>#notifyChanges
+ShiftAnonymousClassInstaller>>#recategorize:to:
+ShiftClassBuilder>>#addChange:
+ShiftClassBuilder>>#builderEnhancer:
+ShiftClassBuilder>>#changeComparers
+ShiftClassBuilder>>#changes
+ShiftClassBuilder>>#classNamed:
+ShiftClassBuilder>>#classTraitComposition:
+ShiftClassBuilder>>#comment:
+ShiftClassBuilder>>#comment:stamp:
+ShiftClassBuilder>>#commentStamp
+ShiftClassBuilder>>#commentStamp:
+ShiftClassBuilder>>#compileMethods
+ShiftClassBuilder>>#copyClassSlotsFromExistingClass
+ShiftClassBuilder>>#copyOrganization
+ShiftClassBuilder>>#doesNotUnderstand:
+ShiftClassBuilder>>#fillFor:
+ShiftClassBuilder>>#metaclassClass:
+ShiftClassBuilder>>#propagateChangesTo:
+ShiftClassBuilder>>#propertyAt:
+ShiftClassBuilder>>#sharedVariables:
+ShiftClassBuilder>>#superclassName
+ShiftClassBuilder>>#superclassName:
+ShiftClassBuilder>>#traitComposition:
+ShiftClassInstaller class>>#example
+ShiftClassInstaller class>>#update:to:
+ShiftClassInstaller class>>#validateClassName:
+ShiftClassInstaller>>#builder
+ShiftClassInstaller>>#copyObject:to:
+ShiftClassInstaller>>#migrateInstancesTo:
+ShiftClassInstaller>>#oldClass
+ShiftClassInstaller>>#oldClass:
+ShiftClassInstaller>>#remake:
+SmallInteger>>#''<=''
+SmallInteger>>#''>=''
+SmallInteger>>#''~=''
+SmallInteger>>#//
+SmallInteger>>#<=
+SmallInteger>>#>=
+SmallInteger>>#\\
+SmallInteger>>#~=
+SmalltalkImage class>>#initialize
+SmalltalkImage>>#anonymousClassInstaller
+SmalltalkImage>>#classBuilder
+SmalltalkImage>>#classInstaller
+SmalltalkImage>>#exit:
+SmalltalkImage>>#garbageCollect
+SmalltalkImage>>#isHeadless
+SmalltalkImage>>#isInteractive
+SmalltalkImage>>#primitiveGarbageCollect
+SmalltalkImage>>#quitPrimitive
+SparseLargeTable>>#at:
+SparseLargeTable>>#noCheckAt:
+SparseLargeTable>>#pvtCheckIndex:
+SparseLargeTable>>#size
+String class>>#typeTable
+String>>#''>=''
+String>>#<=
+String>>#>=
+String>>#findSubstring:in:startingAt:matchTable:
+String>>#isLiteralSymbol
+String>>#typeTable
+Symbol>>#=>
+Symbol>>#storeOn:
+SystemVersion class>>#invalidBuildNumber
+SystemVersion>>#build:
+SystemVersion>>#commitHash:
+SystemVersion>>#initialize
+SystemVersion>>#major:
+SystemVersion>>#minor:
+SystemVersion>>#suffix:
+SystemVersion>>#type:
+TraitBehavior>>#''>>''
+TraitBehavior>>#>>
+TraitDescription>>#wantsChangeSetLogging
+UndefinedObject>>#printOn:
+Unicode class>>#is:inCategory:
+Unicode class>>#isDigit:
+Unicode class>>#isLetter:
+Unicode class>>#isUppercase:
+WeakKeyAssociation>>#value:

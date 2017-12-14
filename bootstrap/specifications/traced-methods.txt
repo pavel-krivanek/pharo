@@ -1,0 +1,1715 @@
+ASTCache class>>#initialize
+ASTCache class>>#reset
+ASTCache class>>#shutDown
+ASTCache>>#reset
+AbstractBinaryFileStream class>>#handle:file:forWrite:
+AbstractBinaryFileStream>>#handle:file:forWrite:
+AbstractBinaryFileStream>>#next
+AbstractBinaryFileStream>>#next:
+AbstractBinaryFileStream>>#next:into:
+AbstractBinaryFileStream>>#nextPutAll:
+AbstractBinaryFileStream>>#primRead:into:startingAt:count:
+AbstractBinaryFileStream>>#primWrite:from:startingAt:count:
+AbstractLayout>>#checkSanity
+AbstractLayout>>#host:
+AdditionalMethodState class>>#forMethod:selector:
+AdditionalMethodState>>#at:ifAbsent:
+AdditionalMethodState>>#at:ifPresent:
+AdditionalMethodState>>#isMethodProperties
+AdditionalMethodState>>#method:
+AdditionalMethodState>>#selector
+AdditionalMethodState>>#selector:
+AdditionalMethodState>>#setMethod:
+AllProtocol class>>#defaultName
+AllProtocol class>>#protocolOrganizer:
+AllProtocol>>#methods
+AllProtocol>>#name
+AllProtocol>>#protocolOrganizer
+AllProtocol>>#protocolOrganizer:
+Announcement class>>#handlesAnnouncement:
+Announcement>>#asAnnouncement
+Announcement>>#prepareForDelivery
+Announcer>>#announce:
+Announcer>>#basicSubscribe:
+Announcer>>#initialize
+Announcer>>#unsubscribe:
+Announcer>>#weak
+Array class>>#braceStream:
+Array class>>#new:
+Array>>#asArray
+Array>>#elementsForwardIdentityTo:
+Array>>#replaceFrom:to:with:startingAt:
+ArrayedCollection class>>#new
+ArrayedCollection class>>#new:withAll:
+ArrayedCollection class>>#newFrom:
+ArrayedCollection class>>#with:
+ArrayedCollection class>>#with:with:
+ArrayedCollection class>>#with:with:with:
+ArrayedCollection class>>#with:with:with:with:
+ArrayedCollection class>>#withAll:
+ArrayedCollection>>#fillFrom:with:
+AsciiCharset class>>#isDigit:
+AsciiCharset class>>#isLetter:
+AsciiCharset class>>#isUppercase:
+AsciiCharset class>>#toLowercase:
+AsciiCharset class>>#toUppercase:
+Association class>>#key:value:
+Association>>#key:value:
+Association>>#value
+Association>>#value:
+BasicCommandLineHandler class>>#commandName
+BasicCommandLineHandler class>>#initialize
+BasicCommandLineHandler class>>#isResponsibleFor:
+BasicCommandLineHandler class>>#startUp:
+BasicCommandLineHandler>>#activate
+BasicCommandLineHandler>>#activateSubCommand:
+BasicCommandLineHandler>>#handleArgument:
+BasicCommandLineHandler>>#handleSubcommand
+BasicCommandLineHandler>>#initialize
+BasicCommandLineHandler>>#selectHandlers
+BasicCommandLineHandler>>#subCommandsRoot
+Behavior class>>#initialize
+Behavior class>>#initializeClassProperties
+Behavior class>>#initializeObsoleteSubclasses
+Behavior>>#'>>'
+Behavior>>#addSelectorSilently:withMethod:
+Behavior>>#allInstances
+Behavior>>#allSubclasses
+Behavior>>#applyChangesOfNewTraitCompositionReplacing:
+Behavior>>#basicAddSelector:withMethod:
+Behavior>>#basicIdentityHash
+Behavior>>#basicNew
+Behavior>>#basicNew:
+Behavior>>#classBindingOf:
+Behavior>>#classLayout
+Behavior>>#compiledMethodAt:
+Behavior>>#compiledMethodAt:ifAbsent:
+Behavior>>#emptyMethodDictionary
+Behavior>>#flushCache
+Behavior>>#format
+Behavior>>#hasTraitComposition
+Behavior>>#includesLocalSelector:
+Behavior>>#includesSelector:
+Behavior>>#inheritsFrom:
+Behavior>>#initialize
+Behavior>>#instSpec
+Behavior>>#isBehavior
+Behavior>>#isBytes
+Behavior>>#localSelectors
+Behavior>>#lookupSelector:
+Behavior>>#methodDict:
+Behavior>>#new
+Behavior>>#new:
+Behavior>>#originalName
+Behavior>>#properties
+Behavior>>#propertyAt:ifAbsent:
+Behavior>>#purgeLocalSelectors
+Behavior>>#registerLocalSelector:
+Behavior>>#selectors
+Behavior>>#setFormat:
+Behavior>>#setTraitComposition:
+Behavior>>#shutDown
+Behavior>>#shutDown:
+Behavior>>#startUp
+Behavior>>#startUp:
+Behavior>>#superclass
+Behavior>>#superclass:
+Behavior>>#superclass:methodDictionary:format:
+Behavior>>#traitOrClassOfSelector:
+Behavior>>#traitUsers
+Behavior>>#users:
+Behavior>>#withAllSubclasses
+Behavior>>#withAllSubclassesDo:
+BinaryFileStream>>#atEnd
+BinaryFileStream>>#close
+BinaryFileStream>>#closed
+BinaryFileStream>>#finalize
+BinaryFileStream>>#primAtEnd:
+BinaryFileStream>>#primSizeNoError:
+BinaryFileStream>>#register
+BinaryFileStream>>#unregister
+BlockClosure>>#asContext
+BlockClosure>>#asContextWithSender:
+BlockClosure>>#asJob
+BlockClosure>>#assert
+BlockClosure>>#cull:
+BlockClosure>>#ensure:
+BlockClosure>>#forkAt:
+BlockClosure>>#forkAt:named:
+BlockClosure>>#ifCurtailed:
+BlockClosure>>#ifError:
+BlockClosure>>#isClosure
+BlockClosure>>#newProcess
+BlockClosure>>#numArgs
+BlockClosure>>#numCopiedValues
+BlockClosure>>#on:do:
+BlockClosure>>#on:fork:
+BlockClosure>>#outerContext
+BlockClosure>>#repeat
+BlockClosure>>#startpc
+BlockClosure>>#value
+BlockClosure>>#value:value:
+BlockClosure>>#valueNoContextSwitch
+BoxedFloat64>>#'<='
+BoxedFloat64>>#'>='
+BoxedFloat64>>#'~='
+BoxedFloat64>>#*
+BoxedFloat64>>#-
+BoxedFloat64>>#/
+BoxedFloat64>>#<
+BoxedFloat64>>#=
+BoxedFloat64>>#>
+BoxedFloat64>>#fractionPart
+BoxedFloat64>>#ln
+BoxedFloat64>>#truncated
+ByteArray>>#asInteger
+ByteArray>>#asString
+ByteArray>>#atAllPut:
+ByteArray>>#replaceFrom:to:with:startingAt:
+ByteString class>>#compare:with:collated:
+ByteString class>>#indexOfAscii:inString:startingAt:
+ByteString class>>#initialize
+ByteString class>>#stringHash:initialHash:
+ByteString class>>#translate:from:to:table:
+ByteString>>#at:
+ByteString>>#at:put:
+ByteString>>#beginsWith:
+ByteString>>#findSubstring:in:startingAt:matchTable:
+ByteString>>#isByteString
+ByteString>>#isOctetString
+ByteString>>#replaceFrom:to:with:startingAt:
+ByteSymbol class>>#indexOfAscii:inString:startingAt:
+ByteSymbol class>>#stringHash:initialHash:
+ByteSymbol>>#at:
+ByteSymbol>>#beginsWith:
+ByteSymbol>>#findSubstring:in:startingAt:matchTable:
+ByteSymbol>>#isByteString
+ByteSymbol>>#privateAt:put:
+ByteSymbol>>#species
+ByteSymbol>>#string:
+Categorizer class>>#initialize
+Categorizer>>#addCategory:
+Categorizer>>#addCategory:before:
+Categorizer>>#assertInvariant
+Categorizer>>#categories
+Categorizer>>#categoryOfElement:
+Categorizer>>#classify:under:
+Categorizer>>#classify:under:suppressIfDefault:
+Categorizer>>#firstIndexOfCategoryNumber:
+Categorizer>>#lastIndexOfCategoryNumber:
+Categorizer>>#listAtCategoryNamed:
+Categorizer>>#listAtCategoryNumber:
+Categorizer>>#numberOfCategoryOfElement:
+Categorizer>>#removeCategory:
+CategoryAdded class>>#categoryName:
+CategoryAdded>>#categoryName
+CategoryAdded>>#categoryName:
+ChangesLog class>>#default
+ChangesLog class>>#registerInterestToSystemAnnouncement
+ChangesLog>>#logSnapshot:andQuit:
+ChangesLog>>#registerToAnnouncements
+Character class>>#allByteCharacters
+Character class>>#characterSet
+Character class>>#cr
+Character class>>#escape
+Character class>>#lf
+Character class>>#separators
+Character class>>#tab
+Character class>>#value:
+Character>>#=
+Character>>#>
+Character>>#asInteger
+Character>>#asLowercase
+Character>>#asString
+Character>>#asUppercase
+Character>>#asciiValue
+Character>>#characterSet
+Character>>#isAlphaNumeric
+Character>>#isCharacter
+Character>>#isDigit
+Character>>#isLetter
+Character>>#isSeparator
+Character>>#isUppercase
+Character>>#to:
+Character>>#tokenish
+CharacterSet class>>#crlf
+CharacterSet class>>#empty
+CharacterSet class>>#separators
+CharacterSet>>#add:
+CharacterSet>>#complement
+CharacterSet>>#initialize
+CharacterSet>>#postCopy
+CharacterSetComplement class>>#of:
+CharacterSetComplement>>#complement:
+ChronologyConstants class>>#initialize
+Class>>#addSubclass:
+Class>>#applyChangesOfNewTraitCompositionReplacing:
+Class>>#baseClass
+Class>>#basicCategory
+Class>>#basicCategory:
+Class>>#basicLocalSelectors
+Class>>#basicLocalSelectors:
+Class>>#binding
+Class>>#bindingOf:
+Class>>#category
+Class>>#classClass
+Class>>#classPool
+Class>>#classPool:
+Class>>#classVarNamed:put:
+Class>>#classVariableNamed:
+Class>>#classVariables
+Class>>#declareClassVariables:
+Class>>#environment
+Class>>#environment:
+Class>>#getName
+Class>>#innerBindingOf:
+Class>>#isAnonymous
+Class>>#isObsolete
+Class>>#name
+Class>>#setName:
+Class>>#sharedPools
+Class>>#sharedPools:
+Class>>#sharing:
+Class>>#subclasses
+Class>>#subclasses:
+Class>>#superclass:methodDictionary:format:
+Class>>#traitComposition
+Class>>#traitComposition:
+Class>>#writeClassVariableNamed:value:
+ClassAdded class>>#class:category:
+ClassAdded>>#classAdded
+ClassAdded>>#classAdded:
+ClassAdded>>#classAffected
+ClassAdded>>#classCategory:
+ClassDescription>>#addAndClassifySelector:withMethod:inProtocol:notifying:
+ClassDescription>>#addSelectorSilently:withMethod:
+ClassDescription>>#applyChangesOfNewTraitCompositionReplacing:
+ClassDescription>>#basicOrganization
+ClassDescription>>#basicOrganization:
+ClassDescription>>#classSide
+ClassDescription>>#extendingPackages
+ClassDescription>>#instanceSide
+ClassDescription>>#isClassSide
+ClassDescription>>#isMeta
+ClassDescription>>#noteAddedSelector:meta:
+ClassDescription>>#noteChangesFrom:
+ClassDescription>>#noteRecategorizedSelectors:oldComposition:
+ClassDescription>>#notifyOfRecategorizedSelector:from:to:
+ClassDescription>>#notifyUsersOfRecategorizedSelector:from:to:
+ClassDescription>>#organization
+ClassDescription>>#organization:
+ClassDescription>>#package
+ClassDescription>>#packages
+ClassDescription>>#superclass:layout:
+ClassDescription>>#superclass:methodDictionary:format:
+ClassDescription>>#superclass:withLayoutType:slots:
+ClassDescription>>#theMetaClass
+ClassDescription>>#theNonMetaClass
+ClassOrganization class>>#forClass:
+ClassOrganization>>#categories
+ClassOrganization>>#categoryOfElement:
+ClassOrganization>>#categoryOfElement:ifAbsent:
+ClassOrganization>>#classify:under:
+ClassOrganization>>#classify:under:suppressIfDefault:
+ClassOrganization>>#extensionProtocols
+ClassOrganization>>#hasSubject
+ClassOrganization>>#initialize
+ClassOrganization>>#initializeClass:
+ClassOrganization>>#notifyOfChangedCategoriesFrom:to:
+ClassOrganization>>#notifyOfChangedSelector:from:to:
+ClassOrganization>>#notifyOfRemovedCategory:
+ClassOrganization>>#protocolOrganizer
+ClassOrganization>>#protocols
+ClassOrganization>>#removeProtocol:
+ClassOrganization>>#setSubject:
+ClassOrganization>>#subject
+ClassReorganized class>>#class:
+ClassReorganized>>#classReorganized:
+ClassSessionHandler class>>#forClassNamed:
+ClassSessionHandler>>#handledId
+ClassSessionHandler>>#registeredClass
+ClassSessionHandler>>#registeredClassName:
+ClassSessionHandler>>#shutdown:
+ClassSessionHandler>>#startup:
+ClassTagAnnouncement class>>#in:tag:
+ClassTagAnnouncement>>#package:
+ClassTagAnnouncement>>#tag:
+ClassTrait class>>#for:
+ClassTrait>>#baseTrait
+ClassTrait>>#baseTrait:
+ClassTrait>>#initializeWithBaseTrait:
+ClassTrait>>#isMeta
+ClassTrait>>#noteNewBaseTraitCompositionApplied:
+Collection class>>#with:
+Collection class>>#with:with:
+Collection class>>#withAll:
+Collection>>#addAll:
+Collection>>#allSatisfy:
+Collection>>#anyOne
+Collection>>#anySatisfy:
+Collection>>#asArray
+Collection>>#asIdentitySet
+Collection>>#asOrderedCollection
+Collection>>#asSet
+Collection>>#collect:as:
+Collection>>#copyEmpty
+Collection>>#copyWithout:
+Collection>>#copyWithoutAll:
+Collection>>#detect:
+Collection>>#detect:ifFound:
+Collection>>#detect:ifFound:ifNone:
+Collection>>#detect:ifNone:
+Collection>>#do:displayingProgress:
+Collection>>#do:displayingProgress:every:
+Collection>>#emptyCheck
+Collection>>#ifEmpty:
+Collection>>#ifEmpty:ifNotEmpty:
+Collection>>#isEmpty
+Collection>>#isEmptyOrNil
+Collection>>#notEmpty
+Collection>>#remove:
+Collection>>#removeAllSuchThat:
+Collection>>#select:
+Collection>>#union:
+Color class>>#defaultColors
+Color class>>#defaultColors2
+Color class>>#defaultColors3
+Color class>>#defaultColors4
+Color class>>#initialize
+Color class>>#initializeColorRegistry
+Color class>>#initializeGrayToIndexMap
+Color class>>#initializeIndexedColors
+Color class>>#r:g:b:
+Color class>>#r:g:b:alpha:
+Color class>>#r:g:b:range:
+Color class>>#registerColor:named:
+Color class>>#shutDown
+Color>>#hsvSaturation
+Color>>#initializeRed:green:blue:alpha:
+Color>>#initializeRed:green:blue:range:
+Color>>#privateBlue
+Color>>#privateGreen
+Color>>#privateMaxComponent
+Color>>#privateMinComponent
+Color>>#privateRed
+Color>>#saturation
+Color>>#setAlpha:
+CommandLineArguments class>>#withArguments:
+CommandLineArguments>>#allFilesWithExtension:
+CommandLineArguments>>#arguments
+CommandLineArguments>>#copySubcommand
+CommandLineArguments>>#hasFileWithExtension:
+CommandLineArguments>>#hasOption:
+CommandLineArguments>>#includesSubCommand:
+CommandLineArguments>>#initialize
+CommandLineArguments>>#initializeWithArguments:
+CommandLineArguments>>#longOptionAt:ifAbsent:
+CommandLineArguments>>#optionAt:
+CommandLineArguments>>#optionAt:ifAbsent:
+CommandLineArguments>>#withFirstArgument:
+CommandLineHandler class>>#activateWith:
+CommandLineHandler class>>#allHandlers
+CommandLineHandler class>>#isAbstract
+CommandLineHandler class>>#isResponsibleFor:
+CommandLineHandler class>>#prepareSubcommand:
+CommandLineHandler class>>#priority
+CommandLineHandler class>>#selectHandlersFor:
+CommandLineHandler>>#activateHelp
+CommandLineHandler>>#arguments
+CommandLineHandler>>#commandLine
+CommandLineHandler>>#commandLine:
+CommandLineHandler>>#exitSuccess
+CommandLineHandler>>#hasOption:
+CommandLineHandler>>#hasSessionChanged
+CommandLineHandler>>#initialize
+CommandLineHandler>>#initializeStderr
+CommandLineHandler>>#initializeStdout
+CommandLineHandler>>#optionAt:
+CommandLineUIManager>>#activate
+CommandLineUIManager>>#initialize
+CompiledCode class>>#newMethod:header:
+CompiledCode>>#encoderClass
+CompiledCode>>#frameSize
+CompiledCode>>#header
+CompiledCode>>#initialPC
+CompiledCode>>#isPrimitive
+CompiledCode>>#literalAt:
+CompiledCode>>#literalAt:put:
+CompiledCode>>#numLiterals
+CompiledCode>>#numTemps
+CompiledCode>>#objectAt:
+CompiledCode>>#objectAt:put:
+CompiledCode>>#signFlag
+CompiledMethod class>>#headerFlagForEncoder:
+CompiledMethod class>>#initialize
+CompiledMethod class>>#methodPropertiesClass
+CompiledMethod>>#category
+CompiledMethod>>#classBinding
+CompiledMethod>>#classBinding:
+CompiledMethod>>#methodClass
+CompiledMethod>>#methodClass:
+CompiledMethod>>#origin
+CompiledMethod>>#originMethod
+CompiledMethod>>#package
+CompiledMethod>>#packageFromOrganizer:
+CompiledMethod>>#penultimateLiteral
+CompiledMethod>>#primitive
+CompiledMethod>>#properties
+CompiledMethod>>#protocol
+CompiledMethod>>#selector
+CompiledMethod>>#selector:
+CurrentExecutionEnvironment class>>#activate:for:
+CurrentExecutionEnvironment class>>#isInheritable
+CurrentExecutionEnvironment>>#default
+DateAndTime class>>#clock
+DateAndTime class>>#current
+DateAndTime class>>#initialize
+DateAndTime class>>#localOffset
+DateAndTime class>>#localTimeZone
+DateAndTime class>>#now
+DateAndTime>>#normalizeSecondsAndNanos
+DateAndTime>>#setJdn:seconds:nano:offset:
+DefaultExecutionEnvironment class>>#beActiveDuring:
+DefaultExecutionEnvironment class>>#instance
+Delay class>>#initialize
+Delay class>>#shutDown
+Delay class>>#startUp
+DelayMicrosecondScheduler>>#handleTimerEvent:
+DelayMicrosecondScheduler>>#primSignal:atUTCMicroseconds:
+DelayMicrosecondScheduler>>#restoreResumptionTimes
+DelayMicrosecondScheduler>>#runTimerEventLoop
+DelayMicrosecondScheduler>>#saveResumptionTimes
+DelayMicrosecondScheduler>>#shutDown
+DelayMicrosecondScheduler>>#startTimerEventLoop
+DelayMicrosecondScheduler>>#startUp
+DelayScheduler>>#initialize
+Dictionary class>>#newFromPairs:
+Dictionary>>#add:
+Dictionary>>#associationAt:
+Dictionary>>#associationAt:ifAbsent:
+Dictionary>>#associationAt:ifPresent:
+Dictionary>>#associations
+Dictionary>>#associationsDo:
+Dictionary>>#at:
+Dictionary>>#at:ifAbsent:
+Dictionary>>#at:ifAbsentPut:
+Dictionary>>#at:ifPresent:
+Dictionary>>#at:ifPresent:ifAbsent:
+Dictionary>>#at:put:
+Dictionary>>#bindingOf:
+Dictionary>>#declareVariable:from:
+Dictionary>>#do:
+Dictionary>>#fixCollisionsFrom:
+Dictionary>>#includes:
+Dictionary>>#includesKey:
+Dictionary>>#keys
+Dictionary>>#keysAndValuesDo:
+Dictionary>>#keysDo:
+Dictionary>>#noCheckAdd:
+Dictionary>>#rehash
+Dictionary>>#removeKey:
+Dictionary>>#removeKey:ifAbsent:
+Dictionary>>#scanFor:
+Dictionary>>#values
+Dictionary>>#valuesDo:
+DynamicVariable class>>#value:during:
+DynamicVariable>>#value:during:
+EncoderForV3PlusClosures class>>#interpretNextInstructionFor:in:
+Exception class>>#,
+ExceptionSet>>#add:
+ExceptionSet>>#initialize
+ExecutionEnvironment>>#beActiveDuring:
+ExternalAddress class>>#startUp:
+ExternalFunction class>>#initialize
+ExternalFunction class>>#initializeErrorMessages
+ExternalObject class>>#initialize
+ExternalObject class>>#install
+ExternalObject class>>#installSubclasses
+ExternalObject class>>#startUp:
+ExternalSemaphoreTable class>>#clearExternalObjects
+ExternalSemaphoreTable class>>#initialize
+ExternalSemaphoreTable class>>#unprotectedExternalObjects:
+ExternalType class>>#cleanupUnusedTypes
+ExternalType class>>#initialize
+ExternalType class>>#initializeAtomicTypes
+ExternalType class>>#initializeDefaultTypes
+ExternalType class>>#initializeFFIConstants
+ExternalType class>>#initializeStructureTypes
+ExternalType class>>#pointerSpec
+ExternalType>>#asPointerType
+ExternalType>>#compiledSpec:
+ExternalType>>#headerWord
+ExternalType>>#isPointerType
+ExternalType>>#isStructureType
+ExternalType>>#setReferencedType:
+FFIConstants class>>#initialize
+FFIConstants class>>#initializeCallingConventions
+FFIConstants class>>#initializeErrorConstants
+FFIConstants class>>#initializeTypeConstants
+False>>#ifTrue:ifFalse:
+False>>#not
+File class>>#named:
+File class>>#primClose:
+File class>>#register:
+File class>>#registry
+File class>>#retryWithGC:until:forFileNamed:
+File class>>#unregister:
+File>>#basicOpenForWrite:
+File>>#named:
+File>>#openForRead
+File>>#openForWrite:
+File>>#primOpen:writable:
+File>>#readStream
+File>>#readStreamDo:
+FixedLayout class>>#extending:scope:host:
+FixedLayout>>#instanceSpecification
+Float class>>#infinity
+Float class>>#initialize
+Float>>#abs
+Float>>#adaptToInteger:andCompare:
+Float>>#adaptToInteger:andSend:
+Float>>#isFinite
+Float>>#isNaN
+Float>>#isZero
+Float>>#negated
+Float>>#rounded
+Fraction class>>#numerator:denominator:
+Fraction>>#reduced
+Fraction>>#setNumerator:denominator:
+Fraction>>#truncated
+HEAbstractExported class>>#readFrom:
+HEAdditionalMethodState class>>#tag
+HEAdditionalMethodState>>#asLiteralIn:
+HEAdditionalMethodState>>#doReadFrom:
+HEArray class>>#tag
+HEArray>>#asLiteralIn:
+HEArray>>#doReadFrom:
+HEAssociation class>>#tag
+HEAssociation>>#asLiteralIn:
+HEAssociation>>#doReadFrom:
+HEBinaryReaderWriter>>#intSize
+HEBinaryReaderWriter>>#readByte
+HEBinaryReaderWriter>>#readByteArray
+HEBinaryReaderWriter>>#readByteString
+HEBinaryReaderWriter>>#readByteSymbol
+HEBinaryReaderWriter>>#readInt32
+HEBinaryReaderWriter>>#readUInt32
+HEBinaryReaderWriter>>#stream:
+HEBoolean class>>#tag
+HEBoolean>>#asLiteralIn:
+HEBoolean>>#doReadFrom:
+HEByteArray class>>#tag
+HEByteArray>>#asLiteralIn:
+HEByteArray>>#doReadFrom:
+HEByteString class>>#tag
+HEByteString>>#asLiteralIn:
+HEByteString>>#doConvertValue:
+HEByteString>>#doReadFrom:
+HECharacter class>>#tag
+HECharacter>>#asLiteralIn:
+HEClass>>#classInstancevariables
+HEClass>>#className
+HEClass>>#classVariables
+HEClass>>#doReadHeaderFrom:
+HEClass>>#instanceVariables
+HEClass>>#layoutClass
+HEClass>>#sharedPools
+HEClass>>#superclass
+HEClassTrait class>>#tag
+HEClassVariable class>>#tag
+HEClassVariable>>#asLiteralIn:
+HEExportedLiteral class>>#readFrom:
+HEExportedLiteral>>#value
+HEExportedMetaclass class>>#tag
+HEExtendedEnvironment>>#classNamed:
+HEExtendedEnvironment>>#inner:
+HEExtendedEnvironment>>#newClass
+HEExtendedEnvironment>>#newClass:
+HEExtendedEnvironment>>#newMethod
+HEExtendedEnvironment>>#newMethod:
+HEExtendedEnvironment>>#newSelector
+HEExtendedEnvironment>>#newSelector:
+HEFloat class>>#tag
+HEFraction class>>#tag
+HEGlobalVariable class>>#tag
+HEGlobalVariable>>#asLiteralIn:
+HEInstaller>>#asClassVariables:
+HEInstaller>>#asSlots:
+HEInstaller>>#build:
+HEInstaller>>#buildTrait:
+HEInstaller>>#classNamed:
+HEInstaller>>#environment
+HEInstaller>>#initialize
+HEInstaller>>#installClass:in:
+HEInstaller>>#installExtensionMethod:
+HEInstaller>>#installMethods:into:
+HEInstaller>>#installPackage:
+HEInstaller>>#rebuildMethod:into:
+HEInteger class>>#tag
+HEInteger>>#asLiteralIn:
+HEInteger>>#doReadFrom:
+HEMethod>>#bytecode
+HEMethod>>#className
+HEMethod>>#headerFor:
+HEMethod>>#literals
+HEMethod>>#name
+HEMethod>>#protocol
+HEMethod>>#readFrom:
+HEMethodContainer>>#category
+HEMethodContainer>>#classSideMethods
+HEMethodContainer>>#classTraitComposition
+HEMethodContainer>>#doReadMethodsFrom:
+HEMethodContainer>>#methods
+HEMethodContainer>>#readFrom:
+HEMethodContainer>>#traitComposition
+HEMethodLiteral class>>#tag
+HEMethodLiteral>>#asLiteralIn:
+HEMethodLiteral>>#doReadFrom:
+HEPackage class>>#formatVersion
+HEPackage>>#classes
+HEPackage>>#extensionMethods
+HEPackage>>#initialize
+HEPackage>>#packageName
+HEPackage>>#readFrom:
+HEPackage>>#traits
+HEPragma class>>#tag
+HEPragma>>#asLiteralIn:
+HEPragma>>#doReadFrom:
+HEScaledDecimal class>>#tag
+HESymbol class>>#tag
+HESymbol>>#doConvertValue:
+HETrait>>#doReadHeaderFrom:
+HETrait>>#traitName
+HETraitAlias class>>#tag
+HETraitComposition class>>#tag
+HETraitComposition>>#asLiteralIn:
+HETraitExclusion class>>#tag
+HETraitTransformation class>>#tag
+HEUndefinedObject class>>#tag
+HEUndefinedObject>>#asLiteralIn:
+HEUndefinedObject>>#doReadFrom:
+HEWideString class>>#tag
+HashTableSizes class>>#atLeast:
+HashTableSizes class>>#basicAtLeast:
+HashTableSizes class>>#maxSmallSize
+HashTableSizes class>>#sizes
+HashTableSizes class>>#smallSizesLookupTable
+HashedCollection class>>#empty
+HashedCollection class>>#new
+HashedCollection class>>#new:
+HashedCollection class>>#sizeFor:
+HashedCollection>>#array
+HashedCollection>>#atNewIndex:put:
+HashedCollection>>#capacity
+HashedCollection>>#grow
+HashedCollection>>#initialize:
+HashedCollection>>#removeAll
+HashedCollection>>#size
+Heap class>>#new
+Heap class>>#new:
+Heap class>>#sortBlock:
+Heap>>#do:
+Heap>>#isEmpty
+Heap>>#reSort
+Heap>>#setCollection:
+Heap>>#sortBlock:
+HermesCommandLineHandler class>>#commandName
+HermesCommandLineHandler>>#activate
+IdentityDictionary>>#scanFor:
+IdentitySet>>#scanFor:
+IndexedSlot>>#index
+IndexedSlot>>#index:
+IndexedSlot>>#isVirtual
+InitializePackagesCommandLineHandler class>>#commandName
+InitializePackagesCommandLineHandler>>#activate
+InitializePackagesCommandLineHandler>>#initializePackagesFrom:
+InitializePackagesCommandLineHandler>>#initializeProtocolsFrom:
+InstructionStream class>>#initialize
+InstructionStream>>#interpretNextInstructionFor:
+InstructionStream>>#interpretNextV3PlusClosureInstructionFor:
+InstructionStream>>#interpretV3PlusClosureExtension:in:for:
+InstructionStream>>#pc:
+Integer>>#'<='
+Integer>>#'>='
+Integer>>#'>>'
+Integer>>#*
+Integer>>#+
+Integer>>#/
+Integer>>#anyMask:
+Integer>>#asInteger
+Integer>>#ceiling
+Integer>>#digitAdd:
+Integer>>#digitCompare:
+Integer>>#digitMultiply:neg:
+Integer>>#isInteger
+Integer>>#noMask:
+Integer>>#rounded
+Interval class>>#from:to:by:
+Interval class>>#new
+Interval>>#at:
+Interval>>#collect:
+Interval>>#do:
+Interval>>#setFrom:to:by:
+Interval>>#size
+Interval>>#species
+Job class>>#block:
+Job class>>#jobAnnouncer
+Job>>#announce:
+Job>>#announceChange
+Job>>#announcer
+Job>>#block:
+Job>>#cleanupAfterRunning
+Job>>#current:
+Job>>#currentValue:
+Job>>#initialize
+Job>>#label:
+Job>>#max:
+Job>>#migrateProgressWhileUpdatingBounds:
+Job>>#min:
+Job>>#prepareForRunning
+Job>>#progress
+Job>>#progress:
+Job>>#run
+Job>>#title:
+JobAnnouncement class>>#on:
+JobAnnouncement>>#job:
+LargeInteger>>#'//'
+LargeInteger>>#'\\'
+LargeInteger>>#*
+LargeNegativeInteger>>#normalize
+LargePositiveInteger>>#negative
+LargePositiveInteger>>#normalize
+LayoutAbstractScope>>#extend:
+LayoutAbstractScope>>#extend:as:
+LayoutAbstractScope>>#firstFieldIndex
+LayoutClassScope>>#allVisibleSlots
+LayoutClassScope>>#do:
+LayoutClassScope>>#fieldSize
+LayoutClassScope>>#flatten
+LayoutClassScope>>#hasFields
+LayoutClassScope>>#ownFieldSize
+LayoutClassScope>>#parentScope:
+LayoutClassScope>>#slots
+LayoutEmptyScope>>#allVisibleSlots
+LayoutEmptyScope>>#fieldSize
+LayoutEmptyScope>>#flatten
+LayoutEmptyScope>>#hasFields
+LegacyWeakSubscription>>#register
+LegacyWeakSubscription>>#subscriber:
+LegacyWeakSubscription>>#weakRegistry
+LimitedWriteStream class>>#on:limit:limitBlock:
+LimitedWriteStream>>#nextPut:
+LimitedWriteStream>>#setLimit:limitBlock:
+LiteralVariable class>>#checkValidName:
+LiteralVariable class>>#named:
+LiteralVariable>>#name:
+LiteralVariable>>#write:
+LookupKey class>>#key:
+LookupKey>>#key
+LookupKey>>#key:
+MacOSPlatform class>>#isActivePlatform
+MacOSPlatform class>>#isMacOS
+MacOSXPlatform class>>#isActivePlatform
+Magnitude>>#'<='
+Magnitude>>#'>='
+Magnitude>>#between:and:
+Magnitude>>#min:
+Message>>#arguments
+Message>>#selector
+Metaclass>>#baseClass
+Metaclass>>#basicLocalSelectors
+Metaclass>>#basicLocalSelectors:
+Metaclass>>#binding
+Metaclass>>#bindingOf:
+Metaclass>>#isAnonymous
+Metaclass>>#isMeta
+Metaclass>>#name
+Metaclass>>#new
+Metaclass>>#noteNewBaseTraitCompositionApplied:
+Metaclass>>#soleInstance
+Metaclass>>#traitComposition
+Metaclass>>#traitComposition:
+MethodAdded class>>#method:
+MethodAnnouncement>>#method
+MethodAnnouncement>>#method:
+MethodAnnouncement>>#methodClass
+MethodDictionary class>>#new
+MethodDictionary class>>#newForCapacity:
+MethodDictionary>>#at:ifAbsent:
+MethodDictionary>>#at:ifPresent:
+MethodDictionary>>#grow
+MethodDictionary>>#keysAndValuesDo:
+MethodDictionary>>#keysDo:
+MethodDictionary>>#postCopy
+MethodDictionary>>#valuesDo:
+MethodRecategorized class>>#method:oldProtocol:
+MethodRecategorized>>#oldProtocol:
+Monitor>>#initialize
+Mutex>>#critical:
+Mutex>>#initialize
+NonInteractiveTranscript class>>#initialize
+NonInteractiveTranscript class>>#onFileNamed:
+NonInteractiveTranscript class>>#shutDown
+NonInteractiveTranscript class>>#stderr
+NonInteractiveTranscript class>>#stdout
+NonInteractiveTranscript>>#close
+NonInteractiveTranscript>>#cr
+NonInteractiveTranscript>>#critical:
+NonInteractiveTranscript>>#endEntry
+NonInteractiveTranscript>>#fileName:
+NonInteractiveTranscript>>#flush
+NonInteractiveTranscript>>#initialize
+NonInteractiveTranscript>>#initializeStream
+NonInteractiveTranscript>>#install
+NonInteractiveTranscript>>#isStderr
+NonInteractiveTranscript>>#isStdout
+NonInteractiveTranscript>>#newLine
+NonInteractiveTranscript>>#nextPutAll:
+NonInteractiveTranscript>>#print:
+NonInteractiveTranscript>>#show:
+NonInteractiveTranscript>>#stream
+Number class>>#one
+Number>>#abs
+Number>>#asInteger
+Number>>#negated
+Number>>#negative
+Number>>#positive
+Number>>#raisedTo:
+Number>>#raisedToInteger:
+Number>>#sign
+Number>>#to:
+Number>>#to:by:do:
+OSPlatform class>>#current
+OSPlatform class>>#currentPlatformName
+OSPlatform class>>#determineActivePlatform
+OSPlatform class>>#startUp:
+OSPlatform>>#isWin32
+OSPlatform>>#startUp:
+Object class>>#flushDependents
+Object class>>#initialize
+Object>>#'->'
+Object>>#'~='
+Object>>#=
+Object>>#actAsExecutor
+Object>>#as:
+Object>>#asSetElement
+Object>>#assert:
+Object>>#basicAt:put:
+Object>>#basicSize
+Object>>#becomeForward:
+Object>>#breakDependents
+Object>>#copy
+Object>>#enclosedSetElement
+Object>>#executor
+Object>>#handleProcessTerminationOfWaitingContext:
+Object>>#hasMultipleExecutors
+Object>>#hash
+Object>>#isBehavior
+Object>>#isCharacter
+Object>>#isInteger
+Object>>#isKindOf:
+Object>>#isMemberOf:
+Object>>#isMethodProperties
+Object>>#isString
+Object>>#isSymbol
+Object>>#isTrait
+Object>>#logCr
+Object>>#logCr:
+Object>>#myDependents:
+Object>>#notNil
+Object>>#perform:
+Object>>#perform:with:
+Object>>#perform:withArguments:
+Object>>#postCopy
+Object>>#primitiveChangeClassTo:
+Object>>#printString
+Object>>#printStringLimitedTo:
+Object>>#size
+Object>>#species
+Object>>#split:
+Object>>#split:do:
+Object>>#value
+Object>>#yourself
+ObjectFinalizerCollection>>#hasMultipleExecutors
+ObjectLayout>>#format
+ObjectLayout>>#initialize
+OrderedCollection class>>#arrayType
+OrderedCollection class>>#new
+OrderedCollection class>>#new:
+OrderedCollection class>>#newFrom:
+OrderedCollection class>>#ofSize:
+OrderedCollection>>#add:
+OrderedCollection>>#addAll:
+OrderedCollection>>#addAllLast:
+OrderedCollection>>#addFirst:
+OrderedCollection>>#addLast:
+OrderedCollection>>#asArray
+OrderedCollection>>#at:
+OrderedCollection>>#at:put:
+OrderedCollection>>#collect:
+OrderedCollection>>#collector
+OrderedCollection>>#copyEmpty
+OrderedCollection>>#copyFrom:to:
+OrderedCollection>>#copyReplaceFrom:to:with:
+OrderedCollection>>#growAtFirst
+OrderedCollection>>#growAtLast
+OrderedCollection>>#makeRoomAtFirst
+OrderedCollection>>#makeRoomAtLast
+OrderedCollection>>#postCopyFrom:to:
+OrderedCollection>>#reject:
+OrderedCollection>>#remove:ifAbsent:
+OrderedCollection>>#removeFirst
+OrderedCollection>>#removeIndex:
+OrderedCollection>>#removeLast
+OrderedCollection>>#reset
+OrderedCollection>>#resetTo:
+OrderedCollection>>#select:
+OrderedCollection>>#select:thenCollect:
+OrderedCollection>>#setCollection:
+OrderedCollection>>#setContents:
+OrderedCollection>>#size
+OrderedCollection>>#sort:
+PharoCommandLineHandler class>>#activateWith:
+PharoCommandLineHandler class>>#isResponsibleFor:
+PharoCommandLineHandler class>>#priority
+PharoCommandLineHandler>>#activate
+PharoCommandLineHandler>>#isChangingPreferences
+PharoCommandLineHandler>>#isOmittingPreferences
+PharoCommandLineHandler>>#isOverridingPreferences
+PharoCommandLineHandler>>#runPreferences
+PointerLayout>>#checkSanity
+PointerLayout>>#checkSlotIndices
+PointerLayout>>#checkSlotNames
+PointerLayout>>#extend:
+PointerLayout>>#fieldSize
+PointerLayout>>#hasFields
+PointerLayout>>#slotScope
+PointerLayout>>#slotScope:
+PointerLayout>>#slots
+PositionableStream class>>#on:
+PositionableStream>>#on:
+Pragma class>>#for:selector:arguments:
+Pragma>>#key
+Pragma>>#setArguments:
+Pragma>>#setKeyword:
+Pragma>>#setMethod:
+PrintVersionCommandLineHandler class>>#commandName
+Process class>>#allocatePSKey:
+Process class>>#forContext:priority:
+Process>>#activateReturn:value:
+Process>>#calleeOf:
+Process>>#complete:
+Process>>#effectiveProcess
+Process>>#evaluate:onBehalfOf:
+Process>>#initialize
+Process>>#installEnvIntoForked:
+Process>>#isActiveProcess
+Process>>#isTerminating
+Process>>#name:
+Process>>#popTo:
+Process>>#primitiveResume
+Process>>#priority
+Process>>#priority:
+Process>>#psValueAt:
+Process>>#psValueAt:put:
+Process>>#resume
+Process>>#return:value:
+Process>>#suspend
+Process>>#suspendedContext:
+Process>>#terminate
+ProcessSpecificVariable class>>#isInheritable
+ProcessSpecificVariable class>>#new
+ProcessSpecificVariable class>>#soleInstance
+ProcessSpecificVariable class>>#value
+ProcessSpecificVariable>>#default
+ProcessSpecificVariable>>#index:
+ProcessSpecificVariable>>#isInheritable
+ProcessSpecificVariable>>#value
+ProcessorScheduler class>>#initialize
+ProcessorScheduler class>>#startUp
+ProcessorScheduler>>#activePriority
+ProcessorScheduler>>#activeProcess
+ProcessorScheduler>>#highestPriority
+ProcessorScheduler>>#lowIOPriority
+ProcessorScheduler>>#lowestPriority
+ProcessorScheduler>>#terminateActive
+ProcessorScheduler>>#timingPriority
+ProcessorScheduler>>#userInterruptPriority
+ProcessorScheduler>>#userSchedulingPriority
+ProtoObject>>#'~~'
+ProtoObject>>#class
+ProtoObject>>#flag:
+ProtoObject>>#identityHash
+ProtoObject>>#ifNil:ifNotNil:
+Protocol class>>#defaultName
+Protocol class>>#name:
+Protocol class>>#nullCategory
+Protocol class>>#unclassified
+Protocol>>#addMethod:
+Protocol>>#canBeRemoved
+Protocol>>#includesSelector:
+Protocol>>#initialize
+Protocol>>#isEmpty
+Protocol>>#isExtensionProtocol
+Protocol>>#methods
+Protocol>>#name
+Protocol>>#name:
+Protocol>>#removeMethod:
+ProtocolAnnouncement>>#classReorganized:
+ProtocolAnnouncement>>#protocol:
+ProtocolOrganizer>>#addProtocolNamed:
+ProtocolOrganizer>>#allMethods
+ProtocolOrganizer>>#allProtocols
+ProtocolOrganizer>>#allProtocolsNames
+ProtocolOrganizer>>#classify:inProtocolNamed:
+ProtocolOrganizer>>#extensionProtocols
+ProtocolOrganizer>>#getProtocolNamed:ifNone:
+ProtocolOrganizer>>#includesSelector:
+ProtocolOrganizer>>#initialize
+ProtocolOrganizer>>#protocols
+ProtocolOrganizer>>#protocolsNames
+ProtocolOrganizer>>#protocolsOfSelector:
+ProtocolOrganizer>>#removeProtocol:
+ProtocolOrganizer>>#reset
+RPackage class>>#defaultPackageName
+RPackage class>>#initialize
+RPackage class>>#initializeProperties
+RPackage class>>#named:
+RPackage class>>#organizer
+RPackage class>>#organizer:
+RPackage>>#addClassDefinition:
+RPackage>>#addClassDefinition:toClassTag:
+RPackage>>#addClassDefinitionName:
+RPackage>>#addClassDefinitionName:toClassTag:
+RPackage>>#addClassTag:
+RPackage>>#addMethod:
+RPackage>>#basicAddClassTag:
+RPackage>>#basicImportClass:
+RPackage>>#categoryName
+RPackage>>#classTagNamed:ifAbsent:
+RPackage>>#classTags
+RPackage>>#definedClasses
+RPackage>>#extendedClasses
+RPackage>>#extendedMethodsBecomeDefinedForClass:
+RPackage>>#extendedMethodsBecomeDefinedForMetaclass:
+RPackage>>#extendedMethodsShouldBecomeDefinedWhenAddingClassName:
+RPackage>>#importClass:
+RPackage>>#includesClass:
+RPackage>>#includesClassNamed:
+RPackage>>#includesClassTagNamed:
+RPackage>>#includesDefinedSelector:ofClassName:
+RPackage>>#includesDefinedSelector:ofMetaclassName:
+RPackage>>#includesExtensionSelector:ofClassName:
+RPackage>>#includesExtensionSelector:ofMetaclassName:
+RPackage>>#includesSelector:ofClassName:
+RPackage>>#includesSelector:ofMetaclassName:
+RPackage>>#initialize
+RPackage>>#name
+RPackage>>#name:
+RPackage>>#organizer
+RPackage>>#register
+RPackage>>#registerClassName:
+RPackage>>#toTagName:
+RPackageAnnouncement class>>#to:
+RPackageAnnouncement>>#package:
+RPackageOrganizer class>>#default
+RPackageOrganizer class>>#registerInterestToSystemAnnouncement
+RPackageOrganizer>>#addMethod:
+RPackageOrganizer>>#announcer
+RPackageOrganizer>>#basicInitializeFromPackagesList:
+RPackageOrganizer>>#basicRegisterPackage:
+RPackageOrganizer>>#defineUnpackagedClassesPackage
+RPackageOrganizer>>#ensureExistAndRegisterPackageNamed:
+RPackageOrganizer>>#extendingPackagesOf:
+RPackageOrganizer>>#hasPackageExactlyMatchingExtensionName:
+RPackageOrganizer>>#hasPackageForProtocol:inClass:
+RPackageOrganizer>>#hasPackageMatchingExtensionName:
+RPackageOrganizer>>#includesPackageNamed:
+RPackageOrganizer>>#initialize
+RPackageOrganizer>>#initializeExtensionsFor:protocol:
+RPackageOrganizer>>#initializeFor:
+RPackageOrganizer>>#initializeMethodsFor:
+RPackageOrganizer>>#packageClass
+RPackageOrganizer>>#packageExactlyMatchingExtensionName:
+RPackageOrganizer>>#packageForProtocol:inClass:
+RPackageOrganizer>>#packageMatchingExtensionName:
+RPackageOrganizer>>#packageNamed:
+RPackageOrganizer>>#packageNamed:ifAbsent:
+RPackageOrganizer>>#packageOf:
+RPackageOrganizer>>#registerExtendingPackage:forClass:
+RPackageOrganizer>>#registerInterestToAnnouncer:
+RPackageOrganizer>>#registerInterestToSystemAnnouncement
+RPackageOrganizer>>#registerPackage:
+RPackageOrganizer>>#registerPackage:forClass:
+RPackageOrganizer>>#registerPackage:forClassName:
+RPackageOrganizer>>#registerPackageNamed:
+RPackageOrganizer>>#systemCategoryAddedActionFrom:
+RPackageOrganizer>>#systemClassAddedActionFrom:
+RPackageOrganizer>>#systemMethodAddedActionFrom:
+RPackageOrganizer>>#unregisterInterestToSystemAnnouncement
+RPackageOrganizer>>#validateCanBeAddedPackage:
+RPackageOrganizer>>#validateCanBeAddedPackage:tagName:
+RPackageOrganizer>>#validateCanBeAddedPackageName:tagName:
+RPackageTag class>>#package:name:
+RPackageTag>>#addClassNamed:
+RPackageTag>>#categoryName
+RPackageTag>>#ensureSystemCategory
+RPackageTag>>#initialize
+RPackageTag>>#initializePackage:name:
+RPackageTag>>#name
+RPackageTag>>#package
+RPackageTag>>#packageName
+RPackageTag>>#toCategoryName:
+SaveCommandLineHandler class>>#commandName
+Semaphore class>>#forMutualExclusion
+Semaphore class>>#new
+Semaphore>>#consumeAllSignals
+Semaphore>>#critical:
+Semaphore>>#critical:ifError:
+Semaphore>>#handleProcessTerminationOfWaitingContext:
+Semaphore>>#initSignals
+Semaphore>>#signal
+Semaphore>>#wait
+SequenceableCollection class>>#new:streamContents:
+SequenceableCollection class>>#ofSize:
+SequenceableCollection class>>#streamContents:
+SequenceableCollection class>>#streamContents:limitedTo:
+SequenceableCollection class>>#streamSpecies
+SequenceableCollection>>#,
+SequenceableCollection>>#=
+SequenceableCollection>>#allButFirst
+SequenceableCollection>>#allButFirst:
+SequenceableCollection>>#asTraitComposition
+SequenceableCollection>>#at:ifAbsent:
+SequenceableCollection>>#atAll:put:
+SequenceableCollection>>#atAllPut:
+SequenceableCollection>>#collect:
+SequenceableCollection>>#copyAfterLast:
+SequenceableCollection>>#copyFrom:to:
+SequenceableCollection>>#copyReplaceFrom:to:with:
+SequenceableCollection>>#copyUpToLast:
+SequenceableCollection>>#copyWith:
+SequenceableCollection>>#doWithIndex:
+SequenceableCollection>>#first:
+SequenceableCollection>>#flatCollect:
+SequenceableCollection>>#fourth
+SequenceableCollection>>#from:to:put:
+SequenceableCollection>>#grownBy:
+SequenceableCollection>>#hasEqualElements:
+SequenceableCollection>>#identityIndexOf:
+SequenceableCollection>>#identityIndexOf:ifAbsent:
+SequenceableCollection>>#includes:
+SequenceableCollection>>#indexOf:
+SequenceableCollection>>#indexOf:ifAbsent:
+SequenceableCollection>>#indexOf:startingAt:ifAbsent:
+SequenceableCollection>>#indexOfSubCollection:startingAt:
+SequenceableCollection>>#keysAndValuesDo:
+SequenceableCollection>>#last
+SequenceableCollection>>#lastIndexOf:ifAbsent:
+SequenceableCollection>>#lastIndexOf:startingAt:ifAbsent:
+SequenceableCollection>>#mergeFirst:middle:last:into:by:
+SequenceableCollection>>#mergeSortFrom:to:by:
+SequenceableCollection>>#mergeSortFrom:to:src:dst:by:
+SequenceableCollection>>#reject:
+SequenceableCollection>>#replaceFrom:to:with:
+SequenceableCollection>>#replaceFrom:to:with:startingAt:
+SequenceableCollection>>#reversed
+SequenceableCollection>>#second
+SequenceableCollection>>#select:
+SequenceableCollection>>#select:thenCollect:
+SequenceableCollection>>#sort
+SequenceableCollection>>#sort:
+SequenceableCollection>>#sorted
+SequenceableCollection>>#sorted:
+SequenceableCollection>>#split:indicesDo:
+SequenceableCollection>>#splitOn:
+SequenceableCollection>>#swap:with:
+SequenceableCollection>>#third
+SequenceableCollection>>#with:do:
+SequenceableCollection>>#withIndexDo:
+SequenceableCollection>>#writeStream
+SessionCategory>>#listAtPriority:
+SessionCategory>>#prioritizedList
+SessionCategory>>#register:atPriority:
+SessionCategory>>#unregisterHandler:
+SessionManager class>>#default
+SessionManager>>#currentSession
+SessionManager>>#defaultPriority
+SessionManager>>#guiCategory
+SessionManager>>#installNewSession
+SessionManager>>#installSession:
+SessionManager>>#launchSnapshot:andQuit:
+SessionManager>>#newSession
+SessionManager>>#register:inCategory:atPriority:
+SessionManager>>#registerGuiClassNamed:
+SessionManager>>#registerSystemClassNamed:
+SessionManager>>#registerSystemClassNamed:atPriority:
+SessionManager>>#shutdownList
+SessionManager>>#snapshot:andQuit:
+SessionManager>>#startupList
+SessionManager>>#systemCategory
+SessionManager>>#unregisterHandler:
+Set class>>#sizeFor:
+Set>>#add:
+Set>>#asSet
+Set>>#do:
+Set>>#fixCollisionsFrom:
+Set>>#grow
+Set>>#includes:
+Set>>#noCheckAdd:
+Set>>#postCopy
+Set>>#remove:ifAbsent:
+Set>>#scanFor:
+SetElement class>>#initialize
+SetElement class>>#with:
+SetElement>>#enclosedSetElement:
+SharedQueue class>>#new
+SharedQueue>>#initialize
+Slot class>>#checkValidName:
+Slot class>>#initialize
+Slot class>>#initializeProperties
+Slot class>>#named:
+Slot>>#asSlot
+Slot>>#definingClass:
+Slot>>#installingIn:
+Slot>>#isVisible
+Slot>>#layoutChanged:
+Slot>>#name
+Slot>>#name:
+Slot>>#scope:
+Slot>>#size
+Slot>>#wantsInitalization
+SmallInteger class>>#initialize
+SmallInteger class>>#startUp:
+SmallInteger>>#'<='
+SmallInteger>>#'>='
+SmallInteger>>#'~='
+SmallInteger>>#+
+SmallInteger>>#/
+SmallInteger>>#<
+SmallInteger>>#>
+SmallInteger>>#asCharacter
+SmallInteger>>#asFloat
+SmallInteger>>#bitAnd:
+SmallInteger>>#bitOr:
+SmallInteger>>#bitShift:
+SmallInteger>>#gcd:
+SmallInteger>>#hash
+SmallInteger>>#hashMultiply
+SmallInteger>>#highBit
+SmallInteger>>#highBitOfPositiveReceiver
+SmallInteger>>#identityHash
+SmallInteger>>#quo:
+SmalltalkImage>>#allClassesAndTraits
+SmalltalkImage>>#argumentAt:
+SmalltalkImage>>#arguments
+SmalltalkImage>>#at:ifAbsent:
+SmalltalkImage>>#at:ifPresent:
+SmalltalkImage>>#classNamed:
+SmalltalkImage>>#classOrTraitNamed:
+SmalltalkImage>>#clearExternalObjects
+SmalltalkImage>>#garbageCollectMost
+SmalltalkImage>>#globals
+SmalltalkImage>>#installLowSpaceWatcher
+SmalltalkImage>>#lowSpaceThreshold
+SmalltalkImage>>#lowSpaceWatcher
+SmalltalkImage>>#newSpecialObjectsArray
+SmalltalkImage>>#os
+SmalltalkImage>>#primImagePath
+SmalltalkImage>>#primLowSpaceSemaphore:
+SmalltalkImage>>#primSignalAtBytesLeft:
+SmalltalkImage>>#primitiveGetSpecialObjectsArray
+SmalltalkImage>>#recreateSpecialObjectsArray
+SmalltalkImage>>#session
+SmalltalkImage>>#snapshot:andQuit:
+SmalltalkImage>>#snapshotPrimitive
+SmalltalkImage>>#sourceFileVersionString:
+SmalltalkImage>>#specialObjectsArray
+SmalltalkImage>>#vm
+SmalltalkImage>>#wordSize
+SnapshotDone class>>#isNewImage:
+SnapshotDone>>#isNewImage:
+SourceFileArray>>#changesFileStream
+SourceFileArray>>#initialize
+Stdio class>>#cleanStdioHandles
+Stdio class>>#initialize
+Stdio class>>#standardIOStreamNamed:forWrite:
+Stdio class>>#startUp:
+Stdio class>>#stderr
+Stdio class>>#stdioHandles
+Stdio class>>#stdout
+Stream>>#flush
+Stream>>#nextPutAll:
+String class>>#cr
+String class>>#initialize
+String class>>#initializeTypeTable
+String class>>#lf
+String class>>#new:
+String class>>#newAsciiOrder
+String class>>#newCSLineEnders
+String class>>#newCaseInsensitiveOrder
+String class>>#newCaseSensitiveOrder
+String class>>#newCrLfExchangeTable
+String class>>#newLowercasingTable
+String class>>#newTokenish
+String class>>#newUppercasingTable
+String class>>#tab
+String class>>#with:
+String>>#'<='
+String>>#'>='
+String>>#=
+String>>#asLowercase
+String>>#asString
+String>>#asSymbol
+String>>#asZnCharacterEncoder
+String>>#beginsWithEmpty:caseSensitive:
+String>>#compare:caseSensitive:
+String>>#compare:with:collated:
+String>>#displayProgressFrom:to:during:
+String>>#endsWith:
+String>>#findDelimiters:startingAt:
+String>>#findIn:startingAt:matchTable:
+String>>#findString:startingAt:
+String>>#findString:startingAt:caseSensitive:
+String>>#findSubstringViaPrimitive:in:startingAt:matchTable:
+String>>#findTokens:
+String>>#hash
+String>>#indexOf:
+String>>#indexOf:startingAt:
+String>>#indexOfSubCollection:startingAt:ifAbsent:
+String>>#isString
+String>>#isValidGlobalName
+String>>#match:
+String>>#numArgs
+String>>#printOn:
+String>>#sameAs:
+String>>#skipDelimiters:startingAt:
+String>>#startingAt:match:startingAt:
+String>>#storeOn:
+String>>#substrings:
+String>>#translateFrom:to:table:
+String>>#translateToLowercase
+String>>#translateWith:
+String>>#trimBoth
+String>>#trimBoth:
+String>>#trimLeft:right:
+String>>#withoutPrefix:
+SubscriptionRegistry>>#add:
+SubscriptionRegistry>>#deliver:
+SubscriptionRegistry>>#deliver:to:
+SubscriptionRegistry>>#deliver:to:startingAt:
+SubscriptionRegistry>>#initialize
+SubscriptionRegistry>>#protected:
+SubscriptionRegistry>>#removeSubscriber:
+SubscriptionRegistry>>#reset
+SubscriptionRegistry>>#subscriptionsHandling:
+Symbol class>>#intern:
+Symbol class>>#internSelector:
+Symbol class>>#lookup:
+Symbol class>>#new:streamContents:
+Symbol class>>#pseudovariablesNames
+Symbol class>>#selectorTable
+Symbol class>>#shutDown:
+Symbol class>>#streamSpecies
+Symbol>>#'=>'
+Symbol>>#,
+Symbol>>#=
+Symbol>>#asSlot
+Symbol>>#asString
+Symbol>>#asSymbol
+Symbol>>#cull:
+Symbol>>#isPseudovariableName
+Symbol>>#value:
+SystemAnnouncement>>#initialize
+SystemAnnouncement>>#setTimeStamp
+SystemAnnouncer class>>#uniqueInstance
+SystemAnnouncer>>#announce:
+SystemAnnouncer>>#classAdded:inCategory:
+SystemAnnouncer>>#classCategoryAdded:
+SystemAnnouncer>>#classReorganized:
+SystemAnnouncer>>#classTagAdded:inPackage:
+SystemAnnouncer>>#isSuspended
+SystemAnnouncer>>#methodAdded:
+SystemAnnouncer>>#methodRecategorized:oldProtocol:
+SystemAnnouncer>>#private
+SystemAnnouncer>>#protocolRemoved:inClass:
+SystemAnnouncer>>#snapshotDone:
+SystemAnnouncer>>#suspendAllWhile:
+SystemAnnouncer>>#unsubscribe:
+SystemDictionary>>#allClassesAndTraits
+SystemDictionary>>#at:put:
+SystemDictionary>>#bindingOf:
+SystemDictionary>>#classAndTraitNames
+SystemDictionary>>#classNamed:
+SystemDictionary>>#classNames
+SystemDictionary>>#classOrTraitNamed:
+SystemDictionary>>#declare:from:
+SystemDictionary>>#fillCaches
+SystemDictionary>>#flushClassNameCache
+SystemDictionary>>#nonClassNames
+SystemDictionary>>#organization
+SystemDictionary>>#traitNames
+SystemOrganizer>>#addCategory:
+SystemOrganizer>>#includesCategory:
+SystemOrganizer>>#removeCategory:
+Termcap>>#initialize
+Termcap>>#initializeDefaultSequences
+Time class>>#microsecondClockValue
+Time class>>#millisecondClockValue
+Time class>>#milliseconds:since:
+Time class>>#millisecondsSince:
+Time class>>#primUTCMicrosecondsClock
+TimeZone>>#offset
+Trait class>>#named:uses:category:env:
+Trait>>#baseTrait
+Trait>>#basicCategory
+Trait>>#basicCategory:
+Trait>>#binding
+Trait>>#category
+Trait>>#classTrait
+Trait>>#environment
+Trait>>#environment:
+Trait>>#initialize
+Trait>>#isBaseTrait
+Trait>>#isObsolete
+Trait>>#isValidTraitName:
+Trait>>#name
+Trait>>#name:
+Trait>>#setName:andRegisterInCategory:environment:
+TraitBehavior class>>#initialize
+TraitBehavior>>#'>>'
+TraitBehavior>>#addSelectorSilently:withMethod:
+TraitBehavior>>#basicAddSelector:withMethod:
+TraitBehavior>>#basicLocalSelectors
+TraitBehavior>>#compiledMethodAt:
+TraitBehavior>>#compiledMethodAt:ifAbsent:
+TraitBehavior>>#emptyMethodDictionary
+TraitBehavior>>#hasTraitComposition
+TraitBehavior>>#includesLocalSelector:
+TraitBehavior>>#includesSelector:
+TraitBehavior>>#initialize
+TraitBehavior>>#isTrait
+TraitBehavior>>#localSelectors
+TraitBehavior>>#lookupSelector:
+TraitBehavior>>#methodDict:
+TraitBehavior>>#notifyUsersOfChangedSelector:
+TraitBehavior>>#originalName
+TraitBehavior>>#properties
+TraitBehavior>>#propertyAt:ifAbsent:
+TraitBehavior>>#registerLocalSelector:
+TraitBehavior>>#selectors
+TraitBehavior>>#setFormat:
+TraitBehavior>>#setTraitComposition:
+TraitBehavior>>#superclass
+TraitBehavior>>#superclass:
+TraitBehavior>>#traitComposition
+TraitBehavior>>#traitComposition:
+TraitBehavior>>#traitOrClassOfSelector:
+TraitBehavior>>#traitUsers
+TraitBehavior>>#users:
+TraitComposition>>#asTraitComposition
+TraitComposition>>#changedSelectorsComparedTo:
+TraitComposition>>#copyTraitExpression
+TraitComposition>>#initialize
+TraitComposition>>#isEmpty
+TraitComposition>>#notEmpty
+TraitComposition>>#originSelectorOf:
+TraitComposition>>#traits
+TraitComposition>>#transformations
+TraitComposition>>#transformations:
+TraitDescription>>#addAndClassifySelector:withMethod:inProtocol:notifying:
+TraitDescription>>#addSelectorSilently:withMethod:
+TraitDescription>>#basicOrganization
+TraitDescription>>#basicOrganization:
+TraitDescription>>#classSide
+TraitDescription>>#extendingPackages
+TraitDescription>>#instanceSide
+TraitDescription>>#isClassSide
+TraitDescription>>#isMeta
+TraitDescription>>#noteAddedSelector:meta:
+TraitDescription>>#notifyOfRecategorizedSelector:from:to:
+TraitDescription>>#notifyUsersOfChangedSelectors:
+TraitDescription>>#notifyUsersOfRecategorizedSelector:from:to:
+TraitDescription>>#organization
+TraitDescription>>#package
+TraitDescription>>#packages
+TraitDescription>>#theMetaClass
+TraitDescription>>#theNonMetaClass
+True>>#ifTrue:ifFalse:
+True>>#not
+UIManager class>>#default
+UIManager>>#defer:
+UIManager>>#displayProgress:from:to:during:
+UndefinedObject>>#isNil
+UndefinedObject>>#shallowCopy
+Unix32Platform class>>#isActivePlatform
+UnixPlatform class>>#isActivePlatform
+UnixPlatform>>#lineEnding
+VTermOutputDriver class>>#on:
+VTermOutputDriver class>>#stderr
+VTermOutputDriver class>>#stdout
+VTermOutputDriver>>#initialize
+VTermOutputDriver>>#outStream:
+VTermOutputDriver>>#reset
+VirtualMachine>>#documentPath
+VirtualMachine>>#edenSpaceSize
+VirtualMachine>>#getSystemAttribute:
+VirtualMachine>>#parameterAt:
+VirtualMachine>>#parameterAt:put:
+VirtualMachine>>#setGCParameters
+VirtualMachine>>#tenuringThreshold:
+VirtualMachine>>#wordSize
+WeakAnnouncementSubscription class>>#finalizationList
+WeakAnnouncementSubscription class>>#new
+WeakAnnouncementSubscription>>#action:
+WeakAnnouncementSubscription>>#announcementClass:
+WeakAnnouncementSubscription>>#announcer:
+WeakAnnouncementSubscription>>#deliver:
+WeakAnnouncementSubscription>>#handlesAnnouncement:
+WeakAnnouncementSubscription>>#initialize
+WeakAnnouncementSubscription>>#subscriber
+WeakAnnouncementSubscription>>#valuable:
+WeakArray class>>#addWeakDependent:
+WeakArray class>>#doOldFinalization
+WeakArray class>>#finalizationProcess
+WeakArray class>>#primitiveFetchMourner
+WeakArray class>>#restartFinalizationProcess
+WeakFinalizationList class>>#hasNewFinalization
+WeakFinalizerItem class>>#new
+WeakFinalizerItem>>#add:
+WeakFinalizerItem>>#finalizeValues
+WeakFinalizerItem>>#list:object:
+WeakIdentityKeyDictionary>>#compare:to:
+WeakIdentityKeyDictionary>>#startIndexFor:
+WeakKeyAssociation class>>#key:value:
+WeakKeyAssociation>>#expire
+WeakKeyAssociation>>#expired
+WeakKeyAssociation>>#key
+WeakKeyAssociation>>#key:
+WeakKeyAssociation>>#key:value:
+WeakKeyAssociation>>#value
+WeakKeyDictionary>>#associationsDo:
+WeakKeyDictionary>>#at:put:
+WeakKeyDictionary>>#expiredValuesDo:
+WeakKeyDictionary>>#finalizeValues
+WeakKeyDictionary>>#fullCheck
+WeakKeyDictionary>>#initialize:
+WeakKeyDictionary>>#noCheckAdd:
+WeakKeyDictionary>>#rehash
+WeakKeyDictionary>>#removeKey:ifAbsent:
+WeakKeyDictionary>>#scanFor:
+WeakKeyDictionary>>#scanForEmpty:
+WeakMessageSend class>>#new
+WeakMessageSend class>>#receiver:selector:
+WeakMessageSend class>>#receiver:selector:arguments:
+WeakMessageSend>>#arguments:
+WeakMessageSend>>#cull:
+WeakMessageSend>>#cull:cull:
+WeakMessageSend>>#ensureReceiver:
+WeakMessageSend>>#receiver
+WeakMessageSend>>#receiver:
+WeakMessageSend>>#selector:
+WeakMessageSend>>#value:
+WeakRegistry class>>#default
+WeakRegistry class>>#new
+WeakRegistry>>#add:
+WeakRegistry>>#add:executor:
+WeakRegistry>>#finalizeValues
+WeakRegistry>>#initialize
+WeakRegistry>>#installFinalizer
+WeakRegistry>>#protected:
+WeakRegistry>>#remove:ifAbsent:
+WeakSet>>#add:
+WeakSet>>#do:
+WeakSet>>#grow
+WeakSet>>#growTo:
+WeakSet>>#initialize:
+WeakSet>>#like:
+WeakSet>>#noCheckNoGrowFillFrom:
+WeakSet>>#scanFor:
+WeakSet>>#scanForEmptySlotFor:
+WeakSubscriptionBuilder class>>#on:
+WeakSubscriptionBuilder>>#announcer:
+WeakSubscriptionBuilder>>#subscribe:do:
+WeakSubscriptionBuilder>>#subscribe:send:to:
+WeakSubscriptionBuilder>>#when:send:to:
+WeakValueDictionary>>#associationsDo:
+WeakValueDictionary>>#size
+WeakValueDictionary>>#valuesDo:
+WinPlatform class>>#isActivePlatform
+WorkingSession>>#addDeferredStartupAction:
+WorkingSession>>#executeDeferredStartupActions:
+WorkingSession>>#initialize
+WorkingSession>>#manager:
+WorkingSession>>#runList:do:
+WorkingSession>>#runShutdown:
+WorkingSession>>#runStartup:
+WorkingSession>>#start:
+WorkingSession>>#stop:
+WriteStream>>#braceArray
+WriteStream>>#braceArray:
+WriteStream>>#contents
+WriteStream>>#nextPut:
+WriteStream>>#nextPutAll:
+WriteStream>>#on:
+WriteStream>>#pastEndPut:
+WriteStream>>#reset
+ZnByteEncoder class>>#cp1250Mapping
+ZnByteEncoder class>>#cp1251Mapping
+ZnByteEncoder class>>#cp1252Mapping
+ZnByteEncoder class>>#cp1253Mapping
+ZnByteEncoder class>>#cp1254Mapping
+ZnByteEncoder class>>#cp1255Mapping
+ZnByteEncoder class>>#cp1256Mapping
+ZnByteEncoder class>>#cp1257Mapping
+ZnByteEncoder class>>#cp1258Mapping
+ZnByteEncoder class>>#cp850Mapping
+ZnByteEncoder class>>#cp866Mapping
+ZnByteEncoder class>>#cp874Mapping
+ZnByteEncoder class>>#iso885910Mapping
+ZnByteEncoder class>>#iso885913Mapping
+ZnByteEncoder class>>#iso885914Mapping
+ZnByteEncoder class>>#iso885915Mapping
+ZnByteEncoder class>>#iso885916Mapping
+ZnByteEncoder class>>#iso88592Mapping
+ZnByteEncoder class>>#iso88593Mapping
+ZnByteEncoder class>>#iso88594Mapping
+ZnByteEncoder class>>#iso88595Mapping
+ZnByteEncoder class>>#iso88596Mapping
+ZnByteEncoder class>>#iso88597Mapping
+ZnByteEncoder class>>#iso88598Mapping
+ZnByteEncoder class>>#koi8rMapping
+ZnByteEncoder class>>#koi8uMapping
+ZnByteEncoder class>>#macCyrillicMapping
+ZnByteEncoder class>>#macRomanMapping
+ZnByteEncoder class>>#mappingToIdentifiers
+ZnCharacterEncoder class>>#canonicalEncodingIdentifier:
+ZnCharacterEncoder class>>#newForEncoding:
+ZnCharacterEncoder>>#nextFromStream:
+ZnCharacterEncoder>>#nextPut:toStream:
+ZnCharacterReadStream>>#collectionSpecies
+ZnCharacterReadStream>>#nextElement
+ZnCrPortableWriteStream class>>#on:
+ZnCrPortableWriteStream>>#stream:
+ZnEncodedReadStream>>#atEnd
+ZnEncodedReadStream>>#next
+ZnEncodedReadStream>>#upTo:
+ZnEncodedStream class>>#on:encoding:
+ZnEncodedStream>>#encoder
+ZnEncodedStream>>#encoding:
+ZnEncodedStream>>#on:
+ZnEndianSensitiveUTFEncoder class>>#handlesEncoding:
+ZnNullEncoder class>>#handlesEncoding:
+ZnSimplifiedByteEncoder class>>#asciiMapping
+ZnSimplifiedByteEncoder class>>#byteTextConverters
+ZnSimplifiedByteEncoder class>>#handlesEncoding:
+ZnSimplifiedByteEncoder class>>#initializeByteTextConverters
+ZnSimplifiedByteEncoder class>>#iso88591Mapping
+ZnSimplifiedByteEncoder class>>#mappingToIdentifiers
+ZnSimplifiedByteEncoder class>>#tablesFromSpec:
+ZnUTF8Encoder class>>#handlesEncoding:
+ZnUTF8Encoder class>>#initialize
+ZnUTF8Encoder class>>#newForEncoding:
+ZnUTF8Encoder>>#nextCodePointFromStream:
+ZnUTF8Encoder>>#nextPutCodePoint:toStream:
+ZnUTFEncoder class>>#handlesEncoding:
