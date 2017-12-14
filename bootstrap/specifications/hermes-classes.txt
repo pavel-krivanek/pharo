@@ -1,9 +1,7 @@
 ASTCache
 ASTCacheReset
 AbstractBinaryFileStream
-AbstractClassInstaller
 AbstractLayout
-AbstractMethodUpdateStrategy
 AbstractSessionHandler
 AbstractTimeZone
 AdditionalMethodState
@@ -31,7 +29,6 @@ Categorizer
 CategoryAdded
 CategoryRemoved
 CategoryRenamed
-ChangeSet
 ChangesLog
 Character
 CharacterSet
@@ -40,7 +37,6 @@ ChronologyConstants
 Class
 ClassAdded
 ClassAnnouncement
-ClassChangeRecord
 ClassDescription
 ClassOrganization
 ClassRecategorized
@@ -166,8 +162,6 @@ LinkedList
 LiteralVariable
 LocalTimeZone
 LookupKey
-MCPackage
-MCPackageManager
 MacOSPlatform
 MacOSXPlatform
 Magnitude
@@ -175,11 +169,9 @@ Message
 Metaclass
 MethodAdded
 MethodAnnouncement
-MethodChangeRecord
 MethodDictionary
 MethodModified
 MethodRecategorized
-MethodRecompileStrategy
 MethodRemoved
 Monitor
 Mutex
@@ -193,7 +185,6 @@ ObjectFinalizerCollection
 ObjectLayout
 OrderedCollection
 PharoBootstrapInitialization
-PharoClassInstaller
 PharoCommandLineHandler
 Point
 PointerLayout
@@ -232,7 +223,6 @@ SetElement
 SharedPool
 SharedQueue
 Slot
-SlotClassBuilder
 SmallInteger
 SmalltalkImage
 SnapshotDone
@@ -249,7 +239,6 @@ SystemAnnouncer
 SystemDictionary
 SystemOrganizer
 SystemVersion
-TClass
 Termcap
 Time
 TimeZone

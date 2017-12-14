@@ -1,7 +1,6 @@
 AbstractLayout>>#extendImmediate
 AnnouncementSet>>#handlesAnnouncement:
 BasicCommandLineHandler>>#handleExit:for:
-Behavior>>#''>>''
 Behavior>>#>>
 Behavior>>#byteSizeOfInstanceOfSize:
 Behavior>>#handleFailingBasicNew:
@@ -43,7 +42,6 @@ Context class>>#newForMethod:
 Context class>>#newFromFrameSize:
 Context class>>#primitiveFailToken
 Context class>>#primitiveFailTokenFor:
-Context class>>#runSimulated:
 Context class>>#sender:receiver:method:arguments:
 Context class>>#simulatePrimitive:module:with:
 Context class>>#simulatePrimitiveNumber:with:
@@ -269,7 +267,6 @@ Context>>#unwindComplete
 Context>>#unwindComplete:
 Context>>#unwindTo:
 Context>>#withoutPrimitiveTryNamedPrimitiveIn:for:withArgs:
-DateAndTime class>>#year:month:day:hour:minute:offset:
 Exception class>>#handles:
 Exception>>#messageText:
 Exception>>#privHandlerContext:
@@ -301,15 +298,11 @@ HEFloat>>#doReadFrom:
 ImmediateLayout class>>#extending:scope:host:
 ImmediateLayout>>#extend:
 ImmediateLayout>>#instanceSpecification
-Integer>>#''<=''
-Integer>>#''>>''
 Integer>>#<=
 Integer>>#>=
 Integer>>#>>
 Integer>>#bitShift:
 Integer>>#bitShiftMagnitude:
-LargeInteger>>#''//''
-LargeInteger>>#''\\''
 LargeInteger>>#//
 LargeInteger>>#\\
 LegacyWeakSubscription>>#makeStrong
@@ -322,7 +315,6 @@ Metaclass>>#isObsolete
 MethodAnnouncement>>#isProvidedByATrait
 MethodAnnouncement>>#methodOrigin
 MethodAnnouncement>>#selector
-Object>>#''~=''
 Object>>#->
 Object>>#doesNotUnderstand:
 Object>>#literalEqual:
@@ -339,89 +331,6 @@ RPackageSet>>#includesClass:
 RPackageSet>>#initialize:
 RPackageSet>>#packages
 SequenceableCollection>>#join:
-ShAbstractChange>>#=
-ShAbstractChange>>#announceChanges
-ShAbstractChange>>#builder
-ShAbstractChange>>#builder:
-ShAbstractChange>>#hasChangeInstanceSideShape
-ShAbstractChange>>#hasToMigrateInstances
-ShAbstractChange>>#hash
-ShAbstractChange>>#oldClass
-ShAbstractChange>>#oldClass:
-ShAbstractChange>>#propagateToSubclasses:
-ShAbstractChangeDetector class>>#compareClass:with:
-ShAbstractChangeDetector>>#builder
-ShAbstractChangeDetector>>#builder:
-ShAbstractChangeDetector>>#compareClass
-ShAbstractClassChangeDetector>>#compareClass
-ShAbstractClassChangeDetector>>#compareSlotCollection:with:
-ShAbstractClassChangeDetector>>#initialize
-ShAbstractClassChangeDetector>>#newChanges
-ShAbstractInstanceSideClassChangeDetector>>#newChanges
-ShBitLayoutChangeDetector>>#compareClass
-ShBitLayoutChanged>>#propagateToSubclasses:
-ShClassChanged>>#announceChanges
-ShClassChanged>>#builder:
-ShClassSlotChangeDetector>>#initialize
-ShClassSlotChangeDetector>>#newChanges
-ShClassTraitCompositionChangedDetector>>#initialize
-ShDefaultBuilderEnhancer>>#afterMigratingClass:installer:
-ShDefaultBuilderEnhancer>>#beforeMigratingClass:installer:
-ShDefaultBuilderEnhancer>>#compileMethodsFor:
-ShGlobalsEnvironment>>#classNamed:
-ShInstanceShapeChanged>>#hasToMigrateInstances
-ShInstanceShapeChanged>>#propagateToSubclasses:
-ShLayoutChangeDetector>>#initialize
-ShLayoutDefinition>>#isBits
-ShLayoutDefinition>>#sharedVariablesString
-ShMetaclassChanged>>#announceChanges
-ShMetaclassChanged>>#builder:
-ShSharedPoolChangeDetector>>#initialize
-ShSharedVariablesChangeDetector>>#compareFrom:to:
-ShSharedVariablesChangeDetector>>#initialize
-ShSlotChangeDetector>>#initialize
-ShSuperclassChangedDetector>>#initialize
-ShTraitCompositionChangedDetector>>#enhancer
-ShTraitCompositionChangedDetector>>#initialize
-ShiftAnonymousClassInstaller>>#comment:
-ShiftAnonymousClassInstaller>>#installInEnvironment:
-ShiftAnonymousClassInstaller>>#lookupOldClass
-ShiftAnonymousClassInstaller>>#notifyChanges
-ShiftAnonymousClassInstaller>>#recategorize:to:
-ShiftClassBuilder>>#addChange:
-ShiftClassBuilder>>#builderEnhancer:
-ShiftClassBuilder>>#changeComparers
-ShiftClassBuilder>>#changes
-ShiftClassBuilder>>#classNamed:
-ShiftClassBuilder>>#classTraitComposition:
-ShiftClassBuilder>>#comment:
-ShiftClassBuilder>>#comment:stamp:
-ShiftClassBuilder>>#commentStamp
-ShiftClassBuilder>>#commentStamp:
-ShiftClassBuilder>>#compileMethods
-ShiftClassBuilder>>#copyClassSlotsFromExistingClass
-ShiftClassBuilder>>#copyOrganization
-ShiftClassBuilder>>#doesNotUnderstand:
-ShiftClassBuilder>>#fillFor:
-ShiftClassBuilder>>#metaclassClass:
-ShiftClassBuilder>>#propagateChangesTo:
-ShiftClassBuilder>>#propertyAt:
-ShiftClassBuilder>>#sharedVariables:
-ShiftClassBuilder>>#superclassName
-ShiftClassBuilder>>#superclassName:
-ShiftClassBuilder>>#traitComposition:
-ShiftClassInstaller class>>#example
-ShiftClassInstaller class>>#update:to:
-ShiftClassInstaller class>>#validateClassName:
-ShiftClassInstaller>>#builder
-ShiftClassInstaller>>#copyObject:to:
-ShiftClassInstaller>>#migrateInstancesTo:
-ShiftClassInstaller>>#oldClass
-ShiftClassInstaller>>#oldClass:
-ShiftClassInstaller>>#remake:
-SmallInteger>>#''<=''
-SmallInteger>>#''>=''
-SmallInteger>>#''~=''
 SmallInteger>>#//
 SmallInteger>>#<=
 SmallInteger>>#>=
@@ -442,7 +351,6 @@ SparseLargeTable>>#noCheckAt:
 SparseLargeTable>>#pvtCheckIndex:
 SparseLargeTable>>#size
 String class>>#typeTable
-String>>#''>=''
 String>>#<=
 String>>#>=
 String>>#findSubstring:in:startingAt:matchTable:
@@ -458,7 +366,6 @@ SystemVersion>>#major:
 SystemVersion>>#minor:
 SystemVersion>>#suffix:
 SystemVersion>>#type:
-TraitBehavior>>#''>>''
 TraitBehavior>>#>>
 TraitDescription>>#wantsChangeSetLogging
 UndefinedObject>>#printOn:

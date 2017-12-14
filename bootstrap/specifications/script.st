@@ -27,7 +27,9 @@ packageNames := (#BaselineOfPharoBootstrap asClass kernelPackageNames).
 	
 environment := repository asRing2EnvironmentWith: packageNames.	
 
-
+((environment ask behaviorNamed: #SystemVersion) methodNamed: #initialize) sourceCode: 
+'initialize
+	super initialize'.	
 	
 ((environment ask behaviorNamed: #HEInstaller) methodNamed: #installPackage:) sourceCode: 
 'installPackage: aHEPackage
