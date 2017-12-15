@@ -1,0 +1,546 @@
+ASTCache class>>#at:
+ASTCache>>#at:
+AbstractLayout>>#=
+AbstractLayout>>#hash
+AbstractSessionHandler>>#handledId
+AbstractSessionHandler>>#shutdown:
+AbstractSessionHandler>>#startup:
+AbstractTimeZone>>#offset
+AdditionalMethodState class>>#new
+AdditionalMethodState>>#at:
+AdditionalMethodState>>#at:put:
+AdditionalMethodState>>#postCopy
+AllProtocol>>#canBeRemoved
+AllProtocol>>#name:
+Array>>#literalEqual:
+ArrayedCollection>>#storeOn:
+Association>>#literalEqual:
+BasicCommandLineHandler class>>#priority
+Behavior>>#basicLocalSelectors
+Behavior>>#binding
+Behavior>>#bindingOf:
+Behavior>>#isAbstract
+Behavior>>#isAnonymous
+Behavior>>#isMeta
+Behavior>>#isObsolete
+Behavior>>#name
+Behavior>>#postCopy
+Behavior>>#subclassesDo:
+Behavior>>#traitComposition
+Behavior>>#traitComposition:
+BinaryFileStream>>#flush
+BinaryFileStream>>#size
+Boolean class>>#new
+Boolean>>#&
+Boolean>>#and:
+Boolean>>#ifFalse:ifTrue:
+Boolean>>#ifTrue:ifFalse:
+Boolean>>#not
+Boolean>>#or:
+Boolean>>#shallowCopy
+ByteArray>>#hash
+ByteLayout>>#extendWord
+Character class>>#new
+Character>>#copy
+Character>>#hash
+Character>>#identityHash
+Character>>#shallowCopy
+Character>>#shouldBePrintedAsLiteral
+CharacterSet>>#=
+CharacterSet>>#hash
+CharacterSet>>#remove:
+CharacterSet>>#size
+CharacterSetComplement>>#=
+CharacterSetComplement>>#hash
+CharacterSetComplement>>#postCopy
+CharacterSetComplement>>#remove:
+CharacterSetComplement>>#select:
+CharacterSetComplement>>#size
+Class>>#copy
+Class>>#isAbstract
+Class>>#isClass
+Class>>#name:
+ClassAnnouncement>>#classAffected
+ClassDescription>>#addSlot:
+ClassDescription>>#baseClass
+ClassDescription>>#classClass
+ClassDescription>>#subclassesDo:
+ClassTrait>>#copy
+ClassTrait>>#wantsChangeSetLogging
+Collection class>>#empty
+Collection class>>#with:with:with:
+Collection class>>#with:with:with:with:
+Collection>>#,
+Collection>>#add:
+Collection>>#capacity
+Collection>>#collect:
+Collection>>#copyWith:
+Collection>>#do:
+Collection>>#do:separatedBy:
+Collection>>#fillFrom:with:
+Collection>>#flatCollect:
+Collection>>#hash
+Collection>>#includes:
+Collection>>#printOn:
+Collection>>#reject:
+Collection>>#remove:ifAbsent:
+Collection>>#removeAll
+Collection>>#select:thenCollect:
+Collection>>#size
+Collection>>#sorted
+Collection>>#sorted:
+Collection>>#storeOn:
+Color class>>#new
+Color>>#=
+Color>>#hash
+CommandLineHandler class>>#commandName
+CommandLineHandler>>#activate
+CompiledCode>>#=
+CompiledCode>>#asOrderedCollection
+CompiledCode>>#asString
+CompiledCode>>#hash
+CompiledMethod class>>#basicNew
+CompiledMethod class>>#basicNew:
+CompiledMethod class>>#new
+CompiledMethod class>>#newFrom:
+CompiledMethod>>#postCopy
+DangerousClassNotifier class>>#initialize
+DateAndTime class>>#new
+DateAndTime>>#=
+DateAndTime>>#hash
+DelayScheduler>>#handleTimerEvent:
+DelayScheduler>>#restoreResumptionTimes
+DelayScheduler>>#runTimerEventLoop
+DelayScheduler>>#saveResumptionTimes
+DelayScheduler>>#shutDown
+DelayScheduler>>#startTimerEventLoop
+DelayScheduler>>#startUp
+Dictionary>>#=
+Dictionary>>#addAll:
+Dictionary>>#declare:from:
+Dictionary>>#printElementsOn:
+Dictionary>>#remove:
+Dictionary>>#select:
+Duration>>#hash
+Duration>>#initialize
+EncodedCharSet class>>#initialize
+EncodedCharSet class>>#isDigit:
+EncodedCharSet class>>#isLetter:
+EncodedCharSet class>>#isUppercase:
+Exception>>#defaultAction
+Exception>>#printOn:
+ExternalAddress class>>#initialize
+ExternalAddress class>>#new
+ExternalAddress class>>#new:
+ExternalAddress>>#asInteger
+ExternalAddress>>#shallowCopy
+ExternalFunction>>#initialize
+ExternalType class>>#new
+Float class>>#basicNew
+Float class>>#basicNew:
+Float class>>#one
+Float>>#hash
+Float>>#integerPart
+Float>>#shallowCopy
+Fraction>>#<=
+Fraction>>#=
+Fraction>>#>=
+Fraction>>#hash
+Fraction>>#negated
+Fraction>>#negative
+Fraction>>#raisedToInteger:
+FullBlockClosure>>#asContextWithSender:
+FullBlockClosure>>#method
+FullBlockClosure>>#startpc
+FullBlockClosure>>#value
+FullBlockClosure>>#value:
+FullBlockClosure>>#value:value:
+FullBlockClosure>>#value:value:value:
+FullBlockClosure>>#valueNoContextSwitch
+HEAbstractExported>>#=
+HEAbstractExported>>#hash
+HEClass>>#isTrait
+HEClassTrait>>#asLiteralIn:
+HEExportedLiteral>>#doReadFrom:
+HEExportedMetaclass>>#asLiteralIn:
+HEMethodContainer>>#doReadHeaderFrom:
+HETrait>>#isTrait
+HETraitAlias>>#asLiteralIn:
+HETraitExclusion>>#asLiteralIn:
+HETraitTransformation>>#doReadFrom:
+HEWideString>>#doReadFrom:
+Halt>>#signalerContext
+HashTableSizes class>>#initialize
+HashTableSizes>>#initialize
+HashedCollection class>>#newFrom:
+HashedCollection>>#fixCollisionsFrom:
+HashedCollection>>#growTo:
+HashedCollection>>#noCheckAdd:
+HashedCollection>>#noCheckNoGrowFillFrom:
+HashedCollection>>#rehash
+HashedCollection>>#scanFor:
+HashedCollection>>#scanForEmptySlotFor:
+HashedCollection>>#union:
+Heap class>>#withAll:
+Heap>>#=
+Heap>>#at:
+Heap>>#at:put:
+Heap>>#copyEmpty
+Heap>>#postCopy
+Heap>>#size
+IdentitySet>>#asIdentitySet
+IndexedSlot>>#=
+IndexedSlot>>#hash
+InstructionStream class>>#isContextClass
+InstructionStream>>#method
+Integer class>>#basicNew
+Integer class>>#new
+Integer>>#-
+Integer>>#//
+Integer>>#<
+Integer>>#=
+Integer>>#>
+Integer>>#asCharacter
+Integer>>#bitAnd:
+Integer>>#bitOr:
+Integer>>#floor
+Integer>>#gcd:
+Integer>>#highBit
+Integer>>#normalize
+Integer>>#printString
+Integer>>#quo:
+Interval class>>#streamSpecies
+Interval>>#=
+Interval>>#anyOne
+Interval>>#at:put:
+Interval>>#first
+Interval>>#hash
+Interval>>#indexOf:startingAt:ifAbsent:
+Interval>>#last
+Interval>>#remove:
+Interval>>#sorted
+Interval>>#sorted:
+Job>>#value
+LargeInteger>>#+
+LargeInteger>>#/
+LargeInteger>>#<=
+LargeInteger>>#>=
+LargeInteger>>#hash
+LargeNegativeInteger>>#abs
+LargeNegativeInteger>>#negated
+LargeNegativeInteger>>#negative
+LargeNegativeInteger>>#positive
+LargeNegativeInteger>>#sign
+LargePositiveInteger>>#abs
+LargePositiveInteger>>#negated
+LargePositiveInteger>>#positive
+LargePositiveInteger>>#sign
+LayoutAbstractScope>>#=
+LayoutAbstractScope>>#fieldSize
+LayoutAbstractScope>>#flatten
+LayoutAbstractScope>>#hasFields
+LayoutAbstractScope>>#hash
+LayoutAbstractScope>>#ownFieldSize
+LayoutClassScope>>#=
+LayoutClassScope>>#hash
+LayoutClassScope>>#postCopy
+LimitedWriteStream class>>#on:
+LinkedList class>>#new:
+LinkedList class>>#new:streamContents:
+LinkedList class>>#streamSpecies
+LinkedList>>#at:
+LinkedList>>#at:put:
+LinkedList>>#collect:
+LinkedList>>#copyWith:
+LinkedList>>#copyWithout:
+LinkedList>>#do:
+LinkedList>>#first
+LinkedList>>#indexOf:startingAt:ifAbsent:
+LinkedList>>#isEmpty
+LinkedList>>#last
+LinkedList>>#postCopy
+LinkedList>>#removeAllSuchThat:
+LinkedList>>#select:
+LinkedList>>#select:thenCollect:
+LinkedList>>#size
+LinkedList>>#sort:
+LinkedList>>#species
+LinkedList>>#swap:with:
+LiteralVariable class>>#initialize
+LookupKey>>#hash
+Magnitude>>#<
+Magnitude>>#=
+Magnitude>>#>
+Magnitude>>#hash
+Metaclass>>#environment
+Metaclass>>#isClass
+Metaclass>>#postCopy
+Metaclass>>#wantsChangeSetLogging
+MethodDictionary>>#add:
+MethodDictionary>>#associationAt:ifAbsent:
+MethodDictionary>>#associationsDo:
+MethodDictionary>>#fixCollisionsFrom:
+MethodDictionary>>#rehash
+MethodDictionary>>#removeAll
+MethodDictionary>>#removeKey:ifAbsent:
+MethodRemoved>>#methodOrigin
+Month class>>#current
+Month class>>#starting:duration:
+Number>>#*
+Number>>#+
+Number>>#-
+Number>>#/
+Number>>#//
+Number>>#\\
+Number>>#adaptToInteger:andSend:
+Number>>#asFloat
+Number>>#ceiling
+Number>>#isNaN
+Number>>#ln
+Number>>#printString
+Number>>#quo:
+Number>>#rounded
+Number>>#signBit
+Number>>#truncated
+OSPlatform class>>#initialize
+OSPlatform class>>#isActivePlatform
+OSPlatform class>>#shutDown:
+OSPlatform>>#lineEnding
+Object class>>#newFrom:
+Object class>>#readFrom:
+Object>>#adaptToInteger:andCompare:
+Object>>#adaptToInteger:andSend:
+Object>>#asOrderedCollection
+Object>>#asString
+Object>>#bindingOf:
+Object>>#className
+Object>>#copyFrom:
+Object>>#finalize
+Object>>#handles:
+Object>>#isClosure
+Object>>#isContext
+Object>>#isFraction
+Object>>#isLiteral
+Object>>#join:
+Object>>#printOn:
+Object>>#release
+Object>>#split:indicesDo:
+Object>>#storeOn:
+ObjectLayout class>>#extending:scope:host:
+ObjectLayout>>#extend:
+ObjectLayout>>#extendVariable:
+ObjectLayout>>#instanceSpecification
+OrderedCollection class>>#new:streamContents:
+OrderedCollection class>>#streamSpecies
+OrderedCollection>>#asOrderedCollection
+OrderedCollection>>#copyWith:
+OrderedCollection>>#join:
+OrderedCollection>>#removeAllSuchThat:
+OrderedCollection>>#reversed
+Point>>#=
+Point>>#hash
+PointerLayout>>#=
+PointerLayout>>#hash
+PointerLayout>>#postCopy
+PointerLayout>>#size
+PositionableStream>>#contents
+PositionableStream>>#reset
+Pragma>>#=
+Pragma>>#hash
+ProcessList class>>#new:
+ProcessList class>>#new:streamContents:
+ProcessList class>>#streamSpecies
+ProcessList>>#at:
+ProcessList>>#at:put:
+ProcessList>>#collect:
+ProcessList>>#copyWith:
+ProcessList>>#copyWithout:
+ProcessList>>#do:
+ProcessList>>#first
+ProcessList>>#indexOf:startingAt:ifAbsent:
+ProcessList>>#isEmpty
+ProcessList>>#last
+ProcessList>>#postCopy
+ProcessList>>#removeAllSuchThat:
+ProcessList>>#select:
+ProcessList>>#select:thenCollect:
+ProcessList>>#size
+ProcessList>>#species
+ProcessList>>#swap:with:
+ProcessSpecificVariable class>>#initialize
+ProcessorScheduler class>>#new
+RBBlockNode>>#=
+RBBlockNode>>#hash
+RBBlockNode>>#initialize
+RBBlockNode>>#postCopy
+RBProgramNode>>#postCopy
+RBProgramNode>>#size
+RPackageOrganizer class>>#initialize
+RPackageTag class>>#new
+SHA1 class>>#initialize
+Semaphore>>#=
+Semaphore>>#hash
+SequenceableCollection>>#anyOne
+SequenceableCollection>>#beginsWith:
+SequenceableCollection>>#copyEmpty
+SequenceableCollection>>#endsWith:
+SequenceableCollection>>#hash
+SequenceableCollection>>#indexOf:startingAt:
+SequenceableCollection>>#indexOfSubCollection:startingAt:ifAbsent:
+SequenceableCollection>>#remove:ifAbsent:
+SequenceableCollection>>#size
+Set>>#=
+Set>>#copyWithout:
+Set>>#like:
+Set>>#noCheckNoGrowFillFrom:
+SetElement>>#=
+SetElement>>#asSetElement
+SetElement>>#enclosedSetElement
+SetElement>>#hash
+SharedPool class>>#bindingOf:
+SharedPool class>>#classBindingOf:
+SharedQueue>>#flush
+SharedQueue>>#postCopy
+SharedQueue>>#size
+Slot>>#=
+Slot>>#hash
+Slot>>#isVirtual
+SmallInteger class>>#basicNew
+SmallInteger class>>#new
+SmallInteger>>#basicIdentityHash
+SmallInteger>>#printString
+SmallInteger>>#shallowCopy
+SmalltalkImage class>>#new
+SmalltalkImage class>>#shutDown:
+SmalltalkImage class>>#startUp:
+SmalltalkImage>>#size
+SourceFileArray class>>#initialize
+SourceFileArray class>>#startUp:
+SparseLargeTable class>>#new:
+SparseLargeTable>>#at:put:
+SparseLargeTable>>#copyEmpty
+SparseLargeTable>>#postCopy
+SparseLargeTable>>#printElementsOn:
+StdioStream>>#next:
+Stream class>>#new
+Stream>>#atEnd
+Stream>>#close
+Stream>>#closed
+Stream>>#contents
+Stream>>#next
+Stream>>#next:
+Stream>>#nextPut:
+String class>>#compare:with:collated:
+String class>>#indexOfAscii:inString:startingAt:
+String class>>#stringHash:initialHash:
+String class>>#translate:from:to:table:
+String>>#indexOf:startingAt:ifAbsent:
+String>>#isByteString
+String>>#isOctetString
+Symbol class>>#new:
+Symbol class>>#newFrom:
+Symbol class>>#with:
+Symbol class>>#withAll:
+Symbol>>#at:put:
+Symbol>>#copy
+Symbol>>#replaceFrom:to:with:startingAt:
+Symbol>>#shallowCopy
+Symbol>>#sorted:
+Symbol>>#string:
+SystemDictionary>>#printElementsOn:
+SystemDictionary>>#removeKey:ifAbsent:
+Time class>>#new
+Time>>#=
+Time>>#hash
+Timespan class>>#new
+Timespan class>>#starting:
+Timespan>>#=
+Timespan>>#hash
+Trait class>>#new
+Trait>>#copy
+TraitBehavior>>#binding
+TraitBehavior>>#environment
+TraitBehavior>>#isMeta
+TraitBehavior>>#isObsolete
+TraitBehavior>>#name
+TraitBehavior>>#notifyUsersOfChangedSelectors:
+TraitBehavior>>#postCopy
+TraitComposition>>#copy
+TraitComposition>>#postCopy
+TraitComposition>>#printString
+TraitComposition>>#size
+TraitDescription>>#baseTrait
+TraitDescription>>#classTrait
+TraitDescription>>#isBaseTrait
+UIManager>>#activate
+UndefinedObject class>>#allInstances
+UndefinedObject class>>#allInstancesDo:
+UndefinedObject class>>#new
+UndefinedObject>>#asSetElement
+UndefinedObject>>#ifNil:ifNotNil:
+Unicode class>>#initialize
+WeakAnnouncementSubscription class>>#initialize
+WeakAnnouncementSubscription>>#makeStrong
+WeakAnnouncementSubscription>>#subscriber:
+WeakArray class>>#initialize
+WeakArray class>>#startUp:
+WeakFinalizerItem>>#executor
+WeakFinalizerItem>>#postCopy
+WeakIdentityKeyDictionary>>#valuesDo:
+WeakKeyAssociation>>#=
+WeakKeyAssociation>>#hash
+WeakKeyDictionary>>#add:
+WeakKeyDictionary>>#compare:to:
+WeakKeyDictionary>>#fixCollisionsFrom:
+WeakKeyDictionary>>#grow
+WeakKeyDictionary>>#postCopy
+WeakKeyDictionary>>#startIndexFor:
+WeakKeyDictionary>>#valuesDo:
+WeakKeyToCollectionDictionary>>#finalizeValues
+WeakMessageSend>>#=
+WeakMessageSend>>#hash
+WeakMessageSend>>#value
+WeakRegistry class>>#new:
+WeakRegistry>>#postCopy
+WeakRegistry>>#printElementsOn:
+WeakRegistry>>#size
+WeakRegistry>>#species
+WeakSet>>#anyOne
+WeakSet>>#asArray
+WeakSet>>#fixCollisionsFrom:
+WeakSet>>#includes:
+WeakSet>>#postCopy
+WeakSet>>#printElementsOn:
+WeakSet>>#remove:ifAbsent:
+WeakValueDictionary>>#add:
+WeakValueDictionary>>#at:ifAbsent:
+WeakValueDictionary>>#at:ifPresent:
+WeakValueDictionary>>#at:put:
+WideString>>#asLowercase
+WideString>>#at:
+WideString>>#at:put:
+WideString>>#copyFrom:to:
+WideString>>#findIn:startingAt:matchTable:
+WideString>>#replaceFrom:to:with:startingAt:
+WordArray>>#atAllPut:
+WordArray>>#replaceFrom:to:with:startingAt:
+WordLayout>>#extendByte
+WriteStream>>#size
+ZnCharacterEncoder class>>#handlesEncoding:
+ZnCharacterEncoder>>#=
+ZnCharacterEncoder>>#hash
+ZnCharacterEncoder>>#nextCodePointFromStream:
+ZnCharacterEncoder>>#nextPutCodePoint:toStream:
+ZnCrPortableWriteStream>>#nextPut:
+ZnEncodedReadStream>>#nextElement
+ZnEndianSensitiveUTFEncoder class>>#newForEncoding:
+ZnEndianSensitiveUTFEncoder>>#=
+ZnEndianSensitiveUTFEncoder>>#hash
+ZnEndianSensitiveUTFEncoder>>#initialize
+ZnNullEncoder class>>#newForEncoding:
+ZnSimplifiedByteEncoder class>>#initialize
+ZnSimplifiedByteEncoder class>>#newForEncoding:
+ZnSimplifiedByteEncoder>>#=
+ZnSimplifiedByteEncoder>>#hash
+ZnSimplifiedByteEncoder>>#initialize
+ZnSimplifiedByteEncoder>>#nextFromStream:

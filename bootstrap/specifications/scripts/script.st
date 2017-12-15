@@ -40,8 +40,10 @@ environment := repository asRing2EnvironmentWith: packageNames.
 		nextPutAll: aMessage selector;
 		cr.
 
-	[true] whileTrue: [  ].
-	Smalltalk exit: self '.	
+	thisContext stack do: [:each | 
+		each logCr.].
+	
+	Smalltalk exit: 1'.	
 		
 	
 	
@@ -65,7 +67,7 @@ environment := repository asRing2EnvironmentWith: packageNames.
 			Transcript nextPutAll: ''loading: ''; nextPutAll: exportedClass className; cr. 
 			(self environment includesKey: exportedClass className) 
 				ifTrue: [ 
-					''skipping...'' logCr.
+					"''skipping...'' logCr."
 					aClass := self environment at: exportedClass className. ]	 
 				ifFalse: [ 
 					aClass := self build: exportedClass.
@@ -75,6 +77,7 @@ environment := repository asRing2EnvironmentWith: packageNames.
 	aHEPackage classes with: newClasses do: [ :exportedClass :newClass | self installMethods: exportedClass into: newClass ].
 
 	aHEPackage extensionMethods do: [ :e | self installExtensionMethod: e ].
+	
 	#Done logCr.
 '.	
 	
@@ -124,6 +127,7 @@ usedClasses := ((FileStream readOnlyFileNamed: specificationsPath / 'hermes-clas
 calledMethods := ((FileStream readOnlyFileNamed: specificationsPath / 'minimal-methods.txt') contentsOfEntireFile lines collect: #asSymbol) asIdentitySet.
 calledMethods addAll: ((FileStream readOnlyFileNamed: specificationsPath / 'traced-methods.txt') contentsOfEntireFile lines collect: #asSymbol) asIdentitySet.
 calledMethods addAll: ((FileStream readOnlyFileNamed: specificationsPath / 'additional-methods.txt') contentsOfEntireFile lines collect: #asSymbol) asIdentitySet.
+calledMethods addAll: ((FileStream readOnlyFileNamed: specificationsPath / 'missing-methods.txt') contentsOfEntireFile lines collect: #asSymbol) asIdentitySet.
 
 "calledMethods := ((FileStream readOnlyFileNamed: specificationsPath / 'hermes-methods.txt') contentsOfEntireFile lines collect: #asSymbol) asIdentitySet."
 
@@ -149,4 +153,18 @@ fetcher buildNumber: buildNumber.
 environment bootstrapWith: fetcher architecture: architecture to: bootstrap imageReference.	
 
  "#(#AbstractClassInstaller #AbstractMethodUpdateStrategy #ChangeSet #ClassChangeRecord #MCPackage #MCPackageManager #MethodChangeRecord #MethodRecompileStrategy #PharoClassInstaller #SlotClassBuilder #TClass)"
+
+"
+ms := environment ask behaviors flatCollect: [ :c | c localMethods ].
+missing := ms flatCollect: [ :m |
+original := Full ask behaviorNamed: m origin name.
+implementors := original allSubclasses, original allSuperclasses select: [ :aClass |
+	aClass selectors includes: m selector.
+	 ].
+localImplementors := implementors collect: [ :each | environment ask behaviorNamed: each name. ].
+localImplementors := localImplementors reject: #isNil.
+miss := localImplementors select: [ :each | (each selectors includes: m selector) not. ].
+miss collect: [ :each | each name, '>>#', m selector ] ].
+
+missing asSet sorted joinUsing: String cr."
 
