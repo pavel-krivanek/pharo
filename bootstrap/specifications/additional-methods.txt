@@ -374,3 +374,239 @@ Unicode class>>#isDigit:
 Unicode class>>#isLetter:
 Unicode class>>#isUppercase:
 WeakKeyAssociation>>#value:
+HETrait>>#doReadHeaderFrom:
+HEInteger>>#doReadFrom:
+HEAbstractExported class>>#readFrom:
+HEAdditionalMethodState class>>#tag
+HEAdditionalMethodState>>#asLiteralIn:
+HEAdditionalMethodState>>#doReadFrom:
+HEArray class>>#tag
+HEArray>>#asLiteralIn:
+HEArray>>#doReadFrom:
+HEAssociation class>>#tag
+HEAssociation>>#asLiteralIn:
+HEAssociation>>#doReadFrom:
+HEBinaryReaderWriter>>#intSize
+HEBinaryReaderWriter>>#readByte
+HEBinaryReaderWriter>>#readByteArray
+HEBinaryReaderWriter>>#readByteString
+HEBinaryReaderWriter>>#readByteSymbol
+HEBinaryReaderWriter>>#readInt32
+HEBinaryReaderWriter>>#readUInt32
+HEBinaryReaderWriter>>#stream:
+HEBoolean class>>#tag
+HEBoolean>>#asLiteralIn:
+HEBoolean>>#doReadFrom:
+HEByteArray class>>#tag
+HEByteArray>>#asLiteralIn:
+HEByteArray>>#doReadFrom:
+HEByteString class>>#tag
+HEByteString>>#asLiteralIn:
+HEByteString>>#doConvertValue:
+HEByteString>>#doReadFrom:
+HECharacter class>>#tag
+HECharacter>>#asLiteralIn:
+HEClass>>#classInstancevariables
+HEClass>>#className
+HEClass>>#classVariables
+HEClass>>#doReadHeaderFrom:
+HEClass>>#instanceVariables
+HEClass>>#layoutClass
+HEClass>>#sharedPools
+HEClass>>#superclass
+HEClassTrait class>>#tag
+HEClassVariable class>>#tag
+HEClassVariable>>#asLiteralIn:
+HEExportedLiteral class>>#readFrom:
+HEExportedLiteral>>#value
+HEExportedMetaclass class>>#tag
+HEExtendedEnvironment>>#classNamed:
+HEExtendedEnvironment>>#inner:
+HEExtendedEnvironment>>#newClass
+HEExtendedEnvironment>>#newClass:
+HEExtendedEnvironment>>#newMethod
+HEExtendedEnvironment>>#newMethod:
+HEExtendedEnvironment>>#newSelector
+HEExtendedEnvironment>>#newSelector:
+HEFloat class>>#tag
+HEFloat>>#asLiteralIn:
+HEFloat>>#doReadFrom:
+HEFraction class>>#tag
+HEGlobalVariable class>>#tag
+HEGlobalVariable>>#asLiteralIn:
+HEInstaller>>#asClassVariables:
+HEInstaller>>#asSlots:
+HEInstaller>>#build:
+HEInstaller>>#buildTrait:
+HEInstaller>>#classNamed:
+HEInstaller>>#environment
+HEInstaller>>#initialize
+HEInstaller>>#installClass:in:
+HEInstaller>>#installExtensionMethod:
+HEInstaller>>#installMethods:into:
+HEInstaller>>#installPackage:
+HEInstaller>>#rebuildMethod:into:
+HEInteger class>>#tag
+HEInteger>>#asLiteralIn:
+HEInteger>>#doReadFrom:
+HEMethod>>#bytecode
+HEMethod>>#className
+HEMethod>>#headerFor:
+HEMethod>>#literals
+HEMethod>>#name
+HEMethod>>#protocol
+HEMethod>>#readFrom:
+HEMethodContainer>>#category
+HEMethodContainer>>#classSideMethods
+HEMethodContainer>>#classTraitComposition
+HEMethodContainer>>#doReadMethodsFrom:
+HEMethodContainer>>#methods
+HEMethodContainer>>#readFrom:
+HEMethodContainer>>#traitComposition
+HEMethodLiteral class>>#tag
+HEMethodLiteral>>#asLiteralIn:
+HEMethodLiteral>>#doReadFrom:
+HEPackage class>>#formatVersion
+HEPackage>>#classes
+HEPackage>>#extensionMethods
+HEPackage>>#initialize
+HEPackage>>#packageName
+HEPackage>>#readFrom:
+HEPackage>>#traits
+HEPragma class>>#tag
+HEPragma>>#asLiteralIn:
+HEPragma>>#doReadFrom:
+HEScaledDecimal class>>#tag
+HESymbol class>>#tag
+HESymbol>>#doConvertValue:
+HETrait>>#doReadHeaderFrom:
+HETrait>>#traitName
+HETraitAlias class>>#tag
+HETraitComposition class>>#tag
+HETraitComposition>>#asLiteralIn:
+HETraitExclusion class>>#tag
+HETraitTransformation class>>#tag
+HEUndefinedObject class>>#tag
+HEUndefinedObject>>#asLiteralIn:
+HEUndefinedObject>>#doReadFrom:
+HEWideString class>>#tag
+ByteArray>>#asInteger
+AdditionalMethodState>>#isMethodProperties
+AdditionalMethodState>>#method:
+AdditionalMethodState>>#selector
+Behavior>>#>>
+Behavior>>#classBindingOf:
+BinaryFileStream>>#finalize
+Context class>>#runSimulated:
+Dictionary>>#fixCollisionsFrom:
+Dictionary>>#removeKey:
+Dictionary>>#removeKey:ifAbsent:
+False>>#ifTrue:ifFalse:
+Integer>>#<=
+Integer>>#>>
+LargeInteger>>#//
+LargeInteger>>#\\
+Metaclass>>#bindingOf:
+Object>>#~=
+Object>>#primitiveChangeClassTo:
+Pragma class>>#for:selector:arguments:
+Pragma>>#key
+Pragma>>#setArguments:
+Pragma>>#setKeyword:
+Pragma>>#setMethod:
+RPackageOrganizer>>#hasPackageExactlyMatchingExtensionName:
+RPackageOrganizer>>#hasPackageMatchingExtensionName:
+RPackageOrganizer>>#includesPackageNamed:
+Set>>#asSet
+ShAbstractChange>>#=
+ShAbstractChange>>#announceChanges
+ShAbstractChange>>#builder
+ShAbstractChange>>#builder:
+ShAbstractChange>>#hasChangeInstanceSideShape
+ShAbstractChange>>#hasToMigrateInstances
+ShAbstractChange>>#hash
+ShAbstractChange>>#oldClass
+ShAbstractChange>>#oldClass:
+ShAbstractChange>>#propagateToSubclasses:
+ShAbstractChangeDetector class>>#compareClass:with:
+ShAbstractChangeDetector>>#builder
+ShAbstractChangeDetector>>#builder:
+ShAbstractChangeDetector>>#compareClass
+ShAbstractClassChangeDetector>>#compareClass
+ShAbstractClassChangeDetector>>#compareSlotCollection:with:
+ShAbstractClassChangeDetector>>#initialize
+ShAbstractClassChangeDetector>>#newChanges
+ShAbstractInstanceSideClassChangeDetector>>#newChanges
+ShBitLayoutChangeDetector>>#compareClass
+ShBitLayoutChanged>>#propagateToSubclasses:
+ShClassChanged>>#announceChanges
+ShClassChanged>>#builder:
+ShClassSlotChangeDetector>>#initialize
+ShClassSlotChangeDetector>>#newChanges
+ShClassTraitCompositionChangedDetector>>#initialize
+ShDefaultBuilderEnhancer>>#afterMigratingClass:installer:
+ShDefaultBuilderEnhancer>>#beforeMigratingClass:installer:
+ShDefaultBuilderEnhancer>>#compileMethodsFor:
+ShGlobalsEnvironment>>#classNamed:
+ShInstanceShapeChanged>>#hasToMigrateInstances
+ShInstanceShapeChanged>>#propagateToSubclasses:
+ShLayoutChangeDetector>>#initialize
+ShLayoutDefinition>>#isBits
+ShLayoutDefinition>>#sharedVariablesString
+ShMetaclassChanged>>#announceChanges
+ShMetaclassChanged>>#builder:
+ShSharedPoolChangeDetector>>#initialize
+ShSharedVariablesChangeDetector>>#compareFrom:to:
+ShSharedVariablesChangeDetector>>#initialize
+ShSlotChangeDetector>>#initialize
+ShSuperclassChangedDetector>>#initialize
+ShTraitCompositionChangedDetector>>#enhancer
+ShTraitCompositionChangedDetector>>#initialize
+ShiftAnonymousClassInstaller>>#comment:
+ShiftAnonymousClassInstaller>>#installInEnvironment:
+ShiftAnonymousClassInstaller>>#lookupOldClass
+ShiftAnonymousClassInstaller>>#notifyChanges
+ShiftAnonymousClassInstaller>>#recategorize:to:
+ShiftClassBuilder>>#addChange:
+ShiftClassBuilder>>#builderEnhancer:
+ShiftClassBuilder>>#changeComparers
+ShiftClassBuilder>>#changes
+ShiftClassBuilder>>#classNamed:
+ShiftClassBuilder>>#classTraitComposition:
+ShiftClassBuilder>>#comment:
+ShiftClassBuilder>>#comment:stamp:
+ShiftClassBuilder>>#commentStamp
+ShiftClassBuilder>>#commentStamp:
+ShiftClassBuilder>>#compileMethods
+ShiftClassBuilder>>#copyClassSlotsFromExistingClass
+ShiftClassBuilder>>#copyOrganization
+ShiftClassBuilder>>#doesNotUnderstand:
+ShiftClassBuilder>>#fillFor:
+ShiftClassBuilder>>#metaclassClass:
+ShiftClassBuilder>>#propagateChangesTo:
+ShiftClassBuilder>>#propertyAt:
+ShiftClassBuilder>>#sharedVariables:
+ShiftClassBuilder>>#superclassName
+ShiftClassBuilder>>#superclassName:
+ShiftClassBuilder>>#traitComposition:
+ShiftClassInstaller class>>#example
+ShiftClassInstaller class>>#update:to:
+ShiftClassInstaller class>>#validateClassName:
+ShiftClassInstaller>>#builder
+ShiftClassInstaller>>#copyObject:to:
+ShiftClassInstaller>>#migrateInstancesTo:
+ShiftClassInstaller>>#oldClass
+ShiftClassInstaller>>#oldClass:
+ShiftClassInstaller>>#remake:
+SmallInteger>>#<=
+SmallInteger>>#>=
+SmallInteger>>#~=
+String>>#>=
+String>>#withoutPrefix:
+Symbol class>>#new:streamContents:
+Symbol class>>#streamSpecies
+TraitBehavior>>#>>
+TraitDescription>>#addAndClassifySelector:withMethod:inProtocol:notifying:
+WeakFinalizerItem>>#finalizeValues
+HEInstaller>>#existingTrait:
+SystemDictionary>>#declare:from:

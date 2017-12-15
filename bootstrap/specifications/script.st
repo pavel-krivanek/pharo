@@ -3,7 +3,7 @@ architecture := options optionAt: 'ARCH' ifAbsent: [ '32' ].
 buildNumber := options optionAt: 'BUILD_NUMBER' ifAbsent: [ '1' ].
 
 "Configure logging"
-(CustomStringStreamBeacon with: FileStream stdout)
+(CustomStringStreamBeacon with: Transcript)
 	startFor: PBStepStartedSignal, PBStepFinishedSignal.
 
 FileStream stdout
@@ -11,8 +11,8 @@ FileStream stdout
 	cr.
 
 bootstrap := PBBootstrap forArchitecture: architecture.
-bootstrap buildNumber: buildNumber";
-	prepareBootstrap".
+bootstrap buildNumber: buildNumber.
+"bootstrap prepareBootstrap".
 	
 repositoryReference := (Smalltalk os environment at: 'BOOTSTRAP_REPOSITORY' ifAbsent: ['.']) asFileReference.
 	
@@ -30,6 +30,20 @@ environment := repository asRing2EnvironmentWith: packageNames.
 ((environment ask behaviorNamed: #SystemVersion) methodNamed: #initialize) sourceCode: 
 'initialize
 	super initialize'.	
+		
+((environment ask behaviorNamed: #Object) methodNamed: #doesNotUnderstand:) sourceCode: 
+'doesNotUnderstand: aMessage	
+	Transcript 
+		nextPutAll: ''DNU: '';
+		nextPutAll: aMessage lookupClass name;
+		nextPutAll: ''>>#'';
+		nextPutAll: aMessage selector;
+		cr.
+
+	[true] whileTrue: [  ].
+	Smalltalk exit: self '.	
+		
+	
 	
 ((environment ask behaviorNamed: #HEInstaller) methodNamed: #installPackage:) sourceCode: 
 'installPackage: aHEPackage
@@ -111,6 +125,7 @@ calledMethods := ((FileStream readOnlyFileNamed: specificationsPath / 'minimal-m
 calledMethods addAll: ((FileStream readOnlyFileNamed: specificationsPath / 'traced-methods.txt') contentsOfEntireFile lines collect: #asSymbol) asIdentitySet.
 calledMethods addAll: ((FileStream readOnlyFileNamed: specificationsPath / 'additional-methods.txt') contentsOfEntireFile lines collect: #asSymbol) asIdentitySet.
 
+"calledMethods := ((FileStream readOnlyFileNamed: specificationsPath / 'hermes-methods.txt') contentsOfEntireFile lines collect: #asSymbol) asIdentitySet."
 
 environment removeAllButBehaviorsNamed: usedClasses.
 environment removeAllButMethodsNamed: calledMethods.	
@@ -125,7 +140,7 @@ toRemove := aBehavior tagsForMethods select: [ :tag |
 toRemove do: [ :tag | aBehavior removeMethodTag: tag ]].
 
 
-environment browse.
+"environment browse."
 
 fetcher := PBRing2GitFetcher new.
 fetcher gitRepositoryUrl: 'git@github.com:pharo-project/pharo.git' location: repositoryReference subdirectory: 'src'.
@@ -133,8 +148,5 @@ fetcher buildNumber: buildNumber.
 
 environment bootstrapWith: fetcher architecture: architecture to: bootstrap imageReference.	
 
-
-
-
-
+ "#(#AbstractClassInstaller #AbstractMethodUpdateStrategy #ChangeSet #ClassChangeRecord #MCPackage #MCPackageManager #MethodChangeRecord #MethodRecompileStrategy #PharoClassInstaller #SlotClassBuilder #TClass)"
 

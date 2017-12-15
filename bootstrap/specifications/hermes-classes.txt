@@ -318,3 +318,7 @@ ShiftAnonymousClassInstaller
 ShiftClassInstaller
 WideString
 PackageManifest
+Date
+Month
+HEBinaryReader
+UndeclaredVariable

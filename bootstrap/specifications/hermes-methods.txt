@@ -79,7 +79,7 @@ BasicCommandLineHandler>>#subCommandsRoot
 Behavior class>>#initialize
 Behavior class>>#initializeClassProperties
 Behavior class>>#initializeObsoleteSubclasses
-Behavior>>#''>>''
+Behavior>>#>>
 Behavior>>#>>
 Behavior>>#addSelectorSilently:withMethod:
 Behavior>>#allInstances
@@ -1067,8 +1067,8 @@ InstructionStream>>#interpretNextInstructionFor:
 InstructionStream>>#interpretNextV3PlusClosureInstructionFor:
 InstructionStream>>#interpretV3PlusClosureExtension:in:for:
 InstructionStream>>#pc:
-Integer>>#''<=''
-Integer>>#''>>''
+Integer>>#<=
+Integer>>#>>
 Integer>>#*
 Integer>>#+
 Integer>>#/
@@ -1118,8 +1118,8 @@ Job>>#run
 Job>>#title:
 JobAnnouncement class>>#on:
 JobAnnouncement>>#job:
-LargeInteger>>#''//''
-LargeInteger>>#''\\''
+LargeInteger>>#//
+LargeInteger>>#\\
 LargeInteger>>#*
 LargeInteger>>#//
 LargeInteger>>#\\
@@ -1253,7 +1253,7 @@ OSPlatform>>#startUp:
 Object class>>#flushDependents
 Object class>>#initialize
 Object class>>#initializeDependentsFields
-Object>>#''~=''
+Object>>#~=
 Object>>#->
 Object>>#=
 Object>>#actAsExecutor
@@ -1682,9 +1682,9 @@ Slot>>#size
 Slot>>#wantsInitalization
 SmallInteger class>>#initialize
 SmallInteger class>>#startUp:
-SmallInteger>>#''<=''
-SmallInteger>>#''>=''
-SmallInteger>>#''~=''
+SmallInteger>>#<=
+SmallInteger>>#>=
+SmallInteger>>#~=
 SmallInteger>>#*
 SmallInteger>>#+
 SmallInteger>>#-
@@ -1779,7 +1779,7 @@ String class>>#newUppercasingTable
 String class>>#tab
 String class>>#typeTable
 String class>>#with:
-String>>#''>=''
+String>>#>=
 String>>#<=
 String>>#=
 String>>#>=
@@ -1934,7 +1934,7 @@ Trait>>#name
 Trait>>#name:
 Trait>>#setName:andRegisterInCategory:environment:
 TraitBehavior class>>#initialize
-TraitBehavior>>#''>>''
+TraitBehavior>>#>>
 TraitBehavior>>#>>
 TraitBehavior>>#addSelectorSilently:withMethod:
 TraitBehavior>>#basicAddSelector:withMethod:
