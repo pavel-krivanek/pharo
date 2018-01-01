@@ -610,3 +610,17 @@ TraitDescription>>#addAndClassifySelector:withMethod:inProtocol:notifying:
 WeakFinalizerItem>>#finalizeValues
 HEInstaller>>#existingTrait:
 SystemDictionary>>#declare:from:
+Dictionary>>#declare:from:
+Object>>#bindingOf:
+Behavior>>#bindingOf:
+Class>>#bindingOf:
+SharedPool class>>#bindingOf:
+Metaclass>>#bindingOf:
+Dictionary>>#bindingOf:
+SystemDictionary>>#bindingOf:
+OrderedDictionary>>#bindingOf:
+SmallDictionary>>#bindingOf:
+SmalltalkImage>>#bindingOf:
+TraitBehavior>>#bindingOf:
+ClassTrait>>#bindingOf:
+Trait>>#bindingOf:

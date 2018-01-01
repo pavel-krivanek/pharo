@@ -302,7 +302,7 @@ SystemVersion >> initialize [
 	suffix := ''.
 	build := self class invalidBuildNumber.
 	commitHash := ''.
-	date := Date today.
+	"date := Date today".
 ]
 
 { #category : #'accessing - properties' }

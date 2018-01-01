@@ -1,0 +1,918 @@
+Protocol>>#includesSelector:
+Protocol>>#name
+Protocol>>#name:
+Protocol>>#addMethod:
+Protocol>>#initialize
+Protocol class>>#name:
+Protocol class>>#nullCategory
+Protocol class>>#defaultName
+Protocol class>>#unclassified
+SubscriptionRegistry>>#deliver:
+SubscriptionRegistry>>#deliver:to:
+SubscriptionRegistry>>#deliver:to:startingAt:
+SubscriptionRegistry>>#subscriptionsHandling:
+SubscriptionRegistry>>#protected:
+HEPackage>>#traits
+HEPackage>>#classes
+HEPackage>>#packageName
+HEPackage>>#readFrom:
+HEPackage>>#extensionMethods
+HEPackage>>#initialize
+HEPackage class>>#formatVersion
+SmallInteger>>#>=
+SmallInteger>>#+
+SmallInteger>>#<
+SmallInteger>>#>
+SmallInteger>>#~=
+SmallInteger>>#<=
+SmallInteger>>#bitShift:
+Semaphore>>#critical:ifError:
+Semaphore>>#signal
+Semaphore>>#wait
+Semaphore>>#critical:
+HEClassTrait class>>#tag
+SequenceableCollection>>#includes:
+SequenceableCollection>>#select:thenCollect:
+SequenceableCollection>>#at:ifAbsent:
+SequenceableCollection>>#indexOf:startingAt:ifAbsent:
+SequenceableCollection>>#reject:
+SequenceableCollection>>#do:separatedBy:
+SequenceableCollection>>#doWithIndex:
+SequenceableCollection>>#,
+SequenceableCollection>>#indexOf:ifAbsent:
+SequenceableCollection>>#with:do:
+SequenceableCollection>>#asTraitComposition
+SequenceableCollection>>#atAllPut:
+SequenceableCollection>>#withIndexDo:
+SequenceableCollection>>#select:
+SequenceableCollection>>#writeStream
+SequenceableCollection>>#copyReplaceFrom:to:with:
+SequenceableCollection>>#grownBy:
+SequenceableCollection>>#=
+SequenceableCollection>>#flatCollect:
+SequenceableCollection>>#indexOf:
+SequenceableCollection>>#copyFrom:to:
+SequenceableCollection>>#copyWith:
+SequenceableCollection>>#last
+SequenceableCollection>>#replaceFrom:to:with:
+SequenceableCollection>>#collect:
+SequenceableCollection class>>#streamSpecies
+SequenceableCollection class>>#streamContents:
+SequenceableCollection class>>#new:streamContents:
+SequenceableCollection class>>#ofSize:
+SequenceableCollection class>>#streamContents:limitedTo:
+IndexedSlot>>#isVirtual
+IndexedSlot>>#index
+RPackageTag>>#addClassNamed:
+RPackageTag>>#categoryName
+RPackageTag>>#initializePackage:name:
+RPackageTag>>#package
+RPackageTag>>#packageName
+RPackageTag>>#name
+RPackageTag>>#toCategoryName:
+RPackageTag>>#initialize
+RPackageTag>>#ensureSystemCategory
+RPackageTag class>>#package:name:
+AllProtocol>>#protocolOrganizer:
+AllProtocol>>#protocolOrganizer
+AllProtocol>>#name
+AllProtocol>>#methods
+AllProtocol class>>#protocolOrganizer:
+AllProtocol class>>#defaultName
+WeakAnnouncementSubscription>>#handlesAnnouncement:
+WeakAnnouncementSubscription>>#deliver:
+LargeInteger>>#*
+LargeInteger>>#\\
+LargeInteger>>#//
+MCWorkingCopy>>#initialize
+HETraitExclusion class>>#tag
+Mutex>>#critical:
+HEReplaceOnDuplication class>>#keyword
+Stdio class>>#stderr
+HEByteArray class>>#tag
+ProtocolOrganizer>>#allMethods
+ProtocolOrganizer>>#includesSelector:
+ProtocolOrganizer>>#protocolsOfSelector:
+ProtocolOrganizer>>#reset
+ProtocolOrganizer>>#initialize
+ProtocolOrganizer>>#protocolsNames
+ProtocolOrganizer>>#getProtocolNamed:ifNone:
+ProtocolOrganizer>>#protocols
+ProtocolOrganizer>>#addProtocolNamed:
+ProtocolOrganizer>>#classify:inProtocolNamed:
+Slot>>#size
+Slot>>#isVisible
+Slot>>#name
+Character>>#isLetter
+Character>>#characterSet
+Character>>#=
+Character>>#isCharacter
+Character>>#charCode
+Character>>#isDigit
+Character>>#asInteger
+Character>>#asciiValue
+Character class>>#characterSet
+Character class>>#lf
+Character class>>#value:
+Character class>>#space
+SmalltalkImage>>#globals
+SmalltalkImage>>#wordSize
+SmalltalkImage>>#vm
+Interval>>#setFrom:to:by:
+Interval>>#size
+Interval>>#do:
+Interval class>>#new
+Interval class>>#from:to:by:
+CategoryAdded>>#categoryName
+CategoryAdded>>#categoryName:
+CategoryAdded class>>#categoryName:
+WeakKeyDictionary>>#fullCheck
+WeakKeyDictionary>>#initialize:
+WeakKeyDictionary>>#scanForEmpty:
+WeakKeyDictionary>>#rehash
+WeakKeyDictionary>>#noCheckAdd:
+WeakKeyDictionary>>#scanFor:
+WeakKeyDictionary>>#at:put:
+WeakKeyDictionary>>#associationsDo:
+WeakKeyDictionary>>#removeKey:ifAbsent:
+Metaclass>>#isObsolete
+Metaclass>>#baseClass
+Metaclass>>#traitComposition
+Metaclass>>#new
+Metaclass>>#basicLocalSelectors:
+Metaclass>>#noteNewBaseTraitCompositionApplied:
+Metaclass>>#soleInstance
+Metaclass>>#traitComposition:
+UndefinedObject>>#isNil
+AnnouncementSet>>#handlesAnnouncement:
+String>>#compare:caseSensitive:
+String>>#isString
+String>>#isLiteral
+String>>#indexOf:startingAt:
+String>>#printOn:
+String>>#findIn:startingAt:matchTable:
+String>>#trimBoth
+String>>#substrings:
+String>>#findSubstringViaPrimitive:in:startingAt:matchTable:
+String>>#sameAs:
+String>>#compare:with:collated:
+String>>#translateToLowercase
+String>>#match:
+String>>#numArgs
+String>>#findString:startingAt:
+String>>#storeOn:
+String>>#trimLeft:right:
+String>>#=
+String>>#translateFrom:to:table:
+String>>#isLiteralSymbol
+String>>#hash
+String>>#indexOf:
+String>>#typeTable
+String>>#translateWith:
+String>>#asString
+String>>#trimBoth:
+String>>#startingAt:match:startingAt:
+String>>#endsWith:
+String>>#findString:startingAt:caseSensitive:
+String>>#asSymbol
+String>>#asLowercase
+String class>>#with:
+String class>>#lf
+String class>>#new:
+String class>>#typeTable
+MethodDictionary>>#keysAndValuesDo:
+MethodDictionary>>#keysDo:
+MethodDictionary>>#at:ifAbsent:
+MethodDictionary>>#at:ifPresent:
+MethodDictionary>>#postCopy
+MethodDictionary class>>#new
+MethodDictionary class>>#newForCapacity:
+HEExportedMetaclass class>>#tag
+HEMethodContainer>>#doReadMethodsFrom:
+HEMethodContainer>>#methods
+HEMethodContainer>>#traitComposition
+HEMethodContainer>>#classSideMethods
+HEMethodContainer>>#category
+HEMethodContainer>>#readFrom:
+HEMethodContainer>>#classTraitComposition
+HETraitComposition>>#asLiteralIn:
+HETraitComposition class>>#tag
+ObjectLayout>>#initialize
+ObjectLayout>>#format
+WeakFinalizationList class>>#hasNewFinalization
+MCPackageManager>>#initializeWithPackage:
+MCPackageManager>>#modified:
+MCPackageManager>>#package
+MCPackageManager>>#packageSet
+MCPackageManager>>#announcer
+MCPackageManager>>#initialize
+MCPackageManager class>>#classModified:
+MCPackageManager class>>#managersForClass:do:
+MCPackageManager class>>#managersForClass:selector:do:
+MCPackageManager class>>#methodModified:
+MCPackageManager class>>#registry
+MCPackageManager class>>#forPackage:
+MCPackageManager class>>#announcer
+MCPackageManager class>>#managersForClass:category:do:
+RPackageAnnouncement>>#package:
+RPackageAnnouncement class>>#to:
+WeakRegistry>>#add:executor:
+WeakRegistry>>#protected:
+WeakRegistry>>#add:
+PointerLayout>>#checkSlotIndices
+PointerLayout>>#hasFields
+PointerLayout>>#checkSanity
+PointerLayout>>#fieldSize
+PointerLayout>>#slotScope
+PointerLayout>>#slotScope:
+PointerLayout>>#slots
+PointerLayout>>#checkSlotNames
+PointerLayout>>#extend:
+Object>>#breakDependents
+Object>>#logCr:
+Object>>#perform:with:
+Object>>#asSetElement
+Object>>#basicSize
+Object>>#copy
+Object>>#isString
+Object>>#printString
+Object>>#executor
+Object>>#as:
+Object>>#assert:
+Object>>#isBehavior
+Object>>#myDependents:
+Object>>#actAsExecutor
+Object>>#value
+Object>>#basicAt:put:
+Object>>#postCopy
+Object>>#~=
+Object>>#perform:withArguments:
+Object>>#isSymbol
+Object>>#logCr
+Object>>#yourself
+Object>>#isTrait
+Object>>#isMethodProperties
+Object>>#species
+Object>>#shouldBePrintedAsLiteral
+Object>>#notNil
+Object>>#printStringLimitedTo:
+Object>>#size
+Object>>#enclosedSetElement
+Object>>#=
+Object>>#hash
+Object>>#primitiveChangeClassTo:
+TimeZone>>#offset
+VirtualMachine>>#wordSize
+WeakIdentityKeyDictionary>>#startIndexFor:
+WriteStream>>#pastEndPut:
+WriteStream>>#nextPut:
+WriteStream>>#on:
+WriteStream>>#contents
+WriteStream>>#reset
+WriteStream>>#nextPutAll:
+WriteStream>>#space
+ByteArray>>#asString
+ClassAdded>>#classAffected
+ClassAdded>>#classCategory:
+ClassAdded>>#classAdded:
+ClassAdded>>#classAdded
+ClassAdded class>>#class:category:
+HEClassVariable class>>#tag
+SystemAnnouncer>>#methodRecategorized:oldProtocol:
+SystemAnnouncer>>#classTagAdded:inPackage:
+SystemAnnouncer>>#private
+SystemAnnouncer>>#classAdded:inCategory:
+SystemAnnouncer>>#announce:
+SystemAnnouncer>>#isSuspended
+SystemAnnouncer>>#suspendAllWhile:
+SystemAnnouncer>>#classCategoryAdded:
+SystemAnnouncer>>#methodAdded:
+SystemAnnouncer class>>#uniqueInstance
+ClassChangeRecord>>#noteChangeType:fromClass:
+ClassChangeRecord>>#noteNewMethod:selector:priorMethod:
+ClassChangeRecord>>#findOrMakeMethodChangeAt:priorMethod:
+ClassChangeRecord>>#initFor:
+ClassChangeRecord>>#checkCoherence
+HEGlobalVariable>>#asLiteralIn:
+HEGlobalVariable class>>#tag
+LookupKey>>#=
+LookupKey>>#key
+LookupKey>>#key:
+LookupKey class>>#key:
+HEInstaller>>#environment
+HEInstaller>>#initialize
+HEInstaller>>#installMethods:into:
+HEInstaller>>#validateNoNewUndeclared
+HEInstaller>>#createdUndeclared
+HEInstaller>>#build:
+HEInstaller>>#installPackage:
+HEInstaller>>#asClassVariables:
+HEInstaller>>#classNamed:
+HEInstaller>>#installClass:in:
+HEInstaller>>#rebuildMethod:into:
+HEInstaller>>#asSlots:
+WeakKeyAssociation>>#key
+WeakKeyAssociation>>#key:value:
+WeakKeyAssociation>>#expired
+WeakKeyAssociation class>>#key:value:
+Symbol>>#storeOn:
+Symbol>>#=
+Symbol>>#copy
+Symbol>>#asString
+Symbol>>#,
+Symbol>>#asSymbol
+Symbol class>>#intern:
+Symbol class>>#selectorTable
+Symbol class>>#internSelector:
+Symbol class>>#lookup:
+HashTableSizes class>>#maxSmallSize
+HashTableSizes class>>#smallSizesLookupTable
+HashTableSizes class>>#atLeast:
+CommandLineHandler>>#commandLine
+HEMethod>>#literals
+HEMethod>>#bytecode
+HEMethod>>#headerFor:
+HEMethod>>#name
+HEMethod>>#protocol
+HEMethod>>#readFrom:
+Collection>>#asSet
+Collection>>#asArray
+Collection>>#anySatisfy:
+Collection>>#ifNotEmpty:
+Collection>>#detect:ifFound:ifNone:
+Collection>>#asOrderedCollection
+Collection>>#isEmptyOrNil
+Collection>>#emptyCheck
+Collection>>#asIdentitySet
+Collection>>#ifEmpty:ifNotEmpty:
+Collection>>#addAll:
+Collection>>#allSatisfy:
+Collection>>#ifEmpty:
+Collection>>#detect:
+Collection>>#detect:ifNone:
+Collection>>#asDictionary
+Collection>>#union:
+Collection>>#copyWithoutAll:
+Collection>>#associationsDo:
+Collection>>#notEmpty
+Collection>>#collect:as:
+Collection>>#printElementsOn:
+Collection>>#isEmpty
+Collection class>>#withAll:
+File>>#openForRead
+File>>#openForWrite:
+File>>#basicOpenForWrite:
+File>>#primOpen:writable:
+File>>#readStream
+File>>#named:
+File class>>#register:
+File class>>#registry
+File class>>#retryWithGC:until:forFileNamed:
+File class>>#named:
+LayoutAbstractScope>>#firstFieldIndex
+LayoutAbstractScope>>#extend:as:
+LayoutAbstractScope>>#extend:
+HEAssociation class>>#tag
+Number>>#to:
+Number>>#negative
+PositionableStream>>#on:
+PositionableStream class>>#on:
+Time class>>#microsecondClockValue
+Time class>>#primUTCMicrosecondsClock
+LargePositiveInteger>>#negative
+LargePositiveInteger>>#normalize
+HEScaledDecimal class>>#tag
+OSPlatform class>>#current
+TraitComposition>>#transformations:
+TraitComposition>>#changedSelectorsComparedTo:
+TraitComposition>>#initialize
+TraitComposition>>#traits
+TraitComposition>>#notEmpty
+TraitComposition>>#originSelectorOf:
+TraitComposition>>#copyTraitExpression
+TraitComposition>>#isEmpty
+TraitComposition>>#transformations
+CommandLineArguments>>#longOptionAt:ifAbsent:
+CommandLineArguments>>#arguments
+CommandLineArguments>>#hasOption:
+CommandLineArguments>>#optionAt:ifAbsent:
+CommandLineArguments>>#allFilesWithExtension:
+Categorizer>>#removeCategory:
+Categorizer>>#addCategory:before:
+Categorizer>>#listAtCategoryNamed:
+Categorizer>>#classify:under:suppressIfDefault:
+Categorizer>>#firstIndexOfCategoryNumber:
+Categorizer>>#classify:under:
+Categorizer>>#addCategory:
+Categorizer>>#lastIndexOfCategoryNumber:
+Categorizer>>#categoryOfElement:
+Categorizer>>#listAtCategoryNumber:
+Categorizer>>#categories
+Categorizer>>#numberOfCategoryOfElement:
+Categorizer>>#assertInvariant
+HECharacter class>>#tag
+ProtoObject>>#identityHash
+ProtoObject>>#class
+ProtoObject>>#flag:
+HEByteString>>#doReadFrom:
+HEByteString>>#asLiteralIn:
+HEByteString class>>#tag
+MCAncestry>>#initialize
+ClassDescription>>#isClassSide
+ClassDescription>>#superclass:layout:
+ClassDescription>>#superclass:methodDictionary:format:
+ClassDescription>>#instanceSide
+ClassDescription>>#wantsChangeSetLogging
+ClassDescription>>#addSelectorSilently:withMethod:
+ClassDescription>>#theNonMetaClass
+ClassDescription>>#extendingPackages
+ClassDescription>>#classSide
+ClassDescription>>#theMetaClass
+ClassDescription>>#packages
+ClassDescription>>#superclass:withLayoutType:slots:
+ClassDescription>>#package
+ClassDescription>>#notifyUsersOfRecategorizedSelector:from:to:
+ClassDescription>>#basicOrganization
+ClassDescription>>#isMeta
+ClassDescription>>#noteAddedSelector:meta:
+ClassDescription>>#addAndClassifySelector:withMethod:inProtocol:notifying:
+ClassDescription>>#applyChangesOfNewTraitCompositionReplacing:
+ClassDescription>>#organization
+ClassDescription>>#basicOrganization:
+ClassDescription>>#noteRecategorizedSelectors:oldComposition:
+ClassDescription>>#notifyOfRecategorizedSelector:from:to:
+ClassDescription>>#organization:
+ClassDescription>>#noteChangesFrom:
+HEBinaryReader>>#readByteSymbol
+HEBinaryReader>>#stream:
+HEBinaryReader>>#readByteString
+HEBinaryReader>>#readByteArray
+HEBinaryReader>>#readUInt32
+HEBinaryReader>>#readByte
+HEBinaryReader>>#readInt32
+HEBinaryReader>>#intSize
+HEIgnoreOnDuplication class>>#keyword
+LayoutEmptyScope>>#fieldSize
+LayoutEmptyScope>>#allVisibleSlots
+LayoutEmptyScope>>#hasFields
+LayoutEmptyScope>>#flatten
+RPackage>>#classTagNamed:ifAbsent:
+RPackage>>#extendedMethodsBecomeDefinedForMetaclass:
+RPackage>>#addMethod:
+RPackage>>#definedClasses
+RPackage>>#addClassDefinitionName:toClassTag:
+RPackage>>#categoryName
+RPackage>>#registerClassName:
+RPackage>>#name
+RPackage>>#extendedClasses
+RPackage>>#register
+RPackage>>#includesClassNamed:
+RPackage>>#toTagName:
+RPackage>>#initialize
+RPackage>>#basicAddClassTag:
+RPackage>>#includesExtensionSelector:ofClassName:
+RPackage>>#organizer
+RPackage>>#addClassDefinition:toClassTag:
+RPackage>>#addClassTag:
+RPackage>>#includesSelector:ofClassName:
+RPackage>>#addClassDefinition:
+RPackage>>#name:
+RPackage>>#basicImportClass:
+RPackage>>#includesDefinedSelector:ofClassName:
+RPackage>>#extendedMethodsBecomeDefinedForClass:
+RPackage>>#extendedMethodsShouldBecomeDefinedWhenAddingClassName:
+RPackage>>#includesClass:
+RPackage>>#importClass:
+RPackage>>#addClassDefinitionName:
+RPackage class>>#named:
+RPackage class>>#organizer
+Array>>#replaceFrom:to:with:startingAt:
+Array>>#printAsLiteralFormOn:
+Array>>#shouldBePrintedAsLiteral
+Array>>#asArray
+Array>>#printOn:
+Array class>>#new:
+HEAdditionalMethodState class>>#tag
+HEFraction class>>#tag
+False>>#not
+NonInteractiveTranscript>>#cr
+NonInteractiveTranscript>>#endEntry
+NonInteractiveTranscript>>#newLine
+NonInteractiveTranscript>>#initializeStream
+NonInteractiveTranscript>>#isStdout
+NonInteractiveTranscript>>#critical:
+NonInteractiveTranscript>>#show:
+NonInteractiveTranscript>>#print:
+NonInteractiveTranscript>>#stream
+NonInteractiveTranscript>>#isStderr
+NonInteractiveTranscript>>#nextPutAll:
+NonInteractiveTranscript>>#flush
+MethodAnnouncement>>#method:
+MethodAnnouncement>>#methodOrigin
+MethodAnnouncement>>#method
+MethodAnnouncement>>#methodClass
+MethodAnnouncement>>#isProvidedByATrait
+MethodAnnouncement>>#selector
+Model>>#myDependents
+Model>>#dependents
+Model>>#changed:
+AbstractLayout>>#checkSanity
+AbstractLayout>>#host:
+HashedCollection>>#initialize:
+HashedCollection>>#atNewIndex:put:
+HashedCollection>>#size
+HashedCollection>>#array
+HashedCollection>>#grow
+HashedCollection class>>#new
+HashedCollection class>>#sizeFor:
+HashedCollection class>>#new:
+BinaryFileStream>>#register
+Process>>#effectiveProcess
+BlockClosure>>#on:do:
+BlockClosure>>#cull:
+BlockClosure>>#ensure:
+BlockClosure>>#ifCurtailed:
+BlockClosure>>#value:value:
+BlockClosure>>#valueNoContextSwitch
+BlockClosure>>#value
+BlockClosure>>#ifError:
+BlockClosure>>#on:fork:
+BlockClosure>>#assert
+HEWideString class>>#tag
+HEInteger class>>#tag
+MethodAdded class>>#method:
+ProcessorScheduler>>#activeProcess
+HESymbol>>#doConvertValue:
+HESymbol class>>#tag
+RPackageSet>>#initialize:
+RPackageSet>>#includesClass:
+RPackageSet>>#packages
+RPackageSet class>>#named:
+RPackageSet class>>#basicNamed:
+RPackageSet class>>#isCacheActive
+ChangeSet>>#changeRecorderFor:
+ChangeSet>>#classAdded:
+ChangeSet>>#atClass:add:
+ChangeSet>>#addClass:
+ChangeSet>>#addCoherency:
+ChangeSet>>#methodAdded:
+ChangeSet>>#noteNewMethod:forClass:selector:priorMethod:
+LayoutClassScope>>#slots
+LayoutClassScope>>#allVisibleSlots
+LayoutClassScope>>#hasFields
+LayoutClassScope>>#flatten
+LayoutClassScope>>#parentScope:
+LayoutClassScope>>#fieldSize
+LayoutClassScope>>#ownFieldSize
+LayoutClassScope>>#do:
+Stream>>#print:
+Stream>>#nextPutAll:
+Stream>>#flush
+IdentitySet>>#scanFor:
+MethodChangeRecord>>#noteChangeType:
+FixedLayout>>#instanceSpecification
+FixedLayout class>>#extending:scope:host:
+DateAndTime>>#setJdn:seconds:nano:offset:
+DateAndTime>>#normalizeSecondsAndNanos
+DateAndTime class>>#localOffset
+DateAndTime class>>#now
+DateAndTime class>>#clock
+DateAndTime class>>#localTimeZone
+DateAndTime class>>#current
+ArrayedCollection>>#fillFrom:with:
+ArrayedCollection class>>#with:
+ArrayedCollection class>>#new
+ArrayedCollection class>>#new:withAll:
+ArrayedCollection class>>#withAll:
+True>>#ifTrue:ifFalse:
+True>>#not
+Set>>#add:
+Set>>#includes:
+Set>>#remove:ifAbsent:
+Set>>#postCopy
+Set>>#scanFor:
+Set>>#do:
+Set class>>#sizeFor:
+CompiledMethod>>#category
+CompiledMethod>>#methodClass:
+CompiledMethod>>#properties
+CompiledMethod>>#originMethod
+CompiledMethod>>#selector
+CompiledMethod>>#classBinding:
+CompiledMethod>>#package
+CompiledMethod>>#methodClass
+CompiledMethod>>#selector:
+CompiledMethod>>#classBinding
+CompiledMethod>>#origin
+CompiledMethod>>#penultimateLiteral
+CompiledMethod>>#protocol
+CompiledMethod>>#packageFromOrganizer:
+CompiledMethod class>>#methodPropertiesClass
+CompiledMethod class>>#headerFlagForEncoder:
+HermesCommandLineHandler>>#processFile:
+HermesCommandLineHandler>>#createInstaller
+Behavior>>#registerLocalSelector:
+Behavior>>#hasTraitComposition
+Behavior>>#properties
+Behavior>>#originalName
+Behavior>>#superclass:
+Behavior>>#traitOrClassOfSelector:
+Behavior>>#isBehavior
+Behavior>>#setTraitComposition:
+Behavior>>#isBytes
+Behavior>>#>>
+Behavior>>#compiledMethodAt:
+Behavior>>#basicAddSelector:withMethod:
+Behavior>>#instSpec
+Behavior>>#methodDict:
+Behavior>>#applyChangesOfNewTraitCompositionReplacing:
+Behavior>>#new
+Behavior>>#allSubclasses
+Behavior>>#setFormat:
+Behavior>>#users:
+Behavior>>#format
+Behavior>>#includesSelector:
+Behavior>>#purgeLocalSelectors
+Behavior>>#includesLocalSelector:
+Behavior>>#propertyAt:ifAbsent:
+Behavior>>#compiledMethodAt:ifPresent:ifAbsent:
+Behavior>>#superclass
+Behavior>>#superclass:methodDictionary:format:
+Behavior>>#flushCache
+Behavior>>#basicNew:
+Behavior>>#addSelectorSilently:withMethod:
+Behavior>>#selectors
+Behavior>>#emptyMethodDictionary
+Behavior>>#new:
+Behavior>>#classLayout
+Behavior>>#compiledMethodAt:ifAbsent:
+Behavior>>#initialize
+Behavior>>#inheritsFrom:
+Behavior>>#basicNew
+Behavior>>#lookupSelector:
+Behavior>>#traitUsers
+Behavior>>#basicIdentityHash
+Dictionary>>#associationAt:ifAbsent:
+Dictionary>>#rehash
+Dictionary>>#at:
+Dictionary>>#postCopy
+Dictionary>>#bindingOf:
+Dictionary>>#keysDo:
+Dictionary>>#associationAt:
+Dictionary>>#do:
+Dictionary>>#at:ifAbsentPut:
+Dictionary>>#removeKey:
+Dictionary>>#valuesDo:
+Dictionary>>#associations
+Dictionary>>#at:ifAbsent:
+Dictionary>>#at:ifPresent:
+Dictionary>>#noCheckAdd:
+Dictionary>>#scanFor:
+Dictionary>>#at:put:
+Dictionary>>#associationsDo:
+Dictionary>>#fixCollisionsFrom:
+Dictionary>>#keys
+Dictionary>>#at:ifPresent:ifAbsent:
+Dictionary>>#includesKey:
+Dictionary>>#removeKey:ifAbsent:
+Dictionary>>#add:
+Dictionary class>>#newFrom:
+MCWorkingCopyCreated>>#package
+MCWorkingCopyCreated>>#workingCopy:
+MCWorkingCopyCreated>>#package:
+MCWorkingCopyCreated class>>#workingCopy:package:
+UnixPlatform>>#lineEnding
+HEExtendedInstaller>>#forOptions:
+HEExtendedInstaller>>#existingClass:
+HEExtendedInstaller>>#shouldBuildMethod:in:
+HEExtendedInstaller>>#reportNewUndeclareds:
+HEExtendedInstaller>>#initialize
+WeakMessageSend>>#receiver
+WeakMessageSend>>#cull:cull:
+WeakMessageSend>>#cull:
+WeakMessageSend>>#ensureReceiver:
+WeakMessageSend>>#value:
+HEFloat class>>#tag
+LimitedWriteStream>>#setLimit:limitBlock:
+LimitedWriteStream>>#nextPutAll:
+LimitedWriteStream>>#pastEndPut:
+LimitedWriteStream>>#nextPut:
+LimitedWriteStream class>>#on:limit:limitBlock:
+ByteSymbol>>#beginsWith:
+ByteSymbol>>#species
+ByteSymbol>>#isByteString
+ByteSymbol>>#privateAt:put:
+ByteSymbol>>#at:
+ByteSymbol>>#string:
+ByteSymbol>>#findSubstring:in:startingAt:matchTable:
+ByteSymbol class>>#indexOfAscii:inString:startingAt:
+ByteSymbol class>>#stringHash:initialHash:
+SparseLargeTable>>#noCheckAt:
+SparseLargeTable>>#at:
+SparseLargeTable>>#size
+SparseLargeTable>>#pvtCheckIndex:
+Integer>>#digitCompare:
+Integer>>#ceiling
+Integer>>#isInteger
+Integer>>#digitAdd:
+Integer>>#+
+Integer>>#>>
+Integer>>#<=
+IdentityDictionary>>#scanFor:
+ClassOrganization>>#subject
+ClassOrganization>>#notifyOfChangedSelector:from:to:
+ClassOrganization>>#initialize
+ClassOrganization>>#classify:under:
+ClassOrganization>>#initializeClass:
+ClassOrganization>>#categoryOfElement:ifAbsent:
+ClassOrganization>>#categories
+ClassOrganization>>#hasSubject
+ClassOrganization>>#classify:under:suppressIfDefault:
+ClassOrganization>>#protocolOrganizer
+ClassOrganization>>#categoryOfElement:
+ClassOrganization>>#setSubject:
+ClassOrganization class>>#forClass:
+HEAbstractExported class>>#readFrom:
+Announcer>>#announce:
+SystemOrganizer>>#removeCategory:
+SystemOrganizer>>#addCategory:
+SystemOrganizer>>#includesCategory:
+HEUndefinedObject>>#doReadFrom:
+HEUndefinedObject>>#asLiteralIn:
+HEUndefinedObject class>>#tag
+Announcement>>#asAnnouncement
+Announcement>>#prepareForDelivery
+Announcement class>>#handlesAnnouncement:
+HETraitAlias class>>#tag
+MCPackageModified>>#package:
+MCPackageModified class>>#package:
+Association>>#value:
+Association>>#=
+Association>>#key:value:
+Association>>#value
+Association class>>#key:value:
+MCPackage>>#packageSet
+MCPackage>>#name
+MCPackage>>#name:
+MCPackage>>#=
+MCPackage>>#hash
+MCPackage class>>#named:
+AdditionalMethodState>>#setMethod:
+AdditionalMethodState>>#at:ifAbsent:
+AdditionalMethodState>>#at:ifPresent:
+AdditionalMethodState>>#selector:
+AdditionalMethodState class>>#forMethod:selector:
+HEExtendedEnvironment>>#newMethod:
+HEExtendedEnvironment>>#classNamed:
+HEExtendedEnvironment>>#newClass:
+HEExtendedEnvironment>>#newSelector:
+HEExtendedEnvironment>>#newClass
+HEExtendedEnvironment>>#inner:
+OrderedCollection>>#removeLast
+OrderedCollection>>#at:
+OrderedCollection>>#addAll:
+OrderedCollection>>#copyEmpty
+OrderedCollection>>#size
+OrderedCollection>>#asArray
+OrderedCollection>>#addAllLast:
+OrderedCollection>>#reset
+OrderedCollection>>#select:
+OrderedCollection>>#removeFirst
+OrderedCollection>>#select:thenCollect:
+OrderedCollection>>#addLast:
+OrderedCollection>>#makeRoomAtLast
+OrderedCollection>>#reject:
+OrderedCollection>>#setCollection:
+OrderedCollection>>#resetTo:
+OrderedCollection>>#growAtLast
+OrderedCollection>>#collect:
+OrderedCollection>>#add:
+OrderedCollection class>>#new
+OrderedCollection class>>#newFrom:
+OrderedCollection class>>#new:
+OrderedCollection class>>#arrayType
+MethodRecategorized>>#oldProtocol:
+MethodRecategorized class>>#method:oldProtocol:
+ClassTagAnnouncement>>#package:
+ClassTagAnnouncement>>#tag:
+ClassTagAnnouncement class>>#in:tag:
+WeakFinalizerItem>>#list:object:
+WeakFinalizerItem>>#add:
+WeakFinalizerItem class>>#new
+HEClass>>#classVariables
+HEClass>>#sharedPools
+HEClass>>#superclass
+HEClass>>#doReadHeaderFrom:
+HEClass>>#classInstancevariables
+HEClass>>#layoutClass
+HEClass>>#className
+HEClass>>#instanceVariables
+Unicode class>>#is:inCategory:
+Unicode class>>#isDigit:
+Unicode class>>#isLetter:
+HEDuplicationModeStrategy>>#existingClass:on:
+HEDuplicationModeStrategy>>#shouldBuildMethod:in:installer:
+HEDuplicationModeStrategy class>>#forOption:
+HETraitTransformation class>>#tag
+HEMethodLiteral class>>#tag
+SystemDictionary>>#organization
+SystemDictionary>>#declare:from:
+SystemDictionary>>#bindingOf:
+SystemDictionary>>#classNamed:
+SystemDictionary>>#at:put:
+SystemDictionary>>#classOrTraitNamed:
+SystemDictionary>>#flushClassNameCache
+HEPragma class>>#tag
+SystemAnnouncement>>#setTimeStamp
+SystemAnnouncement>>#initialize
+CompiledCode>>#header
+CompiledCode>>#literalAt:
+CompiledCode>>#numLiterals
+CompiledCode>>#literalAt:put:
+CompiledCode>>#objectAt:put:
+CompiledCode>>#objectAt:
+CompiledCode class>>#newMethod:header:
+HEFailOnDuplication class>>#keyword
+WeakSet>>#noCheckNoGrowFillFrom:
+WeakSet>>#grow
+WeakSet>>#like:
+WeakSet>>#scanFor:
+WeakSet>>#growTo:
+WeakSet>>#scanForEmptySlotFor:
+WeakSet>>#add:
+HEExportedLiteral class>>#readFrom:
+HEArray>>#doReadFrom:
+HEArray class>>#tag
+RPackageOrganizer>>#addMethod:
+RPackageOrganizer>>#systemClassAddedActionFrom:
+RPackageOrganizer>>#packageMatchingExtensionName:
+RPackageOrganizer>>#packageForProtocol:inClass:
+RPackageOrganizer>>#systemMethodAddedActionFrom:
+RPackageOrganizer>>#packageNamed:ifAbsent:
+RPackageOrganizer>>#updateAfterNewMCPackageRegistred:
+RPackageOrganizer>>#extendingPackagesOf:
+RPackageOrganizer>>#validateCanBeAddedPackage:tagName:
+RPackageOrganizer>>#packageOf:
+RPackageOrganizer>>#validateCanBeAddedPackage:
+RPackageOrganizer>>#systemCategoryAddedActionFrom:
+RPackageOrganizer>>#validateCanBeAddedPackageName:tagName:
+RPackageOrganizer>>#basicRegisterPackage:
+RPackageOrganizer>>#packageNamed:
+RPackageOrganizer>>#registerPackage:
+RPackageOrganizer>>#registerPackageNamed:
+RPackageOrganizer>>#hasPackageForProtocol:inClass:
+RPackageOrganizer>>#registerPackage:forClassName:
+RPackageOrganizer>>#packageExactlyMatchingExtensionName:
+RPackageOrganizer class>>#default
+ByteString>>#beginsWith:
+ByteString>>#isOctetString
+ByteString>>#isByteString
+ByteString>>#at:
+ByteString>>#at:put:
+ByteString>>#findSubstring:in:startingAt:matchTable:
+ByteString>>#replaceFrom:to:with:startingAt:
+ByteString class>>#stringHash:initialHash:
+ByteString class>>#translate:from:to:table:
+ByteString class>>#compare:with:collated:
+ByteString class>>#indexOfAscii:inString:startingAt:
+AbstractBinaryFileStream>>#next:
+AbstractBinaryFileStream>>#primRead:into:startingAt:count:
+AbstractBinaryFileStream>>#handle:file:forWrite:
+AbstractBinaryFileStream>>#nextPutAll:
+AbstractBinaryFileStream>>#next
+AbstractBinaryFileStream>>#primWrite:from:startingAt:count:
+AbstractBinaryFileStream>>#next:into:
+AbstractBinaryFileStream class>>#handle:file:forWrite:
+Magnitude>>#min:
+Magnitude>>#between:and:
+HEBoolean class>>#tag
+Class>>#isObsolete
+Class>>#subclasses
+Class>>#category
+Class>>#declareClassVariables:
+Class>>#baseClass
+Class>>#sharedPools:
+Class>>#superclass:methodDictionary:format:
+Class>>#setName:
+Class>>#basicLocalSelectors
+Class>>#sharedPools
+Class>>#name
+Class>>#basicCategory
+Class>>#sharing:
+Class>>#binding
+Class>>#basicCategory:
+Class>>#classClass
+Class>>#addSubclass:
+Class>>#traitComposition:
+Class>>#classPool
+Class>>#classVariables
+Class>>#bindingOf:
+Class>>#subclasses:
+Class>>#getName
+Class>>#traitComposition
+Class>>#applyChangesOfNewTraitCompositionReplacing:
+Class>>#environment:
+Class>>#innerBindingOf:
+Class>>#basicLocalSelectors:
+Class>>#isAnonymous
+Class>>#environment
