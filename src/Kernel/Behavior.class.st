@@ -1035,7 +1035,7 @@ Behavior >> includesLocalSelector: aSymbol [
 
 { #category : #'testing method dictionary' }
 Behavior >> includesMethod: aMethod [ 
-	"Answer whether aMethod is in the method dictionary"
+	"Answer whether aMethod is in the method dictionary. Some change"
 
 	^ self methodDict includes: aMethod
 ]
