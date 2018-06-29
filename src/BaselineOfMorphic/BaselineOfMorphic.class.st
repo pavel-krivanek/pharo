@@ -42,7 +42,8 @@ BaselineOfMorphic >> baseline: spec [
 
 		spec 
 			baseline: 'MorphicCore' with: [spec repository: repository];
-			baseline: 'MenuRegistration' with: [spec repository: repository].
+			baseline: 'MenuRegistration' with: [spec repository: repository];
+			baseline: 'Fuel' with: [spec repository: repository].
 
 		spec package: 'System-Localization'.
 		spec package: 'Collections-DoubleLinkedList'.
@@ -55,12 +56,6 @@ BaselineOfMorphic >> baseline: spec [
 		spec package: 'FileSystem-Zip'.
 		spec package: 'FontInfrastructure'.
 		spec package: 'FreeType'.
-		spec package: 'Fuel-Core'.
-		spec package: 'Fuel-Platform-Core'.
-		spec package: 'Fuel-Platform-Pharo-Core'.
-		spec package: 'Fuel-Platform-Pharo-07'.
-	
-		spec package: 'Fuel-Tools-Pharo'.
 
 		spec package: 'Fonts-Abstract'.
 
@@ -274,11 +269,6 @@ BaselineOfMorphic >> postload: loader package: packageSpec [
 
 	TextConstants initialize.
 		
-	"Initialize Fuel"
-
-	FLLargeIdentityHashedCollection initialize.
-	FLPlatform classPool at: #Current put: FLPharo7Platform new.
-
 	Stdio stdout nextPutAll: 'starting...'; lf.
 
 	Stdio stdout nextPutAll: Smalltalk ui asString; lf.
@@ -344,7 +334,7 @@ BaselineOfMorphic >> postload: loader package: packageSpec [
 
 	Smalltalk cleanOutUndeclared.
 
-	#(#AbstractFont #BalloonMorph #CP1253TextConverter #Clipboard #EditorFindReplaceDialogWindow #EmbeddedFreeTypeFontInstaller #FLCompiledMethodCluster #FLLargeIdentityHashedCollection #FLPlatform #FreeTypeFontProvider #GB2312 #GradientFillStyle #GreekEnvironment #ISO88597TextConverter #IconicButton #JISX0208 #JapaneseEnvironment #KOI8RTextConverter #KSX1001 #KoreanEnvironment #LogicalFont #LucidaGrandeRegular #OSEnvironment #RussianEnvironment #ScrollBar #SimplifiedChineseEnvironment "#SourceCodeProRegular #SourceSansProRegular" #StrikeFont #SystemSettingsPersistence #TabMorph #TaskbarMorph #Text #TextAction #TextConstants #TextEditor #TextStyle) do: [:each |
+	#(#AbstractFont #BalloonMorph #CP1253TextConverter #Clipboard #EditorFindReplaceDialogWindow #EmbeddedFreeTypeFontInstaller #FreeTypeFontProvider #GB2312 #GradientFillStyle #GreekEnvironment #ISO88597TextConverter #IconicButton #JISX0208 #JapaneseEnvironment #KOI8RTextConverter #KSX1001 #KoreanEnvironment #LogicalFont #LucidaGrandeRegular #OSEnvironment #RussianEnvironment #ScrollBar #SimplifiedChineseEnvironment "#SourceCodeProRegular #SourceSansProRegular" #StrikeFont #SystemSettingsPersistence #TabMorph #TaskbarMorph #Text #TextAction #TextConstants #TextEditor #TextStyle) do: [:each |
 		 (Smalltalk globals at: each) initialize. ].
 
 	array := Smalltalk specialObjectsArray copy.

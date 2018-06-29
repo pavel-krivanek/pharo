@@ -194,6 +194,11 @@ BaselineOfIDE >> baseline: spec [
 			spec repository: repository
 		].
 
+		spec baseline: 'Fuel' with: [
+			spec loads: 'fuel-tests'. 
+			spec repository: repository
+		].
+
 		spec package: 'ReleaseTests'. 
 		spec package: 'Refactoring-Critics'.
 		spec package: 'NautilusRefactoring'.
@@ -222,8 +227,6 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Ring-Deprecated-Tests-Kernel'.
 		spec package: 'AST-Tests-Core'.
 		spec package: 'FileSystem-Tests-Core'.
-		spec package: 'Fuel-Tests-Core'.
-		spec package: 'Fuel-Tools-Pharo'.
 		spec package: 'Gofer-Tests'.
 		spec package: 'Kernel-Tests'.
 		spec package: 'Kernel-Tests-WithCompiler'.
@@ -428,7 +431,6 @@ BaselineOfIDE >> baseline: spec [
 BaselineOfIDE >> groups: spec [ 
     
 spec group: 'Mandatory-Group' with: #(
-	'Fuel-Tools-Pharo'	"required by GT-Debugger HudsonBuildTools20"
 	'Network-Tests'		"required by Multilingual-Tests"
 	'Gofer-Tests'		"required by EpiceaTests Metacello-TestsMC, depends on 'Metacello-Tests-Group', cleanup needed?"
 ). 
@@ -478,7 +480,6 @@ spec group: 'General-Tests-Group' with: #(
 	'Kernel-Tests-Group' "dependency"
 	'Monticello-Tests'	"required by MonticelloMocks"
 	'MonticelloMocks'
-	'Fuel-Tests-Core'
 	'Balloon-Tests'
 	'Collections-DoubleLinkedList-Tests'
 	'Collections-Arithmetic-Tests'
@@ -828,6 +829,12 @@ spec group: 'GT&QA-Group' with: #(
 
 
 spec group: #default with: #(
+	"Importing tests from parent baselines"
+	'Shift'
+	'Traits'
+	'Fuel'
+	'Slot'
+
 	'BasicTools'	"dependency"
 	'Athens'
 	'Flashback'
@@ -862,12 +869,6 @@ spec group: #default with: #(
 	'BaselineOfPharoBootstrap'
 	'BaselineOfMonticello'
 	'BaselineOfMetacello'
-	
-	"Importing tests of Shift"
-	'Shift'
-	"Importing tests of Traits"
-	'Traits'
-	'Slot'
 ).
 
 ]
