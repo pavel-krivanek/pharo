@@ -124,6 +124,11 @@ allMethods pairsDo: [ :m1 :m2 |
  ].
 	
 	results := (self testRunner runPackages: self packages) select: #notNil.
+	
+	MethodTracer uninstall.
+	Stdio stdout 
+		nextPutAll: 'executed methods count: ';
+		nextPutAll: 	(MethodTracer wrappers select: [ :each | each hasRun ]) size asString.
 				
 	self informResults: results.
 	(self hasOption: 'save') ifTrue: [ Smalltalk saveSession ].
