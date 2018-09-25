@@ -106,10 +106,23 @@ TestCommandLineHandler >> packages [
 
 { #category : #private }
 TestCommandLineHandler >> runPackages [
-	| packages results |
+	| packages results allBehaviors allMethods |
 	
 	packages := self packages.
 	self inform: 'Running tests in ', packages size asString, ' Packages'.
+	
+	allBehaviors := ((Smalltalk globals values select: [ :each | each isClassOrTrait ] ) flatCollect: [ :each | { each. each classSide } ]).
+
+allMethods := (allBehaviors flatCollect: [ :each | each methods ]) sort: [ :a :b | a name <= b name ].
+allMethods size.
+
+allMethods pairsDo: [ :m1 :m2 |
+	Stdio stdout nextPutAll: m1 name asString; lf.
+	Stdio stdout nextPutAll: m2 name asString; lf.
+	MethodTracer installOn: { m1. m2 }.
+	"MethodTracer uninstall.	"
+ ].
+	
 	results := (self testRunner runPackages: self packages) select: #notNil.
 				
 	self informResults: results.
