@@ -119,16 +119,20 @@ allMethods size.
 allMethods pairsDo: [ :m1 :m2 |
 	Stdio stdout nextPutAll: m1 name asString; lf.
 	Stdio stdout nextPutAll: m2 name asString; lf.
-	MethodTracer installOn: { m1. m2 }.
+	"MethodTracer installOn: { m1. m2 }."
 	"MethodTracer uninstall.	"
  ].
+
+MethodTracer installOn: (allMethods).
+
 	
 	results := (self testRunner runPackages: self packages) select: #notNil.
 	
 	MethodTracer uninstall.
 	Stdio stdout 
 		nextPutAll: 'executed methods count: ';
-		nextPutAll: 	(MethodTracer wrappers select: [ :each | each hasRun ]) size asString.
+		nextPutAll: 	(MethodTracer wrappers select: [ :each | each hasRun ]) size asString;
+		cr; cr.
 				
 	self informResults: results.
 	(self hasOption: 'save') ifTrue: [ Smalltalk saveSession ].
