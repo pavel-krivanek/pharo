@@ -92,8 +92,6 @@ BaselineOfIDE >> additionalInitialization [
 	
 	PharoLightTheme beCurrent.
 	
-	Smalltalk ui theme settings secondarySelectionColor: (Color r: 0.927 g: 0.962 b: 0.995 alpha: 1.0).
-	
 	SDL_Event initialize.
 	
 	3 timesRepeat: [
@@ -193,6 +191,7 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Metacello-TestsMCCore'.	"standalone"
 		spec package: 'Metacello-TestsPlatform'.	"standalone"
 		spec package: 'Metacello-TestsReference'.	"standalone"
+		spec package: 'Metacello-Gitlab-Tests'.
 
 		spec package: 'RPackage-Tests'.
 		spec package: 'Monticello-Tests'.
@@ -352,7 +351,8 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Tool-FileList-Tests'.
 		spec package: 'Tools-Test'.	
 		spec package: 'Zinc-Character-Encoding-Tests'.
-		spec package: 'Zinc-Resource-Meta-FileSystem'.	
+		spec package: 'Zinc-Resource-Meta-FileSystem'.			
+		spec package: 'Zinc-HTTP-Examples'.
 		spec package: 'Zinc-Tests'.
 		spec package: 'System-Identification-Tests'.
 
@@ -361,6 +361,10 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'BaselineOfMetacello'.
 		
 		spec package: 'ReferenceFinder-Core'.
+
+		spec package: 'Refactoring2-Core'.
+		spec package: 'Refactoring2-Transformations'.
+		spec package: 'Refactoring2-Transformations-Tests'.
 
       self groups: spec.
 	].
@@ -466,6 +470,7 @@ spec group: 'General-Tests-Group' with: #(
 	'Tools-Test'
 	'Zinc-Resource-Meta-FileSystem'	
 	'Zinc-Resource-Meta-Tests'
+	'Zinc-HTTP-Examples'
 	'Zinc-Tests'	"requires Zinc-Resource-Meta-Tests"
 	'System-Identification-Tests'		
 	'System-DependenciesTests'
@@ -563,7 +568,8 @@ spec group: 'Metacello-Tests-Group' with: #(
 	'Metacello-TestsMC'	
 	'Metacello-TestsMCCore'	
 	'Metacello-TestsPlatform'	
-	'Metacello-TestsReference'	
+	'Metacello-TestsReference'
+	'Metacello-Gitlab-Tests'
 ).
 
 spec group: 'Refactoring-Rules-Group' with: #(
@@ -750,6 +756,12 @@ spec group: 'Kernel-Tests-Group' with: #(
 	'Text-Tests'		"required by Multilingual-Tests"
 ).
 
+spec group: 'Refactoring2-Group' with: #(
+	'Refactoring2-Core'
+	'Refactoring2-Transformations'
+	'Refactoring2-Transformations-Tests'
+).
+
 spec group: 'GT&QA-Group' with: #(
 	'GeneralRules'		"depends on QA, needs cleanup"
 	'GeneralRules-Tests' "depends on QA, needs cleanup"
@@ -812,6 +824,8 @@ spec group: #default with: #(
 	"Importing tests of Traits"
 	'Traits'
 	'Slot'
+	
+	'Refactoring2-Group'
 ).
 
 ]
@@ -824,12 +838,12 @@ BaselineOfIDE >> loadCalypso [
 
 	Metacello new
 		baseline: 'Calypso';
-		repository: 'github://pharo-ide/Calypso:v0.11.5';
+		repository: 'github://pharo-ide/Calypso:v0.12.0/src';
 		onConflict: [ :err | err useIncoming ];
 		onUpgrade: [ :err | err useIncoming ];
 		load: #('FullEnvironment' 'SystemBrowser' 'Tests').
 
-	(self class environment at: #ClyBrowser) beAllDefault.
+	(self class environment at: #ClyBrowserMorph) beAllDefault.
 	
 	(self class environment at: #Iceberg) enableMetacelloIntegration: true.
 ]
@@ -838,7 +852,7 @@ BaselineOfIDE >> loadCalypso [
 BaselineOfIDE >> loadIceberg [
 	Metacello new
 		baseline: 'Iceberg';
-		repository: 'github://pharo-vcs/iceberg:v1.2.2';
+		repository: 'github://pharo-vcs/iceberg:v1.4.0';
 		load.
 	(Smalltalk classNamed: #Iceberg) enableMetacelloIntegration: true.
 	(Smalltalk classNamed: #IcePharoPlugin) addPharoProjectToIceberg.
