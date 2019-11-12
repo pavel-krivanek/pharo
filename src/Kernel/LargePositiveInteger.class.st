@@ -37,7 +37,7 @@ LargePositiveInteger >> hashMultiply [
 	    ^ (super hash + variableName hash) hashMultiply 	
 	"
 	
-	<primitive: 159>
+	"<primitive: 159>"
 	"Truncate to 28 bits and try again"
 	^(self bitAnd: 16rFFFFFFF) hashMultiply
 ]
