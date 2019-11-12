@@ -10,6 +10,16 @@ WebPlatform class >> isActivePlatform [
 	^ self currentPlatformName = 'Web'
 ]
 
+{ #category : #private }
+WebPlatform class >> prepareImage [
+
+	<script>
+	
+	World submorphs do: #delete.
+	TaskbarMorph reset.
+	MenubarMorph reset.
+]
+
 { #category : #accessing }
 WebPlatform >> currentWorkingDirectoryPathWithBufferSize: ignored [
 	^'/SqueakJS'
