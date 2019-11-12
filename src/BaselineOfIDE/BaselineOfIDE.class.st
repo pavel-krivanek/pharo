@@ -159,6 +159,8 @@ BaselineOfIDE >> baseline: spec [
 		spec baseline: 'Calypso' with: [ 
 			spec repository: repository; loads: #('FullEnvironment' 'SystemBrowser' 'Tests'). ].
       spec baseline: 'Ring' with: [spec repository: repository].
+ 
+		spec package: 'WebPlatform'.
 
 		spec baseline: 'PharoGlamour' with: [ spec repository: repository ].
 		spec baseline: 'PharoGT' with: [ spec repository: repository ].
