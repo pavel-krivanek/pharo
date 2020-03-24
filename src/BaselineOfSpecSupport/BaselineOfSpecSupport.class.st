@@ -16,8 +16,8 @@ BaselineOfSpecSupport >> baseline: spec [
 	spec for: #common do: [
 		spec baseline: 'TelePharoSupport' with: [spec repository: repository].
 
-		spec package: 'Fonts-Abstract'.
 		spec package: 'Text-Core'.
+		spec package: 'Fonts-Abstract'.
 		spec package: 'Fonts-Infrastructure'.
 		spec package: 'MenuRegistration'.
 		spec package: 'Keymapping-Core'.
