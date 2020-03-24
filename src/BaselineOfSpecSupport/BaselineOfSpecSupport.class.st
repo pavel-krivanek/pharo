@@ -24,8 +24,8 @@ BaselineOfSpecSupport >> baseline: spec [
 		spec package: 'Keymapping-KeyCombinations'.
 		spec package: 'Keymapping-Pragmas'.
 		spec package: 'System-Localization'.
-		spec package: 'VariablesLibrary'.
 		spec package: 'Alien-Core'.
+		spec package: 'VariablesLibrary'.
 		spec package: 'UnifiedFFI'.
 	].
 ]
