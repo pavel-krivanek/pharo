@@ -43,8 +43,8 @@ BaselineOfMorphicCore >> baseline: spec [
 		spec package: 'Graphics-Canvas'.
 		spec package: 'FormCanvas-Core'.
 		spec package: 'Tool-Registry'.
-		spec package: 'Fonts-Abstract'.
 		spec package: 'Text-Core'.
+		spec package: 'Fonts-Abstract'.
 		spec package: 'Morphic-Core'.
 	].
 ]
