@@ -26,6 +26,7 @@ BaselineOfSpecSupport >> baseline: spec [
 		spec package: 'System-Localization'.
 		spec package: 'VariablesLibrary'.
 		spec package: 'ParametrizedTests'.
+		spec package: 'Slot-Examples'. "because of ProcessLocalSlot used by Gtk"
 		
 	].
 ]
