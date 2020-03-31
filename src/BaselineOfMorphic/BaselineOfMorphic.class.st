@@ -281,7 +281,9 @@ BaselineOfMorphic >> postload: loader package: packageSpec [
 	Author fullName: self class name.
 
 	TextConstants initialize.
-		
+
+	self class environment at: #Morph ifAbsent: [ ^ self ].
+	
 	"Initialize Fuel"
 
 	FLLargeIdentityHashedCollection initialize.
