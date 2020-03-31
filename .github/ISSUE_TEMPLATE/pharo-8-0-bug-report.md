@@ -1,8 +1,8 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+name: Pharo 8.0 Bug report
+about: Create a report to help us improve the stable release of Pharo
 title: ''
-labels: ''
+labels: Pharo8
 assignees: ''
 
 ---
@@ -25,8 +25,8 @@ If applicable, add screenshots to help explain your problem.
 
 **Version information (please complete the following information, you can get it from Help->about):**
  - OS: [e.g. iOS]
- - Version [e.g. 22]
- - Commit info [e.g. 22]
+ - Version: Pharo 8.0
+ - Commit info: [e.g. 22]
 
 **Additional context**
 Add any other context about the problem here.
