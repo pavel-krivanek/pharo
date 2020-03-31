@@ -56,6 +56,8 @@ BaselineOfMorphicCore >> postload: loader package: packageSpec [
 
 	"Ignore pre and post loads if already executed"
 	Initialized = true ifTrue: [ ^ self ].
+	
+	self class environment at: #Morph ifAbsent: [ ^ self ].
 
 	IdentityTransform initialize.
 
