@@ -245,6 +245,7 @@ ReflectiveMethod >> recompileAST [
 		astTranslatorClass: RFASTTranslator.
 	ast doSemanticAnalysis. "force semantic analysis"
 	compiledMethod := ast generate: compiledMethod trailer.
+	ast compilationContext compiledMethod: compiledMethod.
 	compiledMethod reflectiveMethod: self.
 ]
 
@@ -322,9 +323,9 @@ ReflectiveMethod >> spotterMethodClassFor: aStep [
 ]
 
 { #category : #spotter }
-ReflectiveMethod >> spotterPreviewCodeIn: aComposite [
+ReflectiveMethod >> spotterPreviewIn: aComposite [
 	<spotterPreview: 10>
-	self compiledMethod spotterPreviewCodeIn: aComposite
+	self compiledMethod spotterPreviewIn: aComposite
 ]
 
 { #category : #spotter }

@@ -363,6 +363,12 @@ Class >> classVariables [
 	^self classPool associations
 ]
 
+{ #category : #slots }
+Class >> classVariablesNeedFullDefinition [
+
+	^ self classVariables anySatisfy: [ :each | each needsFullDefinition ]
+]
+
 { #category : #'accessing class hierarchy' }
 Class >> commonSuperclassWith: aClass [
 	"return the next common superclass between me and aClass. If I am the superclass of aClass, that is me"
@@ -542,6 +548,18 @@ Class >> hasAbstractMethods [
 	^ super hasAbstractMethods or: [ self classSide hasAbstractMethods ]
 ]
 
+{ #category : #compiling }
+Class >> hasBindingThatBeginsWith: aString [
+	"Answer true if the receiver has a binding that begins with aString, false otherwise. We do not look
+	in the outer envrionment"
+
+	"First look in classVar dictionary"
+	(self classPool hasBindingThatBeginsWith: aString) ifTrue:[^true].
+	
+	"Next look in shared pools"
+	^ self sharedPools anySatisfy: [:pool | pool hasBindingThatBeginsWith: aString ]
+]
+
 { #category : #'accessing parallel hierarchy' }
 Class >> hasClassSide [
 	^self classSide notNil.
@@ -697,6 +715,13 @@ Class >> name [
 	"Answer the name of the receiver."
 
 	^ name ifNil: [ super name ]
+]
+
+{ #category : #slots }
+Class >> needsSlotClassDefinition [
+    "return true if we define something else than InstanceVariableSlots or normal class variables"
+
+    ^ super needsSlotClassDefinition or: [ self classVariablesNeedFullDefinition ]
 ]
 
 { #category : #'subclass creation' }
@@ -938,8 +963,7 @@ Class >> sharedPoolOfVarNamed: aString [
 
 	^ self sharedPools
 		detect: [ :each | each usesClassVarNamed: aString ]
-		ifNone:
-			[ self superclass ifNil: [ nil ] ifNotNil: [ self superclass sharedPoolOfVarNamed: aString ] ]
+		ifNone: [ self superclass ifNotNil: [ self superclass sharedPoolOfVarNamed: aString ] ]
 ]
 
 { #category : #'pool variables' }

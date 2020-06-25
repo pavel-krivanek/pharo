@@ -55,6 +55,7 @@ BaselineOfMorphic >> baseline: spec [
 		spec package: 'FileSystem-Zip'.
 		spec package: 'Fonts-Infrastructure'.
 		spec package: 'FreeType'.
+		spec package: 'FreeType-Morphic'.
 
 		spec package: 'Graphics-Files'.
 		spec package: 'Graphics-Fonts'.
@@ -319,8 +320,6 @@ BaselineOfMorphic >> postload: loader package: packageSpec [
 	ZnConstants ZnMimeType ZnNetworkingUtils ZnServer ZnSingleThreadedServer
 	) do: [:each | (Smalltalk globals at: each) initialize. ].
 
-	LogicalFontManager current addFontProvider: FreeTypeFontProvider current.
-
 	BalloonMorph setBalloonColorTo: Color yellow.
 
 	UIManager default terminateUIProcess.
@@ -350,6 +349,8 @@ BaselineOfMorphic >> postload: loader package: packageSpec [
 
 	#(#AbstractFont #BalloonMorph #CP1253TextConverter #Clipboard #EditorFindReplaceDialogWindow #EmbeddedFreeTypeFontInstaller #FLCompiledMethodCluster #FLLargeIdentityHashedCollection #FLPlatform #FreeTypeFontProvider #GB2312 #GradientFillStyle #GreekEnvironment #ISO88597TextConverter #IconicButton #JISX0208 #JapaneseEnvironment #KOI8RTextConverter #KMLog #KSX1001 #KoreanEnvironment #LogicalFont #LucidaGrandeRegular #OSEnvironment #RussianEnvironment #ScrollBar #SimplifiedChineseEnvironment "#SourceCodeProRegular #SourceSansProRegular" #StrikeFont #SystemSettingsPersistence #TabMorph #TaskbarMorph #Text #TextAction #TextConstants #TextEditor #TextStyle) do: [:each |
 		 (Smalltalk globals at: each) initialize. ].
+
+	LogicalFontManager current addFontProvider: FreeTypeFontProvider current.
 
 	array := Smalltalk specialObjectsArray copy.
 	array at: 5 put: Bitmap.

@@ -6,20 +6,17 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'outerScope',
-		'node',
-		'children'
+		'node'
 	],
 	#category : #'OpalCompiler-Core-Semantics'
 }
 
-{ #category : #initializing }
-OCAbstractScope >> addChild: aScope [
-	self children add: aScope
-]
-
-{ #category : #accessing }
-OCAbstractScope >> children [
-	^children ifNil: [ children := OrderedCollection new ]
+{ #category : #lookup }
+OCAbstractScope >> hasBindingThatBeginsWith: aString [
+	"check weather there are any variables defined that start with aString"
+	^ outerScope
+		ifNil: [ false ]
+		ifNotNil: [ outerScope hasBindingThatBeginsWith: aString ]
 ]
 
 { #category : #testing }
@@ -89,8 +86,7 @@ OCAbstractScope >> outerScope [
 { #category : #initializing }
 OCAbstractScope >> outerScope: aSemScope [
 
-	outerScope := aSemScope.
-	aSemScope addChild: self. 
+	outerScope := aSemScope
 ]
 
 { #category : #levels }

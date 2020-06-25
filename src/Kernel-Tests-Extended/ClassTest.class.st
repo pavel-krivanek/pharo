@@ -180,6 +180,15 @@ ClassTest >> testEnvironment: anObject [
 	testEnvironment := anObject
 ]
 
+{ #category : #tests }
+ClassTest >> testHasBindingThatBeginsWith [
+	self assert: (SmalltalkImage hasBindingThatBeginsWith: 'Compiler').
+	self deny: (SmalltalkImage hasBindingThatBeginsWith: 'Object').
+	
+	"Pools are looked up, too"
+	self assert: (TimeZone hasBindingThatBeginsWith: 'DaysInMo')
+]
+
 { #category : #'tests - access' }
 ClassTest >> testHasPoolVarNamed [	
 
@@ -328,7 +337,8 @@ ClassTest >> testPoolVariableAccessibleInSubclassOfClassUser [
 ClassTest >> testReferencedClasses [
 	{(ExceptionTester -> { MyTestNotification. Warning. String. MyResumableTestError. OrderedCollection. MyTestError}). 
 	 (CollectionCombinator -> {Array}).
-	 (ExecutionEnvironmentStub -> {OrderedCollection})
+	 (ExecutionEnvironmentStub -> {OrderedCollection}).
+	 (ReferencedClassesTestClass -> {Array. OrderedCollection. Object})
 	}
 		do: [ :assoc | 
 			self assert: assoc key referencedClasses notEmpty.

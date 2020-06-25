@@ -224,7 +224,7 @@ AbstractFileReference >> childGeneratorBlock: doBlock matching: patterns [
 
 { #category : #enumerating }
 AbstractFileReference >> childNames [
-	^ self children collect: #basename
+	^ self children collect: [:each | each basename]
 ]
 
 { #category : #enumerating }
@@ -359,7 +359,7 @@ AbstractFileReference >> directoriesMatching: patterns [
 
 { #category : #enumerating }
 AbstractFileReference >> directoryNames [
-	^ self directories collect: #basename
+	^ self directories collect: [:each | each basename]
 ]
 
 { #category : #operations }
@@ -388,17 +388,16 @@ AbstractFileReference >> ensureDelete [
 { #category : #operations }
 AbstractFileReference >> ensureDeleteAll [
 	"Delete this directory and all children of it, and does not raise an error if the file does not exist."
-	
-	self exists ifFalse: [ ^ self  ].
+
+	self ifAbsent: [ ^ self ].
 	self deleteAll
-	
 ]
 
 { #category : #operations }
 AbstractFileReference >> ensureDeleteAllChildren [
 	"delete all children of the receiver and does not raise an error if the receiver does not exist"
-	
-	self exists ifFalse: [ ^ self  ].
+
+	self ifAbsent: [ ^ self ].
 	self deleteAllChildren
 ]
 
@@ -445,7 +444,7 @@ AbstractFileReference >> fileIn [
 
 { #category : #enumerating }
 AbstractFileReference >> fileNames [
-	^ self files collect: #basename
+	^ self files collect: [:each | each basename]
 ]
 
 { #category : #accessing }

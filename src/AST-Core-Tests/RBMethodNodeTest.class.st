@@ -43,7 +43,15 @@ RBMethodNodeTest >> testCachingMethodArguments [
 ]
 
 { #category : #'testing-comments' }
-RBMethodNodeTest >> testCommentedMethodHasComments [
+RBMethodNodeTest >> testCommentsParent [
+	"Test if comment has a parent"
+	self
+		assert: (self class >> #testCommentsParent) ast comments first parent selector
+		equals: #testCommentsParent.
+]
+
+{ #category : #'testing-comments' }
+RBMethodNodeTest >> testHasComments [
 
 	| tree |
 	tree := self parseMethod: 'foo: abd bar: cde  
@@ -53,7 +61,27 @@ RBMethodNodeTest >> testCommentedMethodHasComments [
 
 	self assert: tree hasComments.
 	
+	tree := self parseMethod: 'foo: abd bar: cde  
+^ abd + cde'.
 
+	self deny: tree hasComments.
+	
+
+]
+
+{ #category : #'tests - primitives' }
+RBMethodNodeTest >> testIsPrimitive [
+	"see other testPrimitive... tests"
+	"This test brings the test button in the browser and test negatively
+	The others are for each specific kind of primitive:..."
+	| ast |
+	ast := (SmallInteger >> #+) ast.
+	self assert: ast isPrimitive.
+	ast := (Bitmap >> #primFill:) ast.
+	self assert: ast isPrimitive.
+	
+	ast := (Integer >> #+) ast.
+	self deny: ast isPrimitive.
 ]
 
 { #category : #tests }
@@ -108,6 +136,74 @@ RBMethodNodeTest >> testNodeForOffsetVar [
 	self assert: foundNode class identicalTo: RBVariableNode
 ]
 
+{ #category : #'tests - primitives' }
+RBMethodNodeTest >> testPrimitiveErrorIsPrimitive [
+
+	"isPinnedInMemory
+		<primitive: 183 error: ec>
+		^self primitiveFailed
+	"
+	
+	| ast |
+	ast := (Object >> #isPinnedInMemory) ast.
+	self assert: ast isPrimitive.
+
+	ast := (MirrorPrimitives class >> #makeObject:readOnly:) ast.
+	self assert: ast isPrimitive.
+	
+]
+
+{ #category : #'tests - primitives' }
+RBMethodNodeTest >> testPrimitiveIsPrimitive [
+	"primFill: aPositiveInteger
+		<primitive: 145>
+		self errorImproperStore."
+	
+	| ast |
+	ast := (SmallInteger >> #+) ast.
+	self assert: ast isPrimitive.
+	ast := (Bitmap >> #primFill:) ast.
+	self assert: ast isPrimitive.
+	
+]
+
+{ #category : #'tests - primitives' }
+RBMethodNodeTest >> testPrimitiveModuleErrorIsPrimitive [
+	"
+	primClosedir: directoryPointerBytes
+		<primitive: 'primitiveClosedir' module: 'FileAttributesPlugin' error: error>
+		...
+	"
+	| ast |
+	ast := (File class >> #primClosedir:) ast.
+	self assert: ast isPrimitive.
+
+
+	
+]
+
+{ #category : #'tests - primitives' }
+RBMethodNodeTest >> testPrimitiveModuleIsPrimitive [
+	"
+	stringHash: aString initialHash: speciesHash
+
+		| stringSize hash low |
+		<primitive: 'primitiveStringHash' module: 'MiscPrimitivePlugin'>
+
+		<var: #aHash declareC: 'int speciesHash'>
+		<var: #aString declareC: 'unsigned char *aString'>
+
+	"
+	| ast |
+	ast := (ByteString class >> #stringHash:initialHash:) ast.
+	self assert: ast isPrimitive.
+
+	ast := (Integer >> #digitSubtract:) ast.
+	self assert: ast isPrimitive.
+
+	
+]
+
 { #category : #tests }
 RBMethodNodeTest >> testSelectorAndArgumentNames [
 
@@ -155,16 +251,4 @@ RBMethodNodeTest >> testSizeOfSignatureOfUnaryMethod [
 	self assert: tree conceptualSelectorSize equals: 'foo' size.
 	self assert: tree conceptualArgumentSize isZero.
 	self assert: tree conceptualSignatureSize equals: 'foo' size
-]
-
-{ #category : #'testing-comments' }
-RBMethodNodeTest >> testUncommentMethodDoesNotHaveComments [
-
-	| tree |
-	tree := self parseMethod: 'foo: abd bar: cde  
-^ abd + cde'.
-
-	self deny: tree hasComments.
-	
-
 ]

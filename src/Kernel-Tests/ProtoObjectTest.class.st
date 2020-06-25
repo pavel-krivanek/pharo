@@ -11,6 +11,22 @@ Class {
 }
 
 { #category : #'tests - testing' }
+ProtoObjectTest >> testFastPointersTo [
+	| myObject myArray myObject2 allObjects |
+	myObject := Object new.
+	myObject2 := Object new.
+	myArray := {myObject.
+	myObject2}.
+	allObjects := SystemNavigation default allObjects.
+	self
+		assert: (myObject pointersToAmong: allObjects) asArray
+		equals: {myArray}.
+	self
+		assert: (myObject2 pointersToAmong: allObjects) asArray
+		equals: {myArray}
+]
+
+{ #category : #'tests - testing' }
 ProtoObjectTest >> testFlag [
 	ProtoObject new flag: #hallo
 ]
@@ -171,9 +187,10 @@ ProtoObjectTest >> testNotTheSame [
 
 { #category : #'tests - testing' }
 ProtoObjectTest >> testPointersTo [
-	| myObject myArray |
+	| myObject myArray pointers |
 	myObject := Object new.
-	self assertEmpty: myObject pointersTo.
+	pointers := myObject pointersTo.
+	self assertEmpty: pointers.
 	myArray := {myObject . myObject}.
 	self assert: myObject pointersTo asArray equals: {myArray}
 ]

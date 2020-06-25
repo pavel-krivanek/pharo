@@ -80,9 +80,10 @@ OCASTTranslatorForEffect >> visitAssignmentNode: anAssignmentNode [
 
 { #category : #'visitor-double dispatching' }
 OCASTTranslatorForEffect >> visitBlockNode: aBlockNode [ 
-
-	"A block has no side effect, so a block translated for effect just doesn't generate anything" 
-
+	"even though the code is never executed, we generate it to make sure that we 
+	can map bytecode and access temps"
+	super visitBlockNode: aBlockNode.
+	methodBuilder popTop
 ]
 
 { #category : #'visitor-double dispatching' }
@@ -116,5 +117,5 @@ OCASTTranslatorForEffect >> visitVariableNode: aVariableNode [
 	| binding |
 	binding := aVariableNode binding.
 	(binding isLiteralVariable or: [ binding isUndeclared ])
-		ifTrue: [ methodBuilder addLiteral: binding assoc ]
+		ifTrue: [ methodBuilder addLiteral: binding ]
 ]

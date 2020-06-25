@@ -93,6 +93,13 @@ RBProgramNode >> allChildren [
 ]
 
 { #category : #accessing }
+RBProgramNode >> allComments [
+	"Answer a collection of objects representing the comments in the method. Return an empty collection if the method's source code does not contain a comment."
+
+	^ self allChildren flatCollect: [:el| el comments]
+]
+
+{ #category : #accessing }
 RBProgramNode >> allDefinedVariables [
 	| children |
 	children := self children.
@@ -103,6 +110,15 @@ RBProgramNode >> allDefinedVariables [
 			vars
 				addAll: each allDefinedVariables;
 				yourself]
+]
+
+{ #category : #accessing }
+RBProgramNode >> allParents [
+	"return all my parents. 
+	See discussion in issue https://github.com/pharo-project/pharo/issues/6278"
+	^ parent 
+		ifNil: [ OrderedCollection new ]
+		ifNotNil: [ parent withAllParents ]
 ]
 
 { #category : #accessing }
@@ -527,6 +543,11 @@ RBProgramNode >> isTemp [
 ]
 
 { #category : #testing }
+RBProgramNode >> isThisContext [
+	^ false
+]
+
+{ #category : #testing }
 RBProgramNode >> isUsed [
 	"Answer true if this node could be used as part of another expression. For example, you could use the 
 	result of this node as a receiver of a message, an argument, the right part of an assignment, or the 
@@ -670,12 +691,13 @@ RBProgramNode >> parent: aRBProgramNode [
 
 { #category : #accessing }
 RBProgramNode >> parents [
-	^ parent 
-		ifNil: [ OrderedCollection with: self ]
-		ifNotNil: [ 
-			parent parents
-				addLast: self;
-				yourself ]
+	"see discussion in https://github.com/pharo-project/pharo/issues/6278"
+		self
+		deprecated: 'Use #withAllParents instead'
+		on: '25 may 2020'
+		in: #Pharo9
+		transformWith: '`@receiver parents' 
+						-> '`@receiver withALlParents'.
 ]
 
 { #category : #copying }
@@ -957,4 +979,16 @@ RBProgramNode >> whoDefines: aName [
 	^(self defines: aName) 
 		ifTrue: [self]
 		ifFalse: [parent notNil ifTrue: [parent whoDefines: aName] ifFalse: [nil]]
+]
+
+{ #category : #accessing }
+RBProgramNode >> withAllParents [
+	"return me and all my parents. Topmost parent first, me last
+	See discussion in issue https://github.com/pharo-project/pharo/issues/6278"
+	^ parent 
+		ifNil: [ OrderedCollection with: self ]
+		ifNotNil: [ 
+			parent withAllParents 
+				addLast: self;
+				yourself ]
 ]
