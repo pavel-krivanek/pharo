@@ -52,22 +52,25 @@ Clipboard class >> shutDown: isImageQuitting [
 
 { #category : #'system startup' }
 Clipboard class >> startUp: isImageStarting [
-	"Pharo is starting up. If this platform requires specific intialization, this is a great place to put it."
+	"Pharo is starting up. If this platform requires specific initialization, this is a great place to put it."
 	isImageStarting
 		ifTrue: [Default := nil]
 ]
 
 { #category : #accessing }
-Clipboard >> chooseRecentClipping [  
+Clipboard >> chooseRecentClipping [
+
 	"Choose by menu from among the recent clippings"
+
 	"Clipboard chooseRecentClipping"
-	
-	recent ifNil: [^ nil].
+
+	recent ifNil: [ ^ nil ].
 	^ UIManager default
-		chooseFrom: (recent collect: [:txt | ((txt asString contractTo: 50)
-									copyReplaceAll: Character cr asString with: '\')
-									copyReplaceAll: Character tab asString with: '|'])
-		values: recent
+		  chooseFrom: (recent collect: [ :txt | 
+				   ((txt asString contractTo: 50)
+					    copyReplaceAll: String cr
+					    with: '\') copyReplaceAll: String tab with: '|' ])
+		  values: recent
 ]
 
 { #category : #accessing }
@@ -79,23 +82,22 @@ Clipboard >> clipboardText [
 	(string isEmpty
 			or: [string = contents asString])
 		ifTrue: [^ contents].
-	decodedString := string convertFromWithConverter: UTF8TextConverter new.
-	decodedString := decodedString replaceAll: 10 asCharacter with: 13 asCharacter.
+	decodedString := string asByteArray utf8Decoded.
+	decodedString := decodedString replaceAll: Character lf with: Character cr.
 	^ decodedString = contents asString
 		ifTrue: [contents]
-		ifFalse: [decodedString asText].
-
+		ifFalse: [decodedString asText]
 ]
 
 { #category : #accessing }
-Clipboard >> clipboardText: text [ 
+Clipboard >> clipboardText: text [
 
-        | string |
-        string := text asString.
-        self noteRecentClipping: text asText copyWithoutExternalReferences.
-        contents := text asText copyWithoutExternalReferences.
-        string := string convertToWithConverter: UTF8TextConverter new.
-        self primitiveClipboardText: string.
+	| string |
+	string := text asString.
+	self noteRecentClipping: text asText copyWithoutExternalReferences.
+	contents := text asText copyWithoutExternalReferences.
+	string := string utf8Encoded.
+	self primitiveClipboardText: string
 ]
 
 { #category : #initialization }

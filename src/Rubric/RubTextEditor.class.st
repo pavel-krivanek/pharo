@@ -6,8 +6,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'defaultKeymappingIndex',
-		'textArea',
-		'findReplaceService'
+		'textArea'
 	],
 	#category : #'Rubric-Editing-Core'
 }
@@ -131,7 +130,7 @@ RubTextEditor >> accept: aKeyboardEvent [
 	^ true
 ]
 
-{ #category : #'undo-redo private' }
+{ #category : #'undo - redo private' }
 RubTextEditor >> addDeleteSelectionUndoRecord [
 	| undoText redoText |
 	undoText := self selection.
@@ -144,10 +143,13 @@ RubTextEditor >> addDeleteSelectionUndoRecord [
 { #category : #'typing support' }
 RubTextEditor >> addString: aString [
 	"Think of a better name"
+	self hasSelection 
+		ifTrue: [self addDeleteSelectionUndoRecord].
+	self openTypeIn.
 	self zapSelectionWith: (Text string: aString attributes: self emphasisHere)
 ]
 
-{ #category : #'undo-redo private' }
+{ #category : #'undo - redo private' }
 RubTextEditor >> addTypeInUndoRecord [
 	| begin stop undoText redoText |
 	begin := self startOfTyping min: self stopIndex. 
@@ -258,6 +260,7 @@ RubTextEditor >> backWord: aKeyboardEvent [
 { #category : #'typing/selecting keys' }
 RubTextEditor >> backspace: aKeyboardEvent [
 	| result startIndex |
+	self closeTypeIn.
 	result := aKeyboardEvent shiftPressed
 		ifTrue: [ self backWord: aKeyboardEvent keyCharacter ]
 		ifFalse: [ 
@@ -274,16 +277,15 @@ RubTextEditor >> backspace: aKeyboardEvent [
 					startIndex := 1 max: startIndex - 1.
 					self backTo: startIndex ].
 			false ].
-	self closeTypeIn.
 	^ result
 ]
 
-{ #category : #'obsolete-parenblinking' }
+{ #category : #'obsolete - parenblinking' }
 RubTextEditor >> blinkParenAt: parenLocation [ 
 	"kept because NECController is sending it to me"
 ]
 
-{ #category : #'obsolete-parenblinking' }
+{ #category : #'obsolete - parenblinking' }
 RubTextEditor >> blinkPrevParen: aCharacter [
 	"kept because NECController is sending it to me"
 ]
@@ -473,7 +475,7 @@ RubTextEditor >> chooseColor [
 
 ]
 
-{ #category : #'undo-redo private' }
+{ #category : #'undo - redo private' }
 RubTextEditor >> clearUndoManager: aKeyboardEvent [
 	^ self editingState clearUndoManager: aKeyboardEvent.
 
@@ -520,6 +522,7 @@ RubTextEditor >> closingDelimiters [
 
 { #category : #keymapping }
 RubTextEditor >> cmdActions [
+	
 	^ self defaultKeymappingIndex at: #command
 ]
 
@@ -574,7 +577,6 @@ RubTextEditor >> copySelection [
 { #category : #'editing keys' }
 RubTextEditor >> copySelection: aKeyboardEvent [
 	"Copy the current text selection."
-
 	self copySelection.
 	^true
 ]
@@ -612,6 +614,7 @@ RubTextEditor >> crWithIndent: aKeyboardEvent [
 		char = $] ifTrue: [tabCount := tabCount - 1]].
 	 "Now inject CR with tabCount tabs"
 	self addString: (String streamContents: [ :strm | strm crtab: tabCount ]).
+	self unselect.
 	^ false
 ]
 
@@ -784,25 +787,26 @@ RubTextEditor >> cut: aKeyboardEvent [
 RubTextEditor >> defaultCommandKeymapping [
 	| cmdMap |
 		
-	cmdMap := Array new: 256 withAll: #noop:.	"use temp in case of a crash"
-	{(Character home -> #cursorHome:).
-	(Character end -> #cursorEnd:).
-	(Character backspace -> #backspace:).
-	(Character pageUp -> #cursorPageUp:).
-	(Character newPage -> #cursorPageDown:).
-	(Character cr -> #crWithIndent:).
-	(Character escape -> #escape:).
-	(Character arrowLeft -> #cursorLeft:).
-	(Character arrowRight -> #cursorRight:).
-	(Character arrowUp -> #cursorUp:).
-	(Character arrowDown -> #cursorDown:).
-	(Character space -> #selectWord:).
-	(Character delete -> #forwardDelete:) } do: [ :assoc | 
-		cmdMap at: assoc key asciiValue + 1 put: assoc value ].
-	"I am not convinced the following smart characters are used - see NecPreferences>>smartCharactersMapping"
-	'([{''"<' do: [ :char | cmdMap at: char asciiValue + 1 put: #enclose: ].
-	cmdMap at: $, asciiValue + 1 put: #shiftEnclose:.
-	'0123456789-=' do: [ :char | cmdMap at: char asciiValue + 1 put: #changeEmphasis: ].
+	cmdMap := Dictionary new.
+	{(KeyboardKey home -> #cursorHome:).
+	(KeyboardKey end -> #cursorEnd:).
+	(KeyboardKey backspace -> #backspace:).
+	(KeyboardKey pageUp -> #cursorPageUp:).
+	(KeyboardKey pageDown -> #cursorPageDown:).
+	(KeyboardKey enter -> #crWithIndent:).
+	(KeyboardKey escape -> #escape:).
+	(KeyboardKey left -> #cursorLeft:).
+	(KeyboardKey right -> #cursorRight:).
+	(KeyboardKey up -> #cursorUp:).
+	(KeyboardKey down -> #cursorDown:).
+	(KeyboardKey keypadLeft -> #cursorLeft:).
+	(KeyboardKey keypadRight -> #cursorRight:).
+	(KeyboardKey keypadUp -> #cursorUp:).
+	(KeyboardKey keypadDown -> #cursorDown:).
+	(KeyboardKey keypadEnter -> #crWithIndent:).
+	(KeyboardKey tab -> #tab:).
+	(KeyboardKey delete -> #forwardDelete:) } do: [ :assoc | 
+		cmdMap at: assoc key  put: assoc value ].
 	^ cmdMap
 ]
 
@@ -811,36 +815,7 @@ RubTextEditor >> defaultKeymappingIndex [
 	^defaultKeymappingIndex ifNil: [ defaultKeymappingIndex := self newDefaultKeymappingIndex ]
 ]
 
-{ #category : #keymapping }
-RubTextEditor >> defaultShiftCommandKeymapping [
-	"Initialize the shift-command-key (or control-key) shortcut table."
-
-	| cmdMap |
-	cmdMap := Array new: 256 withAll: #noop:.	"use temp in case of a crash"
-	{(Character home -> #cursorHome:).
-	(Character end -> #cursorEnd:).
-	(Character backspace -> #forwardDelete:).
-	(Character pageUp -> #cursorPageUp:).
-	(Character newPage -> #cursorPageDown:).
-	(Character cr -> #crWithIndent:).
-	(Character escape -> #offerMenuFromEsc:).
-	(Character arrowLeft -> #cursorLeft:).
-	(Character arrowRight -> #cursorRight:).
-	(Character arrowUp -> #cursorUp:).
-	(Character arrowDown -> #cursorDown:).
-	(Character space -> #selectWord:).
-	(Character delete -> #forwardDelete:)}
-		do: [ :assoc | 
-			| char symbol |
-			char := assoc key.
-			symbol := assoc value.
-			cmdMap at: char asciiValue + 1 put: symbol	"plain keys" ].
-	"Note: Command key overrides shift key, so, for example, cmd-shift-9 produces $9 not $("	"({< and double-quote"	"Note: Must use cmd-9 or ctrl-9 to get '()' since cmd-shift-9 is a Mac FKey command."
-	'9[,''' do: [ :char | cmdMap at: char asciiValue + 1 put: #shiftEnclose: ].
-	^ cmdMap
-]
-
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> deselect [
 	"If the text selection is visible on the screen, reverse its highlight."
 	" ***** screw this logic ***** selectionShowing ifTrue: [self reverseSelection] "
@@ -851,43 +826,16 @@ RubTextEditor >> dispatch: aKeyboardEvent [
 	"Carry out the action associated with this character, if any.
 	Type-ahead is passed so some routines can flush or use it."
 
-	| return |
-	return := [ :val | ^ val ].
-	self dispatchEnterOn: aKeyboardEvent return: return.
-	self dispatchCommandOn: aKeyboardEvent return: return.
-	^ self normalCharacter: aKeyboardEvent
-]
-
-{ #category : #'typing support' }
-RubTextEditor >> dispatchCommandOn: aKeyboardEvent return: return [
-	| asciiValue  |
-	asciiValue := aKeyboardEvent keyValue.	
-	"Special keys overwrite crtl+key combinations - at least on Windows. To resolve this
-	conflict, assume that keys other than cursor keys aren't used together with Crtl."
-	((self specialShiftCmdKeys includes: asciiValue) and: [ asciiValue < 27 ])
-		ifTrue: [ ^ self performCmdActionsWith: aKeyboardEvent shifted: aKeyboardEvent controlKeyPressed return: return ].	
-	
-	"backspace, and escape keys (ascii 8 and 27) are command keys"
-	(aKeyboardEvent commandKeyPressed or: [ self specialShiftCmdKeys includes: asciiValue ])
-		ifTrue: [ ^ self performCmdActionsWith: aKeyboardEvent shifted: aKeyboardEvent shiftPressed return: return ].	
-			
-	"the control key can be used to invoke shift-cmd shortcuts"
-	aKeyboardEvent controlKeyPressed
-		ifTrue: [ ^ self performCmdActionsWith: aKeyboardEvent shifted: true return: return ].
+	self
+		dispatchCommandOn: aKeyboardEvent
+		return: [ :val | ^ val ].
 	^ false
 ]
 
 { #category : #'typing support' }
-RubTextEditor >> dispatchEnterOn: aKeyboardEvent return: aBlock [
-	aKeyboardEvent keyValue = Character cr asciiValue
-		ifFalse: [ ^ false ].
-	aKeyboardEvent controlKeyPressed
-		ifTrue: [ aBlock value: (self normalCharacter: aKeyboardEvent) ].
-	aKeyboardEvent shiftPressed
-		ifTrue: [ aBlock value: (self lf: aKeyboardEvent) ].
-	aKeyboardEvent commandKeyPressed
-		ifTrue: [ aBlock value: (self crlf: aKeyboardEvent) ].
-	aBlock value: (self crWithIndent: aKeyboardEvent)
+RubTextEditor >> dispatchCommandOn: aKeyboardEvent return: return [
+
+	^ self performCmdActionsWith: aKeyboardEvent shifted: aKeyboardEvent shiftPressed return: return
 ]
 
 { #category : #'typing/selecting keys' }
@@ -932,7 +880,7 @@ RubTextEditor >> duplicate: aKeyboardEvent [
 	^true
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> editPrimarySelectionSeparately [
 	textArea editPrimarySelectionSeparately
 ]
@@ -956,38 +904,10 @@ RubTextEditor >> emphasisHere [
 ]
 
 { #category : #'editing keys' }
-RubTextEditor >> enclose: aKeyboardEvent [
-	"Insert or remove bracket characters around the current selection."
-
-	| left right startIndex stopIndex oldSelection which text |
-	self deprecated: '***** should be using #encloseWith: and extracting values from NECController>>smartCharactersMapping*****'.
-	self closeTypeIn.
-	startIndex := self startIndex.
-	stopIndex := self stopIndex.
-	oldSelection := self selection.
-	which := '([<{"''' indexOf: aKeyboardEvent keyCharacter ifAbsent: [ ^true ].
-	left := '([<{"''' at: which.
-	right := ')]>}"''' at: which.
-	text := self text.
-	((startIndex > 1 and: [stopIndex <= text size])
-			and: [ (text at: startIndex-1) = left and: [(text at: stopIndex) = right]])
-		ifTrue: [
-			"already enclosed; strip off brackets"
-			self selectFrom: startIndex-1 to: stopIndex.
-			self replaceSelectionWith: oldSelection]
-		ifFalse: [
-			"not enclosed; enclose by matching brackets"
-			self replaceSelectionWith:
-				(Text string: (String with: left), oldSelection string, (String with: right) attributes: self emphasisHere).
-			self selectFrom: startIndex+1 to: stopIndex].
-	^true
-]
-
-{ #category : #'editing keys' }
 RubTextEditor >> encloseWith: aMatchingPair [
 	"Insert or remove bracket characters around the current selection."
 
-	| left right startIndex stopIndex oldSelection text |
+	| left right startIndex stopIndex oldSelection text newString |
 	self closeTypeIn.
 	startIndex := self startIndex.
 	stopIndex := self stopIndex.
@@ -1000,13 +920,21 @@ RubTextEditor >> encloseWith: aMatchingPair [
 			and: [ (text at: startIndex-1) = left and: [(text at: stopIndex) = right]])
 		ifTrue: [
 			"already enclosed; strip off brackets"
+			newString := (self shouldEscapeCharacter: left)
+						 ifTrue: [ oldSelection asString unescapeCharacter: left ] 
+						 ifFalse: [ oldSelection ].
 			self selectFrom: startIndex-1 to: stopIndex.
-			self replaceSelectionWith: oldSelection]
+			self replaceSelectionWith: newString ]
 		ifFalse: [
-			"not enclosed; enclose by matching brackets"
+			" Checks if the characters inside the selection need to be escaped or not. "
+			newString := (self shouldEscapeCharacter: left)
+						 ifTrue: [ self surroundString: oldSelection withCharacter: left ] 
+						 ifFalse: [ "not enclosed; enclose by matching brackets"
+									  (String with: left), oldSelection string, (String with: right) ].
 			self replaceSelectionWith:
-				(Text string: (String with: left), oldSelection string, (String with: right) attributes: self emphasisHere).
-			self selectFrom: startIndex+1 to: stopIndex].
+				(Text string: newString attributes: self emphasisHere).
+			"we add the difference of the newString and the oldSelection, here, to ajust to eventual nesting. The 2 corrsponds to se left and right characters added which are not in oldSelection."
+			self selectFrom: startIndex+1 to: stopIndex+(newString size - oldSelection size - 2)].
 	^true
 ]
 
@@ -1028,6 +956,20 @@ RubTextEditor >> escape [
 RubTextEditor >> escape: aKeyboardEvent [
 	textArea escapePressed.
 	^ false  
+]
+
+{ #category : #nesting }
+RubTextEditor >> escapeCharacter: aCharacter inString: aString [
+	" To escape them, we double the character every time it's encountered"
+	| result stream |
+	result := WriteStream with: ''.
+	stream := ReadStream on: aString string.
+	[ stream atEnd ] whileFalse: 
+		[ result nextPutAll: (stream upTo: aCharacter).
+		stream peekBack = aCharacter ifTrue: [result nextPut: aCharacter]. 
+		stream atEnd ifFalse: [ result nextPut: aCharacter ]
+						 ifTrue: [ stream peekBack = aCharacter ifTrue: [result nextPut: aCharacter] ].].
+	^result contents.
 ]
 
 { #category : #'menu messages' }
@@ -1082,7 +1024,7 @@ RubTextEditor >> exchangeWith: prior [
 			[textArea flash]
 ]
 
-{ #category : #'undo-redo private' }
+{ #category : #'undo - redo private' }
 RubTextEditor >> exploreUndoManager: aKeyboardEvent [
 	^ self editingState exploreUndoManager: aKeyboardEvent
 ]
@@ -1124,7 +1066,6 @@ RubTextEditor >> findAgain: aKeyboardEvent [
 
 { #category : #'menu messages' }
 RubTextEditor >> findAgainAndReplace [
-
 	"Find the text-to-find again and eventually replace it with the current replace text."
 
 	| where |
@@ -1157,14 +1098,24 @@ RubTextEditor >> findAndSelect: aRegex startingAt: anIndex searchBackwards: sear
 	oldSelectionInterval := self selectionInterval.
 	self selectInvisiblyFrom: anIndex to: anIndex - 1.
 	where :=  searchBackwards
-		ifTrue: [self findAndSelectPreviousOccurenceOf: aRegex]
-		ifFalse: [self findAndSelectNextOccurenceOf: aRegex].
+		ifTrue: [self findAndSelectPreviousOccurrenceOf: aRegex]
+		ifFalse: [self findAndSelectNextOccurrenceOf: aRegex].
 	where ifNil: [self selectInterval: oldSelectionInterval].
 	^ where
 ]
 
-{ #category : #'find-select' }
+{ #category : #generated }
 RubTextEditor >> findAndSelectNextOccurenceOf: aRegex [
+
+	self
+		deprecated: 'Use #findAndSelectPreviousOccurrenceOf: instead'
+		transformWith: '`@rec findAndSelectNextOccurenceOf: `@arg'
+			-> '`@rec findAndSelectPreviousOccurrenceOf: `@arg'.
+	^ self findAndSelectPreviousOccurrenceOf: aRegex
+]
+
+{ #category : #'find-select' }
+RubTextEditor >> findAndSelectNextOccurrenceOf: aRegex [
 	| where |
 	where := self findNext: aRegex startingAt: self stopIndex.
 	where ifNotNil: [self selectInterval: where].
@@ -1172,10 +1123,9 @@ RubTextEditor >> findAndSelectNextOccurenceOf: aRegex [
 ]
 
 { #category : #'find-select' }
-RubTextEditor >> findAndSelectPreviousOccurenceOf: aRegex [
+RubTextEditor >> findAndSelectPreviousOccurrenceOf: aRegex [
 
 	| where |
-
 	where := self findPrevious: aRegex startingAt: self startIndex.
 	where ifNotNil: [ self selectInterval: where ].
 	^ where
@@ -1279,7 +1229,16 @@ RubTextEditor >> forwardDelete: aKeyboardEvent [
 	^ false
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #nesting }
+RubTextEditor >> getEscapeCharacterFromAst: anAST [
+	"If there is no node (empty textArea) there is no nesting to be had."
+	anAST ifNil: [ ^nil ].
+	anAST isCommentNode ifTrue: [ ^$" ].
+	(anAST isLiteralNode and: [anAST value isString]) ifTrue: [ ^$' ].
+	^nil.
+]
+
+{ #category : #'accessing - selection' }
 RubTextEditor >> getHighlightInterval [
 	"Answer the interval that is or should be highligted."
 
@@ -1288,7 +1247,7 @@ RubTextEditor >> getHighlightInterval [
 		ifFalse: [ self computeSelectionIntervalForCurrentLine ]
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> hasCursor [
 	^self markBlock = self pointBlock
 ]
@@ -1298,15 +1257,15 @@ RubTextEditor >> hasError [
 	^ false 
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> hasSelection [
 	^ self pointIndex ~= self markIndex
 ]
 
 { #category : #'menu messages' }
 RubTextEditor >> highlightAndEmptyCheck: returnBlock [
-	| selectionInterval |
 
+	| selectionInterval |
 	selectionInterval := self getHighlightInterval.
 	selectionInterval ifEmpty: [ textArea flash.  ^ returnBlock value ].
 	self highlightInterval: selectionInterval
@@ -1320,7 +1279,7 @@ RubTextEditor >> highlightInterval: anInterval [
 		to: anInterval last + 1.
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> highlightedTextAsStream [
 	"Answer a ReadStream on the text in the paragraph that is currently highlighted."
 
@@ -1490,15 +1449,19 @@ RubTextEditor >> isTextEditor [
 ]
 
 { #category : #'typing support' }
+RubTextEditor >> keyDown: aKeyboardEvent [
+	textArea announce: ((RubKeystroke with: aKeyboardEvent) morph: self).
+	(self dispatch: aKeyboardEvent) ifTrue: [
+		self doneTyping.
+		self storeSelectionInText.
+		textArea scrollSelectionIntoView: nil ]
+]
+
+{ #category : #'typing support' }
 RubTextEditor >> keystroke: aKeyboardEvent [
 	textArea announce: ((RubKeystroke with: aKeyboardEvent) morph: self).
-	(self dispatch: aKeyboardEvent)
-		ifTrue: [ "If not a normal character"
-			self doneTyping.
-			self storeSelectionInText.
-			^ self ].
+	self normalCharacter: aKeyboardEvent.
 	"normal character"
-	self openTypeIn.
 	self hasSelection
 		ifTrue: [ 
 			"save highlighted characters"
@@ -1587,17 +1550,17 @@ RubTextEditor >> makeUppercase: aKeyboardEvent [
 	^ true
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> markBlock [
 	^ textArea markBlock
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> markIndex [
 	^ textArea markIndex
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> markIndex: markIndex pointIndex: pointIndex [
 	textArea markIndex: markIndex pointIndex: pointIndex
 
@@ -1631,11 +1594,24 @@ RubTextEditor >> moveCursor: directionBlock forward: forward specialBlock: speci
 	self setEmphasisHereFromTextForward: forward
 ]
 
+{ #category : #nesting }
+RubTextEditor >> nestingForPaste: aString with: aCharacter [ 
+	" To escape them, we double the character every time it's encountered"
+	| result stream |
+	result := WriteStream with: ''.
+	stream := ReadStream on: aString string.
+	[ stream atEnd ] whileFalse: 
+		[ result nextPutAll: (stream upTo: aCharacter).
+		stream peekBack = aCharacter ifTrue: [result nextPut: aCharacter]. 
+		stream atEnd ifFalse: [ result nextPut: aCharacter ]
+						 ifTrue: [ stream peekBack = aCharacter ifTrue: [result nextPut: aCharacter] ].].
+	^result contents.
+]
+
 { #category : #keymapping }
 RubTextEditor >> newDefaultKeymappingIndex [
 	defaultKeymappingIndex := IdentityDictionary new.
 	defaultKeymappingIndex at: #command put: self defaultCommandKeymapping.
-	defaultKeymappingIndex at: #shiftCommand put: self defaultShiftCommandKeymapping.
 	^ defaultKeymappingIndex 
 ]
 
@@ -1670,8 +1646,6 @@ RubTextEditor >> noop: aKeyboardEvent [
 RubTextEditor >> normalCharacter: aKeyboardEvent [ 
 	"A nonspecial character is to be added to the stream of characters."
 
-	self hasSelection 
-		ifTrue: [self addDeleteSelectionUndoRecord].
 	self addString: aKeyboardEvent keyCharacter asString.
 	^false
 ]
@@ -1723,7 +1697,7 @@ RubTextEditor >> openingDelimiters [
 
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> oppositeDelimiterSelection [
 	^ RubTextSelectionColor oppositeDelimiterSelection
 ]
@@ -1780,22 +1754,19 @@ RubTextEditor >> pasteRecent [
 
 { #category : #'typing support' }
 RubTextEditor >> performCmdActionsWith: aKeyboardEvent shifted: aBoolean return: return [
-	| asciiValue actions action|
-	asciiValue := aKeyboardEvent keyValue + 1.
-	actions := aBoolean
-				ifTrue: [self  shiftCmdActions]
-				ifFalse: [self  cmdActions].
-	action := (actions at: asciiValue).
-	action == #noop: ifTrue: [ ^ false ].
-	return value: ( self perform: action with: aKeyboardEvent).
+	| key actions action|
+	key := aKeyboardEvent key.
+	actions := self cmdActions.
+	action := (actions at: key ifAbsent: [ ^ false ]).
+	return value: (self perform: action with: aKeyboardEvent).
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> pointBlock [
 	^ textArea pointBlock
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> pointIndex [
 	^ textArea pointIndex
 ]
@@ -1824,7 +1795,7 @@ RubTextEditor >> raiseContextMenu: aKeyboardEvent [
 	^ textArea yellowButtonActivity: textArea activeHand lastEvent shiftPressed
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> recomputeSelection [
 	"The same characters are selected but their coordinates may have changed.
 	Redetermine the selection according to the start and stop block indices; 
@@ -1849,12 +1820,12 @@ RubTextEditor >> redo: aKeyboardEvent [
 	^true
 ]
 
-{ #category : #'undo-redo private' }
+{ #category : #'undo - redo private' }
 RubTextEditor >> redoArray: doArray undoArray: undoArray [
 	self editingState redoArray: doArray undoArray: undoArray
 ]
 
-{ #category : #'undoers-redoers' }
+{ #category : #'undoers - redoers' }
 RubTextEditor >> redoTypeIn: aText interval: anInterval [
 	self selectInterval: anInterval.
 	self replace: self selectionInterval with: aText and:
@@ -2017,7 +1988,7 @@ RubTextEditor >> search: aKeyboardEvent [
 	^true
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> select [
 	"select what and how ?"
 ]
@@ -2194,13 +2165,13 @@ RubTextEditor >> selectWord: aKeyboardEvent [
 	^ true
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> selection [
 	"Answer the text in the paragraph that is currently selected."
 	^self text copyFrom: self startIndex to: self stopIndex - 1 
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> selectionAsStream [
 	"Answer a ReadStream on the text in the paragraph that is currently 
 	selected."
@@ -2209,19 +2180,19 @@ RubTextEditor >> selectionAsStream [
 		on: (self string copyFrom: self startIndex to: self stopIndex - 1)
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> selectionInterval [
 	"Answer the interval that is currently selected."
 
 	^self startIndex to: self stopIndex - 1 
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> selectionStart [
 	^ textArea selectionStart
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> selectionStop [
 	^ textArea selectionStop
 ]
@@ -2306,11 +2277,6 @@ RubTextEditor >> setSelectorSearch: aStringOrText [
 	^ true
 ]
 
-{ #category : #keymapping }
-RubTextEditor >> shiftCmdActions [
-	^self defaultKeymappingIndex at: #shiftCommand 
-]
-
 { #category : #'editing keys' }
 RubTextEditor >> shiftEnclose: aKeyboardEvent [
 	"Insert or remove bracket characters around the current selection."
@@ -2343,6 +2309,12 @@ RubTextEditor >> shiftEnclose: aKeyboardEvent [
 	^true
 ]
 
+{ #category : #nesting }
+RubTextEditor >> shouldEscapeCharacter: aCharacter [
+
+	^ #($" $') includes: aCharacter
+]
+
 { #category : #keymapping }
 RubTextEditor >> specialShiftCmdKeys [
 
@@ -2354,8 +2326,10 @@ as if shift-command were also being pressed"
 	3	"enter"
 	4	"end"
 	8	"backspace"
+	9	"tab"
 	11	"page up"
 	12	"page down"
+	13 "cr"
 	27	"escape"
 	28	"left arrow"
 	29	"right arrow"
@@ -2365,7 +2339,7 @@ as if shift-command were also being pressed"
 	)
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> startIndex [
 	^ textArea startIndex
 ]
@@ -2380,12 +2354,12 @@ RubTextEditor >> startOfTyping: anIntegerIndex [
 	self editingState startOfTyping:  anIntegerIndex
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> stopIndex [
 	^ textArea stopIndex
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> storeSelectionInText [
 	self theme currentSettings haveSelectionTextColor 
 		ifTrue: [
@@ -2397,6 +2371,26 @@ RubTextEditor >> storeSelectionInText [
 RubTextEditor >> string [
 
 	^self text string
+]
+
+{ #category : #nesting }
+RubTextEditor >> surroundString: aString withCharacter: aCharacter [
+	"Returns a new string with contents equals to aString surrounded by aCharacter.
+	Escapes all occurrences of aCharacter within aString by doubling them."
+	
+	"(RubTextEditor new surroundString: 'a' withCharacter: $') >>> '''a'''"
+	"(RubTextEditor new surroundString: 'a''b' withCharacter: $') >>> '''a''''b'''"
+	
+	| result stream |
+	result := WriteStream with: ''.
+	stream := ReadStream on: aString string.
+	result nextPut: aCharacter.
+	[ stream atEnd ] whileFalse: 
+		[ result nextPutAll: (stream upTo: aCharacter).
+		stream peekBack = aCharacter ifTrue: [result nextPut: aCharacter]. 
+		result nextPut: aCharacter.].
+	stream peekBack = aCharacter ifTrue: [result nextPut: aCharacter].
+	^result contents.
 ]
 
 { #category : #'editing keys' }
@@ -2425,6 +2419,15 @@ RubTextEditor >> swapChars: aKeyboardEvent [
 	self replaceSelectionWith: (Text string: aString reversed attributes: self emphasisHere).
 	self selectAt: currentSelection + 1.
 	^ true
+]
+
+{ #category : #'typing/selecting keys' }
+RubTextEditor >> tab: aKeyboardEvent [
+	"Append a line feed character to the stream of characters."
+
+	self addString: String tab.
+	self unselect.
+	^false
 ]
 
 { #category : #accessing }
@@ -2485,6 +2488,18 @@ RubTextEditor >> tripleClick: evt [
 	self storeSelectionInText.
 ]
 
+{ #category : #nesting }
+RubTextEditor >> unNesting: aString with: aCharacter [ 
+	" To escape them, we double the character every time it's encountered"
+	| result stream |
+	result := WriteStream with: ''.
+	stream := ReadStream on: aString.
+	[ stream atEnd ] whileFalse: 
+			[ result nextPutAll: (stream upTo: aCharacter).
+			  stream peek ifNotNil: [result nextPut: stream next]].
+	^result contents.
+]
+
 { #category : #'menu messages' }
 RubTextEditor >> undo [
 	"Undo  previous edit."
@@ -2501,7 +2516,7 @@ RubTextEditor >> undo: aKeyboardEvent [
 	^true
 ]
 
-{ #category : #'undoers-redoers' }
+{ #category : #'undoers - redoers' }
 RubTextEditor >> undoRedoExchange: aninterval with: anotherInterval [
 	self selectInvisiblyFrom: aninterval first to: aninterval last.
 	self exchangeWith: anotherInterval
@@ -2513,7 +2528,7 @@ RubTextEditor >> undoRedoTransaction: aBlock [
 	self editingState undoRedoTransaction: aBlock
 ]
 
-{ #category : #'undoers-redoers' }
+{ #category : #'undoers - redoers' }
 RubTextEditor >> undoTypeIn: aText interval: anInterval [
 	self selectInterval: anInterval.
 	self replace: anInterval with: aText and:
@@ -2527,7 +2542,7 @@ RubTextEditor >> unplug [
 	super unplug
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> unselect [
 	textArea unselect
 ]
@@ -2551,7 +2566,7 @@ RubTextEditor >> wordAtCaret [
 
 ]
 
-{ #category : #'accessing-selection' }
+{ #category : #'accessing - selection' }
 RubTextEditor >> zapSelectionWith: aText [
 	| start stop |
 	self canChangeText

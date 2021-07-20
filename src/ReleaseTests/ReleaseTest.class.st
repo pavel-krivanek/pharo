@@ -19,22 +19,6 @@ ReleaseTest class >> defaultTimeLimit [
 ]
 
 { #category : #accessing }
-ReleaseTest class >> knownProcesses [
-	"Return a dynamic list of know processes"
-	
-	"(self actualProcesses difference: self knownProcesses) do: [ :each | each suspend; terminate ]."
-	
-	^ {
-		Processor activeProcess.	
-		InputEventFetcher default fetcherProcess.
-		WeakArray runningFinalizationProcess.
-		Processor backgroundProcess.
-		SmalltalkImage current lowSpaceWatcherProcess.
-		UIManager default uiProcess.
-		Delay schedulingProcess } asSet
-]
-
-{ #category : #accessing }
 ReleaseTest >> actualProcesses [
 	^ self class actualProcesses
 ]
@@ -82,10 +66,24 @@ ReleaseTest >> hasStartUpOrShutDownMethod: aClass [
 
 { #category : #accessing }
 ReleaseTest >> knownProcesses [
-	^ self class knownProcesses
+	"Return a dynamic list of know processes"
+	
+	"(self actualProcesses difference: self knownProcesses) do: [ :each | each suspend; terminate ]."
+	
+	^ {
+		Processor activeProcess.	
+		Processor backgroundProcess.
+		InputEventFetcher default fetcherProcess.
+		WeakArray runningFinalizationProcess.
+		SmalltalkImage current lowSpaceWatcherProcess.
+		MorphicUIManager uiProcess.
+		CurrentExecutionEnvironment value watchDogProcess.
+		Delay schedulingProcess.
+		TKTWatchDog onDuty pharoProcess.
+		TFCallbackQueue uniqueInstance callbackProcess } asSet
 ]
 
-{ #category : #tests }
+{ #category : #'tests - variables' }
 ReleaseTest >> testAllClassPoolBindingAreClassVariables [
 	| wrong |
 	wrong := OrderedCollection new.
@@ -93,11 +91,43 @@ ReleaseTest >> testAllClassPoolBindingAreClassVariables [
 	self assertEmpty: wrong
 ]
 
-{ #category : #tests }
+{ #category : #'tests - variables' }
+ReleaseTest >> testAllClassPoolBindingHaveDefiningClass [
+	| wrong |
+	wrong := OrderedCollection new.
+	testingEnvironment allClasses do: [ :class | wrong addAll: (class classVariables reject: [ :each | each definingClass == class ]) ].
+	self assertEmpty: wrong
+]
+
+{ #category : #'tests - variables' }
 ReleaseTest >> testAllGlobalBindingAreGlobalVariables [
 	| wrong |
 	wrong := testingEnvironment associations reject: [ :each | each isKindOf: GlobalVariable ].
 	self assertEmpty: wrong
+]
+
+{ #category : #'tests - variables' }
+ReleaseTest >> testAllInstanceVariablesStartLowercase [
+	"Make sure that all class instance variable names start with a lowercase letter"
+	| violating |
+
+	violating := Smalltalk globals allBehaviors select: [ :class | 
+		class slots anySatisfy: [:var | var name first isUppercase]].
+
+	self 
+		assert: violating isEmpty 
+		description: 'Instance variable names must start with a lowercase letter: ', violating asArray asString
+]
+
+{ #category : #'tests - variables' }
+ReleaseTest >> testClassesShadow [
+
+	| classes |
+	classes := Smalltalk globals allBehaviors select: [ :class | 
+		           class definedVariables anySatisfy: [ :var | 
+			           var isShadowing ] ].
+
+	self assert: classes isEmpty description: classes asArray asString
 ]
 
 { #category : #tests }
@@ -173,12 +203,37 @@ ReleaseTest >> testManifestNamesAccordingToPackageNames [
 	|manifestClasses actualManifestNames expectedManifestNames |
 	manifestClasses := self class environment allClasses select: [:each | each isManifest ].
 	actualManifestNames := (manifestClasses collect: [:each | each name ]) sorted.
-	expectedManifestNames := manifestClasses 
-										collect: [:each | TheManifestBuilder manifestClassNameFor: each package name ].
-	self assert: actualManifestNames equals: expectedManifestNames 
+	expectedManifestNames := (manifestClasses collect: [:each | TheManifestBuilder manifestClassNameFor: each package name ]) sorted.
+	
+	self 
+		assert: actualManifestNames size 
+		equals: expectedManifestNames size.
+	
+	actualManifestNames do: [:each |
+		 self assert: (expectedManifestNames includes: each)] 
 ]
 
 { #category : #tests }
+ReleaseTest >> testMethodsContainNoHalt [
+
+	| methods |
+	methods := SystemNavigation new allMethods select: [ :method | method containsHalt ].
+	"these methods are using halt for testing something"
+	methods := methods reject: [ :method | 
+		           method hasPragmaNamed: #haltOrBreakpointForTesting ].
+	"these methods are implementing halt, we are not interested"
+	methods := methods reject: [ :method | 
+		           method hasPragmaNamed: #debuggerCompleteToSender ].
+
+	"there should be no method left"
+	self assert: methods isEmpty description: [ 
+		String streamContents: [ :stream | 
+			stream
+				nextPutAll: 'Found methods with halt';
+				print: methods ] ]
+]
+
+{ #category : #'tests - variables' }
 ReleaseTest >> testMethodsWithUnboundGlobals [
 	| methodsWithUnboundGlobals |
 	"Ensure the environment is clean"
@@ -209,6 +264,44 @@ ReleaseTest >> testNoNilAssignmentInInitializeMethod [
 	
 	self assertValidLintRule: ReNoNilAssignationInInitializeRule new
 	
+]
+
+{ #category : #'tests - source' }
+ReleaseTest >> testNoPeriodInMethodSignature [
+	| methods |
+	methods := SystemNavigation new allMethods select: [ :method | 
+ 		method sourceCode lines first trimRight last == $..].
+	
+	self assert: methods isEmpty description: [ 
+		String streamContents: [ :stream | 
+			stream
+				nextPutAll: 'Found methods with period in signature:';
+				print: methods ] ]
+	
+]
+
+{ #category : #'tests - variables' }
+ReleaseTest >> testNoShadowedVariablesInMethods [
+	"Fail if there are methods who define shadowed temps or args"
+	| found validExceptions remaining |
+	found := SystemNavigation default allMethodsSelect: [ :m | 
+		m ast variableDefinitionNodes anySatisfy: [ :node | node variable isShadowing ] ].
+	"Make sure to not waste memory with all the ASTs"
+	ASTCache reset.
+	"No other exceptions beside the ones mentioned here should be allowed"	
+	validExceptions := { 
+		RBDummyRefactoryTestDataApp>>#tempVarOverridesInstVar.
+		RBRefactoryTestDataApp>>#tempVarOverridesInstVar.
+		RBSmalllintTestObject>>#tempVarOverridesInstVar.
+		ReTempVarOverridesInstVarRuleTest>>#sampleMethod:}.	
+	
+	remaining := found asOrderedCollection 
+								removeAll: validExceptions;
+								yourself.
+								
+	self 
+		assert: remaining isEmpty 
+		description: ('the following methods have shadowing variable definitions and should be cleaned: ', remaining asString)
 ]
 
 { #category : #tests }
@@ -309,20 +402,35 @@ ReleaseTest >> testThatAllMethodsArePackaged [
 	self assertEmpty: methodsWithoutPackageInfo
 ]
 
-{ #category : #tests }
+{ #category : #'tests - variables' }
 ReleaseTest >> testUndeclared [
-	| undeclaredBindings |
+	| undeclaredVariables validExceptions remaining description |
 	
 	Smalltalk cleanOutUndeclared. 
-	undeclaredBindings := Undeclared keys reject: [:each |
-			each includesSubstring: 'undeclaredStub' caseSensitive: false].
+	undeclaredVariables := Undeclared associations select: [:each |
+			each isUndeclaredVariable].
 	
-	self 
-		assert: undeclaredBindings isEmpty 
-		description: (String streamContents: [ :s|
-			s 
-				nextPutAll: 'Found undeclared references: ';
-				print: undeclaredBindings ])
+	validExceptions := { #undeclaredStubInstVar1 . #undeclaredStubInstVar2 }.
+	
+	"for now we filter by name, maybe filtering by variable would be better"
+	remaining := undeclaredVariables reject: [ :each | validExceptions includes: each name  ].
+	
+	"we look for one of the using methods of the undeclared var and report that, 
+	this should be enough to fix it quickly"							
+	description := String streamContents: [ :stream |
+			stream nextPutAll: 'Found undeclared Variables: '.
+			remaining do: [ :variable  |
+				| method |
+				method := variable usingMethods first.
+				stream 
+					cr
+					nextPutAll: variable name;
+					nextPutAll: ' in: ';
+					print: method methodClass;
+					nextPutAll: '>>';
+					print: method selector]].
+
+	self assert: remaining isEmpty description: description
 ]
 
 { #category : #tests }
@@ -332,12 +440,16 @@ ReleaseTest >> testUnknownProcesses [
 	| unknownProcesses |
 	unknownProcesses := self actualProcesses difference: self knownProcesses.
 	self 
-		assert: unknownProcesses size <=2
+		assert: unknownProcesses isEmpty
 		description: (String streamContents: [ :out |
 			out << 'Found unknown processes: '.
 			unknownProcesses 
-				do: [ :each | out print: each ] 
-				separatedBy: [ out << ', ' ] ])
+				do: [ :each | 
+					out 
+						print: each name;
+						print: ':';
+						print: each ] 
+				separatedBy: [ out << String crlf ] ])
 ]
 
 { #category : #'tests - rpackage' }

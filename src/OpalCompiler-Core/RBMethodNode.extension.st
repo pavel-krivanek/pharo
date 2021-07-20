@@ -38,12 +38,12 @@ RBMethodNode >> ensureCachedArgumentNames [
 RBMethodNode class >> errorMethodNode: selector errorMessage: messageText [	
 	| message |
 	message := RBMessageNode 
-		receiver: RBSelfNode new
+		receiver: RBVariableNode selfNode
 		selector: #error: 
 		arguments: {RBLiteralNode value: messageText}.
 	^ self 
 		selector: selector 
-		arguments: ((1 to: selector numArgs) collect: [ :i | RBArgumentNode named: 't' , i asString ]) 
+		arguments: ((1 to: selector numArgs) collect: [ :i | RBVariableNode named: 't' , i asString ]) 
 		body: (RBSequenceNode statements: {message}) 
 ]
 
@@ -58,6 +58,8 @@ RBMethodNode >> generate [
 
 { #category : #'*OpalCompiler-Core' }
 RBMethodNode >> generate: trailer [
+	"if the bytecode is regenerated, we need to reset the cache"
+	bcToASTCache := nil.
 	^ self generateIR compiledMethodWith: trailer.
 ]
 
@@ -142,7 +144,6 @@ RBMethodNode >> owningScope [
 
 { #category : #'*OpalCompiler-Core' }
 RBMethodNode >> primitiveFromPragma [
-	pragmas ifNil: [ ^ IRPrimitive null ].
 	^ pragmas
 		detect: [ :each | each isPrimitive ]
 		ifFound: [ :aPragmaPrimitive | aPragmaPrimitive asIRPrimitive ]
@@ -159,8 +160,8 @@ RBMethodNode >> rewriteTempsForContext: aContext [
 			(contextOnlyTemps includes: tempName)
 				ifTrue:
 					[ rewriter
-						replace: tempName , ' := ``@object' with: 'ThisContext tempNamed: ', tempName asString printString  , ' put: ``@object';
-						replace: tempName with: 'ThisContext tempNamed: ' , tempName asString printString ] ].
+						replace: tempName , ' := ``@object' with: 'ThisContext writeVariableNamed: ', tempName asString printString  , ' value: ``@object';
+						replace: tempName with: 'ThisContext readVariableNamed: ' , tempName asString printString ] ].
 	^ rewriter
 		executeTree: self;
 		tree

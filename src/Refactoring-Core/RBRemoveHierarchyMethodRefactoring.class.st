@@ -1,6 +1,15 @@
 "
 I am a refactoring for removing a method and those of its subclasses,
- to remove the methods use RBRemoveMethodRefactoring
+ to remove the methods use RBRemoveMethodRefactoring.
+
+Example
+-------
+Script
+```
+(RBRemoveHierarchyMethodRefactoring 
+		removeMethods: #(#msg4)
+		from: RBSharedPoolForTestData) execute
+```
 "
 Class {
 	#name : #RBRemoveHierarchyMethodRefactoring,
@@ -19,7 +28,7 @@ RBRemoveHierarchyMethodRefactoring class >> removeMethods: selectorCollection fr
 { #category : #transforming }
 RBRemoveHierarchyMethodRefactoring >> delete: selector in: aClass [
 	 (aClass realClass includesSelector: selector) ifTrue: [ 
-		 [self performComponentRefactoring: (RBRemoveMethodRefactoring 
+		 [self performCompositeRefactoring: (RBRemoveMethodRefactoring 
 									model: self model
 									removeMethods: { selector }
 									from: aClass) ]
@@ -45,9 +54,10 @@ RBRemoveHierarchyMethodRefactoring >> deleteSelectors [
 ]
 
 { #category : #transforming }
-RBRemoveHierarchyMethodRefactoring >> preconditions [ 
-	^(selectors inject: RBCondition empty
-		into: [ :cond :selector | cond & (RBCondition definesSelector: selector in: class)])
+RBRemoveHierarchyMethodRefactoring >> preconditions [
+
+	^ selectors inject: self emptyCondition into: [ :cond :selector | 
+		  cond & (RBCondition definesSelector: selector in: class) ]
 ]
 
 { #category : #removing }

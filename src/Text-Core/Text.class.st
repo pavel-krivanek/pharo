@@ -271,6 +271,11 @@ Text >> deepCopy [
 	^ self copy "Both string and runs are assumed to be read-only"
 ]
 
+{ #category : #printing }
+Text >> displayStringOn: aStream [
+	self printOn: aStream
+]
+
 { #category : #emphasis }
 Text >> emphasisAt: characterIndex [
 	"Answer the fontfor characters in the run beginning at characterIndex."
@@ -608,11 +613,4 @@ Text >> withInternalLineEndings [
 	newText := self copyReplaceAll: String crlf with: String cr.
 	(newText asString includes: Character lf) ifFalse: [ ^newText ].
 	^newText copyReplaceAll: String lf with: String cr.
-]
-
-{ #category : #formatting }
-Text >> withSqueakLineEndings [
-	"Answer a new instance where all occurrences of CRLF and LF are substituted with CR."
-	
-	^ self withInternalLineEndings
 ]

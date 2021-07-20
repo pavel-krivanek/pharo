@@ -96,7 +96,7 @@ TransferMorph >> defaultColor [
 	^ self theme selectionColor
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #'submorphs - add/remove' }
 TransferMorph >> delete [
 	"See also >>justDroppedInto:event:."
 	accepted ifFalse: [
@@ -202,7 +202,7 @@ TransferMorph >> justDroppedInto: targetMorph event: anEvent [
 ]
 
 { #category : #'event handling' }
-TransferMorph >> keyStroke: evt [
+TransferMorph >> keyDown: evt [
 	"Abort the drag on an escape"
 	evt keyCharacter ~= Character escape ifTrue: [ ^self ].
 	self delete.

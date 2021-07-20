@@ -11,18 +11,18 @@ Class {
 	#category : #'Calypso-SystemTools-FullBrowser-Commands-Methods'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #menu }
 ClyFindMethodInBrowserCommand class >> fullBrowserMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation byItemOf: ClyQueryMenuGroup for: ClyMethodContextOfFullBrowser 
+	^CmdContextMenuActivation byItemOf: ClyQueryMenuGroup for: ClyFullBrowserMethodContext 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #menu }
 ClyFindMethodInBrowserCommand class >> fullBrowserShortcutActivation [
 	<classAnnotation>
 	
-	^CmdShortcutActivation by: $f meta for: ClyMethodContextOfFullBrowser 
+	^CmdShortcutActivation by: $f meta for: ClyFullBrowserMethodContext 
 ]
 
 { #category : #accessing }

@@ -4,7 +4,7 @@ Class {
 	#category : #'HeuristicCompletion-Tests-Heuristics'
 }
 
-{ #category : #test }
+{ #category : #tests }
 CoSuperMessageHeuristicTest >> testDoesApplyForMethodNodeInContextWithNilclass [
 
 	self deny: (CoSuperMessageHeuristic new
@@ -14,7 +14,7 @@ CoSuperMessageHeuristicTest >> testDoesApplyForMethodNodeInContextWithNilclass [
 			yourself))
 ]
 
-{ #category : #test }
+{ #category : #tests }
 CoSuperMessageHeuristicTest >> testDoesApplyForMethodNodeInContextWithSuperclass [
 
 	self assert: (CoSuperMessageHeuristic new
@@ -24,15 +24,15 @@ CoSuperMessageHeuristicTest >> testDoesApplyForMethodNodeInContextWithSuperclass
 			yourself))
 ]
 
-{ #category : #test }
+{ #category : #tests }
 CoSuperMessageHeuristicTest >> testDoesApplyForSuperMessageSendNodes [
 
 	self assert: (CoSuperMessageHeuristic new
-		appliesForNode: (RBMessageNode receiver: RBSuperNode new selector: #foo)
+		appliesForNode: (RBMessageNode receiver: RBVariableNode superNode selector: #foo)
 		inContext: nil)
 ]
 
-{ #category : #test }
+{ #category : #tests }
 CoSuperMessageHeuristicTest >> testDoesNotApplyForMethodNodeInContextWithNoSuperclass [
 
 	self deny: (CoSuperMessageHeuristic new
@@ -42,10 +42,10 @@ CoSuperMessageHeuristicTest >> testDoesNotApplyForMethodNodeInContextWithNoSuper
 			yourself))
 ]
 
-{ #category : #test }
+{ #category : #tests }
 CoSuperMessageHeuristicTest >> testDoesNotApplyForNonSuperMessageSendNodes [
 
 	self deny: (CoSuperMessageHeuristic new
-		appliesForNode: (RBMessageNode receiver: RBVariableNode new selector: #foo)
+		appliesForNode: (RBMessageNode receiver: (RBVariableNode new variable: (GlobalVariable new)) selector: #foo)
 		inContext: nil)
 ]

@@ -32,7 +32,7 @@ Class {
 	],
 	#classVars : [
 		'ClockProvider',
-		'LocalTimeZone'
+		'LocalTimeZoneCache'
 	],
 	#pools : [
 		'ChronologyConstants'
@@ -92,7 +92,7 @@ DateAndTime class >> current [
 
 { #category : #'instance creation queries' }
 DateAndTime class >> epoch [
-  "Answer a DateAndTime representing the Squeak epoch: 1 January 1901"
+  "Answer a DateAndTime representing the epoch: 1 January 1901"
 
   ^ (self julianDayNumber: SqueakEpoch) offset: 0.
   
@@ -153,7 +153,7 @@ DateAndTime class >> localOffset [
 DateAndTime class >> localTimeZone [
 	"Answer the local time zone"
 
-	^ LocalTimeZone ifNil: [ LocalTimeZone := TimeZone default ]
+	^ LocalTimeZoneCache ifNil: [ LocalTimeZoneCache := TimeZone default ]
 
 
 ]
@@ -167,7 +167,7 @@ DateAndTime class >> localTimeZone: aTimeZone [
 	DateAndTime localTimeZone: (TimeZone offset: -8 hours name: 'Pacific Standard Time' abbreviation: 'PST').
 	"
 
-	LocalTimeZone := aTimeZone
+	LocalTimeZoneCache := aTimeZone
 
 
 
@@ -188,7 +188,7 @@ DateAndTime class >> millisecondClockValue [
 
 { #category : #'instance creation' }
 DateAndTime class >> new [
-	"Answer a DateAndTime representing the Squeak epoch: 1 January 1901"
+	"Answer a DateAndTime representing the epoch: 1 January 1901"
 
 	^ self epoch offset: self localOffset 
 	

@@ -1,11 +1,14 @@
 "
-I understand methods beginning #assert:... and #deny:... (and my class-side understands #assert:description:).  I am the superclass of TestCase and TestResource and can also be the superclass of any test helper classes you create to factor out test behaviour.  I exist so that test code can be refactored between my subclasses without difficulty.
+I understand methods beginning with `assert:...` and `deny:...` (and my class-side understands `TestAsserter class >>#assert:description:`).  I am the superclass of `TestCase` and `TestResource` and can also be the superclass of any test helper classes you create to factor out test behaviour.  I exist so that test code can be refactored between my subclasses without difficulty.
 
-Send #assert:description: when you want to check for an expected value. For example, you might say
-	self assert: socket isOpen description: 'We requested a socket but now it is not open'.
-to test whether or not a socket is open at a point in a test.  Use description strings both to give more information about where a test failed in debugger notifiers and logs, and to document the intent of a test.  Other methods include #assert:, #assert:description:resumable:, #deny:, #deny:description:, #deny:description:resumable:, #should:raise:, #should:raise:description:, #shouldnt:raise:, #shouldnt:raise:description:.  All these methods are defined on the superclass, TestAsserter.  (Any convenience assertion methods you create for general use should also be defined in my 'convenience' protocol.)
+Send `#assert:description:` when you want to check for an expected value. For example, you might say
+	`self assert: socket isOpen description: 'We requested a socket but now it is not open'.`
+to test whether or not a socket is open at a point in a test.  
 
-Override my class-side #isLogging in subclasses to have failed assertion descriptions shown on the Transcript.  To have them appear elsewhere, also override my class-side #failureLog.
+Use description strings both to give more information about where a test failed in debugger notifiers and logs, and to document the intent of a test.  
+Other methods include `TestAsserter>>#assert:`, `TestAsserter>>#assert:description:resumable:`, `TestAsserter>>#deny:`, `TestAsserter>>#deny:description:`, `TestAsserter>>#deny:description:resumable:`, `TestAsserter>>#should:raise:`, `TestAsserter>>#should:raise:description:`, `TestAsserter>>#shouldnt:raise:`, `TestAsserter>>#shouldnt:raise:description:`.  (Any convenience assertion methods you create for general use should also be defined in my 'convenience' protocol.)
+
+Override my class-side `TestAsserter class>>#isLogging` in subclasses to have failed assertion descriptions shown on the Transcript.  To have them appear elsewhere, also override my class-side `TestAsserter class>>#failureLog`.
 
 "
 Class {
@@ -99,7 +102,7 @@ TestAsserter >> assert: aBooleanOrBlock description: aStringOrBlock [
 TestAsserter >> assert: aBooleanOrBlock description: aStringOrBlock resumable: resumableBoolean [
 	"Checks if aBooleanOrBlock evaluates to true (by sending #value message to it).
 	 The message text of the assertion failure exception thrown in case aBooleanOrBlock
-	 evaluates to false is determinated by the evaluation of aStringOrBlock (again by
+	 evaluates to false is determined by the evaluation of aStringOrBlock (again by
 	 sending #value message to it).
 	 The resumableBoolean flag is used to decide if the assertion failure signalled by
 	 the source code below should be resumable or not.
@@ -223,7 +226,7 @@ TestAsserter >> classForTestSuite [
 
 { #category : #private }
 TestAsserter >> comparingCollectionBetween: left and: right [
-	"Returns a string that shows the size if they are diferent and the aditional items for each left and right"
+	"Returns a string that shows the size if they are different and the additional items for each left and right"
 
 	| additionalLeft additionalRight sortBlock |
 	"use a very slow sort block"
@@ -585,13 +588,13 @@ TestAsserter >> signalFailure: aString [
 { #category : #asserting }
 TestAsserter >> skip [
 	"Don't run this test, and don't mark it as failure"
-	TestSkip signal
+	TestSkipped signal
 ]
 
 { #category : #extensions }
 TestAsserter >> skip: aComment [
 	"Don't run this test, and don't mark it as failure"
-	TestSkip signal: aComment
+	TestSkipped signal: aComment
 ]
 
 { #category : #private }

@@ -42,6 +42,11 @@ IRJump >> isJump [
 ]
 
 { #category : #accessing }
+IRJump >> nextBytecodeOffsetAfterJump [
+	^ destination last destination first bytecodeOffset
+]
+
+{ #category : #accessing }
 IRJump >> successor [
 	^successor
 ]

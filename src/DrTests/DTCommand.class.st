@@ -7,12 +7,13 @@ Class {
 	#category : #'DrTests-Commands'
 }
 
-{ #category : #accessing }
-DTCommand >> drTest [
-	^ self context
+{ #category : #testing }
+DTCommand class >> isAbstract [ 
+
+	^self name = #DTCommand
 ]
 
 { #category : #accessing }
 DTCommand >> plugin [
-	^ self drTest currentPlugin
+	^ self context plugin
 ]

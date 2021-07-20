@@ -13,7 +13,7 @@ I implement suitable method for commands to request new signature:
 
 	aMessage requestNewSignature
 
-It returnes new message instance.
+It returns new message instance.
 
 Also I provide a method to compute argument permutations comparing to another message: 
 
@@ -90,16 +90,22 @@ SycMessageDescription >> describesSelector: someSelector withArguments: someArgu
 	^selector = someSelector & (argumentNames = someArgumentNames) 
 ]
 
+{ #category : #accessing }
+SycMessageDescription >> methodClass [
+
+	^ contextUser methodClass
+]
+
 { #category : #operations }
 SycMessageDescription >> requestNewSignature [
 	| methodName dialog |
 	methodName := RBMethodName selector: selector arguments: argumentNames copy.
-	dialog := SycMethodNameEditor openOn: methodName.
+	dialog := SycMethodNameEditorPresenter openOn: methodName.
 	dialog cancelled ifTrue: [  CmdCommandAborted signal ].
 	
 	selector = methodName selector & (argumentNames = methodName arguments)
-		ifTrue: [ CmdCommandAborted signal].		
-				
+		ifTrue: [ CmdCommandAborted signal].
+	
 	^(SycMessageDescription fromContextOf: contextUser)
 		selector: methodName selector;
 		argumentNames: methodName arguments

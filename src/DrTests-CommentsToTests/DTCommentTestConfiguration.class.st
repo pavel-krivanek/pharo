@@ -4,22 +4,17 @@ I know the items to create a testSuite that will be analysed by a DrTestsPlugin.
 Class {
 	#name : #DTCommentTestConfiguration,
 	#superclass : #DTPluginConfiguration,
-	#category : #'DrTests-CommentsToTests'
+	#category : #'DrTests-CommentsToTests-Base'
 }
 
 { #category : #converting }
 DTCommentTestConfiguration >> asTestSuite [
-	| suite |
-	suite := TestSuite new.
+
+	| suite methods |
 	suite := TestSuite named: 'Test Generated From Comments'.
-	self items
-		reject: [ :each | each isAbstract ]
-		thenDo: [ :c | 
-			c methods
-				do: [ :m | 
-					(m methodClass compiledMethodAt: m selector) comments
-						do: [ :com | 
-							(com includesSubstring: '>>>')
-								ifTrue: [ suite addTest: (CommentTestCase comment: com class: c selector: m selector) ] ] ] ].
+	methods := self items flatCollect: [ :each | each methods ].
+	methods do: [ :method | 
+		method pharoDocCommentNodes do: [ :docComment | 
+			suite addTest: (CommentTestCase for: docComment) ] ].
 	^ suite
 ]

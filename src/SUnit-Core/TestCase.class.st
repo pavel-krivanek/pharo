@@ -1,9 +1,82 @@
 "
-A TestCase is an implementation of the Command pattern to run a test.  TestCase instances are created with the class method #selector:, passing the symbol that names the method to be executed when the test case runs.  Various UIs exist to run these instances and they can also be created and run programmatically.
+`TestCase` instances are created with the class method `TestCase class>>#selector:`, passing the symbol that names the method to be executed when the test case runs.  TestCase instances are then executed using the method `TestCase>>#run`. Now usually you do not execute your tests that primitive way
+but tests are grouped in `TestSuite` (a.k.a. a composite of TestCase) and run using a test runner.
+Various UIs exist to run these instances and they can also be created and run programmatically.
 
-When you discover a new fixture, subclass TestCase and create a #test... method for the first test.  As that method develops and more #test... methods are added, you will find yourself refactoring temps into instance variables for the objects in the fixture and overriding #setUp to initialize these variables.  As required, override #tearDown to nil references, release objects and deallocate.
+Each method of a `TestCase` subclass starting with 'test' acts an executable test. When you create a subclass of `TestCase`, the framework automatically builds a test suite from the test methods of such class. 
+The methods `setUp` and `tearDown` are always executed before and after the execution of a test method. You use them to set a specific context in which your test methods are executed. 
+
+### As you go...
+
+When you discover a new fixture (context) for your test, encapsulates it in a specific TestCase subclass. 
+You can create a #test... method for the first test.  As that method develops and more #test... methods are added, you will find yourself refactoring temps into instance variables for the objects in the fixture and overriding #setUp to initialize these variables.  
+As required, override #tearDown to nil references, release objects and deallocate.
+
+### Design Point
+
+A TestCase is an implementation of the Command pattern to run a test. 
+
+### Mini tutorial - step one
+
+Create a specific subclass
+
+```
+TestCase << #MyExampleSetTest
+	package: 'MySetTest'
+```
+
+### Mini tutorial - step two 
+
+Define a test method
+
+```
+MyExampleSetTest >> testIncludes
+	| full empty |
+	full := Set with: 5 with: 6.
+	empty := Set new.
+	self assert: (full includes: 5).
+	self assert: (full includes: 6).
+	self assert: (empty includes: 5) not
+```	
+
+### Mini tutorial - step three
+
+Execute your tests
+
+```
+MyExampleSetTest run: testIncludes 
+```
 
 See my superclass' comment for assertion and logging information.
+
+### Mini tutorial - step four
+
+Create a setUp method (add the empty and full instances to the class)
+
+```
+MyExampleSetTest >> setUp
+	super setUp.
+	empty := Set new.
+	full := Set with: 5 with: 6
+```
+
+Redefine your method to avoid duplicating the setUp logic
+```
+MyExampleSetTest >> testIncludes
+
+	self assert: (full includes: 5).
+	self assert: (full includes: 6).
+	self assert: (empty includes: 5) not
+```	
+
+Run your test!
+
+```
+MyExampleSetTest run: testIncludes 
+```
+
+You are done. Remember tests are your best friends. 
+And enjoy coding in the debugger.
 "
 Class {
 	#name : #TestCase,
@@ -120,10 +193,8 @@ TestCase class >> buildSuiteFromSelectors [
 ]
 
 { #category : #'accessing comment' }
-TestCase class >> comment [
-	^super hasComment
-		ifTrue: [ super comment ] 
-		ifFalse: ['This class contains tests'].
+TestCase class >> classCommentBlank [
+	^'This class contains tests'
 ]
 
 { #category : #coverage }
@@ -211,12 +282,16 @@ TestCase class >> defaultTimeLimitSecs: aNumber [
 TestCase class >> defaultTimeLimitSettingOn: aBuilder [
 	<systemsettings>
 	
-	(aBuilder setting: #defaultTimeLimitSecs)
-		target: self;
-		parent: #pharoSystem ;
-		default: 10.0;
-		label: 'Default time limit for tests (secs)' ;
-		description: 'Detault time limit in seconds for test execution'
+	(aBuilder group: #sunit)
+		label: 'SUnit';
+		parent: #pharoSystem;
+		description: 'SUnit';
+		with: [  
+			(aBuilder setting: #defaultTimeLimitSecs)
+				target: self;
+				default: 10.0;
+				label: 'Default time limit for tests (secs)' ;
+				description: 'Detault time limit in seconds for test execution']
 ]
 
 { #category : #history }
@@ -295,12 +370,11 @@ TestCase class >> historyAnnouncer [
 
 { #category : #'initialize - event' }
 TestCase class >> initialize [
-	super initialize.
 	SystemAnnouncer uniqueInstance unsubscribe: self.
 	SystemAnnouncer uniqueInstance weak
 		when: MethodAdded, MethodModified, MethodRemoved 
 		send: #methodChanged: 
-		to: self.
+		to: self
 ]
 
 { #category : #testing }
@@ -390,7 +464,7 @@ TestCase class >> localCoverageForClass: cls [
 		self methods inject: Set new into: 
 							[:sums :cm | sums union: cm messages].
 					
-	"testedMethods contains all the methods send in test methods, which probably contains methods that have nothign to do with collection"
+	"testedMethods contains all the methods send in test methods, which probably contains methods that have nothing to do with collection"
 	testedMethods := testedMethods reject: [:sel | (definedMethods includes: sel) not].
 
 	untestedMethods := definedMethods select: [:selector | (testedMethods includes: selector) not].
@@ -413,15 +487,8 @@ TestCase class >> lookupHierarchyRoot [
 TestCase class >> methodChanged: anEvent [
 	"Remove the changed method from the known test results."
 	
-	| cls sel |
-	cls := anEvent methodClass.
-	(cls inheritsFrom: TestCase)
-		ifFalse: [^ self].
-	sel := anEvent selector.
-	(sel beginsWith: 'test')
-		ifFalse: [^ self].
-	self classForTestResult removeFromTestHistory: sel in: cls.
-
+	anEvent method isTestMethod ifFalse: [ ^ self ].
+	self classForTestResult removeFromTestHistory: anEvent selector in: anEvent methodClass
 ]
 
 { #category : #testing }
@@ -555,9 +622,14 @@ TestCase class >> testSelectors [
 	^(self selectors select: [ :each | (each beginsWith: 'test') and: [each numArgs isZero]])
 ]
 
+{ #category : #testing }
+TestCase class >> whichClassIncludesTestSelector: aSymbol [
+	^self whichClassIncludesSelector: aSymbol
+]
+
 { #category : #dependencies }
 TestCase >> addDependentToHierachy: anObject [ 
-	"an empty method. for Composite compability with TestSuite"
+	"an empty method. for Composite compatibility with TestSuite"
 ]
 
 { #category : #events }
@@ -622,6 +694,16 @@ TestCase >> executeShould: aBlock inScopeOf: anExceptionalEvent withDescriptionC
 			
 ]
 
+{ #category : #accessing }
+TestCase >> executionEnvironment [
+	^CurrentExecutionEnvironment value
+]
+
+{ #category : #accessing }
+TestCase >> executionProcessMonitor [
+	^self executionEnvironment processMonitor
+]
+
 { #category : #testing }
 TestCase >> expectedFailures [
 	| pragmas |
@@ -668,6 +750,12 @@ TestCase >> logFailure: aString [
 			
 ]
 
+{ #category : #accessing }
+TestCase >> nameForReport [
+
+	^ self selector
+]
+
 { #category : #'CI support' }
 TestCase >> onPharoCITestingEnvironment [
 	
@@ -703,7 +791,7 @@ TestCase >> prepareToRunAgain [
 
 { #category : #printing }
 TestCase >> printOn: aStream [
-	aStream nextPutAll: self class printString.
+	aStream nextPutAll: self class name asString.
 	self printTestSelectorOn: aStream
 ]
 
@@ -719,7 +807,7 @@ TestCase >> printTestSelectorOn: aStream [
 	testSelector
 		ifNotNil: [ 
 			| class |
-			class := self class whichClassIncludesSelector: testSelector.
+			class := self class whichClassIncludesTestSelector: testSelector.
 			class ~= self class
 				ifTrue: [ self printTestSelectorDefiningClass: class on: aStream ].
 			aStream
@@ -729,7 +817,7 @@ TestCase >> printTestSelectorOn: aStream [
 
 { #category : #dependencies }
 TestCase >> removeDependentFromHierachy: anObject [ 
-	"an empty method. for Composite compability with TestSuite"
+	"an empty method. for Composite compatibility with TestSuite"
 ]
 
 { #category : #accessing }
@@ -816,5 +904,5 @@ TestCase >> tearDown [
 
 { #category : #accessing }
 TestCase >> timeLimit: aDuration [
-	^TestExecutionEnvironment maxTimeForTest: aDuration
+	^self executionEnvironment maxTimeForTest: aDuration
 ]

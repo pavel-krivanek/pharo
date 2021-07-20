@@ -7,6 +7,11 @@ Class {
 	#category : #'Kernel-Variables'
 }
 
+{ #category : #testing }
+WorkspaceVariable >> allowsShadowing [
+	^true
+]
+
 { #category : #'code generation' }
 WorkspaceVariable >> emitStore: methodBuilder [
 
@@ -18,5 +23,15 @@ WorkspaceVariable >> emitStore: methodBuilder [
 { #category : #'code generation' }
 WorkspaceVariable >> emitValue: methodBuilder [
 
-	methodBuilder pushLiteralVariable: self.
+	methodBuilder pushLiteralVariable: self
+]
+
+{ #category : #testing }
+WorkspaceVariable >> isReferenced [
+	^ false
+]
+
+{ #category : #testing }
+WorkspaceVariable >> isWorkspaceVariable [
+	^ true
 ]

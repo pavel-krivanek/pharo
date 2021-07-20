@@ -5,8 +5,7 @@ Class {
 	#name : #OCAbstractScope,
 	#superclass : #Object,
 	#instVars : [
-		'outerScope',
-		'node'
+		'outerScope'
 	],
 	#category : #'OpalCompiler-Core-Semantics'
 }
@@ -24,12 +23,6 @@ OCAbstractScope >> hasTempVector [
 	^ false
 ]
 
-{ #category : #decompiling }
-OCAbstractScope >> instanceScope [
-
-	^self outerScope instanceScope
-]
-
 { #category : #testing }
 OCAbstractScope >> isBlockScope [
 
@@ -42,11 +35,6 @@ OCAbstractScope >> isInsideOptimizedLoop [
 ]
 
 { #category : #testing }
-OCAbstractScope >> isInstanceScope [
-	^ false
-]
-
-{ #category : #testing }
 OCAbstractScope >> isMethodScope [
 
 	^false
@@ -54,6 +42,12 @@ OCAbstractScope >> isMethodScope [
 
 { #category : #lookup }
 OCAbstractScope >> lookupVar: name [
+	"search the scope (and the outer scopes) for a variable 'name' and return it"
+	^ self lookupVar: name declare: true
+]
+
+{ #category : #lookup }
+OCAbstractScope >> lookupVar: name declare: aBoolean [
 	"search the scope (and the outer scopes) for a variable 'name' and return it"
 	^self subclassResponsibility
 ]
@@ -64,20 +58,10 @@ OCAbstractScope >> lookupVarForDeclaration: name [
 	When looking temp var declarations, we do not want the Requestor scope to automatically
 	create that variable. Subclasses override if they do not skip but do a lookup"
 
-	^ self outerScope lookupVarForDeclaration: name
+	^ self lookupVar: name declare: false
 ]
 
-{ #category : #accessing }
-OCAbstractScope >> node [
-	^node
-]
-
-{ #category : #accessing }
-OCAbstractScope >> node: aNode [
-	node := aNode
-]
-
-{ #category : #levels }
+{ #category : #lookup }
 OCAbstractScope >> outerScope [
 
 	^ outerScope
@@ -87,11 +71,4 @@ OCAbstractScope >> outerScope [
 OCAbstractScope >> outerScope: aSemScope [
 
 	outerScope := aSemScope
-]
-
-{ #category : #levels }
-OCAbstractScope >> scopeLevel [
-
-	outerScope ifNil: [^ 0].
-	^ outerScope scopeLevel + 1
 ]

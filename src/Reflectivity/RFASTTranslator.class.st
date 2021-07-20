@@ -17,7 +17,7 @@ RFASTTranslator >> classForValue [
 	^RFASTTranslatorForValue
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> emitMessageNode: aMessageNode [
 
 	(aMessageNode isCascaded and: [(aMessageNode hasProperty: #hook) not])
@@ -85,7 +85,7 @@ RFASTTranslator >> emitPrepareLinkAfter: aNode [
 		jumpTo: #block
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitArrayNode: anArrayNode [ 
 
 	| elementNodes |
@@ -103,7 +103,7 @@ RFASTTranslator >> visitArrayNode: anArrayNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitAssignmentNode: anAssignmentNode [ 
 	valueTranslator visitNode: anAssignmentNode value.
 	self emitPreamble: anAssignmentNode.
@@ -122,7 +122,7 @@ RFASTTranslator >> visitAssignmentNode: anAssignmentNode [
 	
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitBlockNode: aBlockNode [
 	aBlockNode arguments size >15 ifTrue: [self backendError: 'Too many arguments' forNode: aBlockNode ].
 	
@@ -153,7 +153,7 @@ RFASTTranslator >> visitBlockNode: aBlockNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitCascadeNode: aCascadeNode [ 
 	valueTranslator visitNode: aCascadeNode receiver.
 	
@@ -170,7 +170,7 @@ RFASTTranslator >> visitCascadeNode: aCascadeNode [
 	self emitMetaLinkAfterNoEnsure: aCascadeNode.
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitInlinedBlockNode: anOptimizedBlockNode [
 
 	"We are visiting a scope that is not a block, but inlined in the outer context.
@@ -183,7 +183,7 @@ RFASTTranslator >> visitInlinedBlockNode: anOptimizedBlockNode [
 	anOptimizedBlockNode scope tempVector ifNotEmpty: [
 		methodBuilder 
 			createTempVectorNamed: anOptimizedBlockNode scope tempVectorName 
-			withVars: (anOptimizedBlockNode scope tempVector collect: [:each| each name]).
+			withVars: anOptimizedBlockNode scope tempVectorVarNames.
 	].
 	methodBuilder addTemps: anOptimizedBlockNode scope tempVarNamesWithoutArguments.
 	methodBuilder addTemps: anOptimizedBlockNode scope inComingCopiedVarNames.
@@ -201,7 +201,7 @@ RFASTTranslator >> visitInlinedBlockNode: anOptimizedBlockNode [
 	methodBuilder popMap.
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitLiteralArrayNode: aRBLiteralArrayNode [
 	self emitPreamble: aRBLiteralArrayNode.
 	self emitMetaLinkBefore: aRBLiteralArrayNode.
@@ -213,7 +213,7 @@ RFASTTranslator >> visitLiteralArrayNode: aRBLiteralArrayNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitLiteralNode: aLiteralNode [
 	self emitPreamble: aLiteralNode.
 	self emitMetaLinkBefore: aLiteralNode.
@@ -226,12 +226,25 @@ RFASTTranslator >> visitLiteralNode: aLiteralNode [
 
 ]
 
-{ #category : #reflectivity }
-RFASTTranslator >> visitLiteralVariableNode: aLiteralVariableNode [
-	methodBuilder pushLiteralVariable: aLiteralVariableNode binding
+{ #category : #'visitor - double dispatching' }
+RFASTTranslator >> visitMessageNode: aMessageNode [
+
+	aMessageNode isInlined
+		ifTrue: [ 
+			methodBuilder addLiteral: aMessageNode selector. "so searching for senders will work"
+			self emitPreamble: aMessageNode.
+			self emitMetaLinkBefore: aMessageNode.
+			aMessageNode hasMetalinkInstead
+				ifTrue: [ self emitMetaLinkInstead: aMessageNode ]
+				ifFalse: [ 
+					self
+						perform: (OptimizedMessages at: aMessageNode selector)
+						with: aMessageNode ].
+			self emitMetaLinkAfterNoEnsure: aMessageNode ]
+		ifFalse: [ self emitMessageNode: aMessageNode ]
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitMethodNode: aMethodNode [
 	"I ignore all links when I am primitive as ReflectiveMethod compiles a wrapper"
 	
@@ -263,7 +276,7 @@ RFASTTranslator >> visitMethodNode: aMethodNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitReturnNode: aReturnNode [ 
 
 	valueTranslator visitNode: aReturnNode value.
@@ -293,7 +306,7 @@ RFASTTranslator >> visitStorePopIntoTempNode: aNode [
 	methodBuilder popTop.
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 RFASTTranslator >> visitVariableNode: aVariableNode [
 	self emitPreamble: aVariableNode.
 	self emitMetaLinkBefore: aVariableNode.
@@ -307,8 +320,10 @@ RFASTTranslator >> visitVariableNode: aVariableNode [
 
 { #category : #reflectivity }
 RFASTTranslator >> visitVariableValue: aVariable [
-	self flag: #pharoTodo. "needs to be extendend to other kinds of variables and cleaned"
-	((aVariable isKindOf: LiteralVariable) or: [ (aVariable isKindOf: Slot) ]) ifTrue: [ self emitPreamble: aVariable. self emitMetaLinkBefore: aVariable. ].
-	aVariable emitValue: methodBuilder.
-	((aVariable isKindOf: LiteralVariable) or: [ (aVariable isKindOf: Slot) ]) ifTrue: [self emitMetaLinkAfterNoEnsure: aVariable].
+	self emitPreamble: aVariable. 
+	self emitMetaLinkBefore: aVariable. 
+	aVariable hasMetalinkInstead 
+		ifTrue: [self emitMetaLinkInstead: aVariable]
+		ifFalse: [aVariable emitValue: methodBuilder].
+	self emitMetaLinkAfterNoEnsure: aVariable.
 ]

@@ -29,8 +29,8 @@ ExecutionCounter class >> allCounters [
 ExecutionCounter class >> debugWorldMenuOn: aBuilder [
 	<worldMenu>
 	(aBuilder item: #'Reset Counters')
-		order: 0;
-		parent: #Debugging;
+		order: 1;
+		parent: #Counters;
 		help: 'Reset the counters on the executions counters.';
 		action: [ ExecutionCounter resetAll ]
 ]
@@ -55,7 +55,7 @@ ExecutionCounter class >> handleMethodRemoved: anAnnouncement [
 
 { #category : #'class initialization' }
 ExecutionCounter class >> initialize [
-	self registerInsterestToSystemAnnouncement 
+	self registerInterestToSystemAnnouncement 
 ]
 
 { #category : #'instance creation' }
@@ -66,7 +66,7 @@ ExecutionCounter class >> installOn: aRBProgramNode [
 ]
 
 { #category : #'class initialization' }
-ExecutionCounter class >> registerInsterestToSystemAnnouncement [
+ExecutionCounter class >> registerInterestToSystemAnnouncement [
 	<systemEventRegistration>
 
 	SystemAnnouncer uniqueInstance unsubscribe: self.
@@ -123,7 +123,7 @@ ExecutionCounter >> install [
 	link := MetaLink new 
 				metaObject: self;
 				selector: #increase;
-				optionAnnounce: true.
+				options: #(+ optionAnnounce).
 	node link: link.
 	self class allCounters at: node put: self.
 ]

@@ -93,7 +93,7 @@ Metaclass >> classPool [
 	^self instanceSide classPool
 ]
 
-{ #category : #'accessing parallel hierarchy' }
+{ #category : #'accessing - parallel hierarchy' }
 Metaclass >> classSide [
 	"Return the metaclass of the couple class/metaclass. Useful to avoid explicit test."
 	"Point classSide >>> Point class"
@@ -102,7 +102,7 @@ Metaclass >> classSide [
 	^ self
 ]
 
-{ #category : #'accessing instances and variables' }
+{ #category : #'accessing - instances and variables' }
 Metaclass >> classVarNames [
 	"Answer the names of the class variables defined in the receiver's instance."
 	
@@ -120,37 +120,21 @@ Metaclass >> classVariables [
 		ifNotNil: [ :class | class classVariables ]
 ]
 
-{ #category : #'file in/out' }
+{ #category : #generated }
 Metaclass >> definition [
+
 	"Refer to the comment in ClassDescription|definition."
 
-	(self slotsNeedFullDefinition or: [ Slot showSlotClassDefinition ]) ifTrue: [ 
-		^ self definitionWithSlots ].
-
-	^ self definitionWithoutSlots
+	self
+		deprecated: 'Use #definitionString instead'
+		transformWith: '`@rec definition' -> '`@rec definitionString'.
+	^ self definitionString
 ]
 
-{ #category : #'file in/out' }
-Metaclass >> definitionWithSlots [
-	"Refer to the comment in ClassDescription|definition."
+{ #category : #fileout }
+Metaclass >> definitionStringFor: aConfiguredPrinter [
 
-	^ String streamContents: [:stream |
-		stream print: self.
-		stream
-			crtab;
-			nextPutAll: 'slots: ';
-			nextPutAll: self slotDefinitionString ]
-]
-
-{ #category : #'file in/out' }
-Metaclass >> definitionWithoutSlots [
-
-	^ String streamContents: [:stream |
-		stream print: self.
-		stream
-			crtab;
-			nextPutAll: 'instanceVariableNames: ';
-			store: self instanceVariablesString ]
+	^ aConfiguredPrinter metaclassDefinitionString 
 ]
 
 { #category : #accessing }
@@ -159,22 +143,21 @@ Metaclass >> environment [
 	^thisClass environment
 ]
 
+{ #category : #fileout }
+Metaclass >> expandedDefinitionStringFor: aPrinter [
+
+	^ aPrinter expandedMetaclassDefinitionString
+]
+
 { #category : #testing }
 Metaclass >> hasBindingThatBeginsWith: aString [
 	"class and pool vars are accessible from the class side the same as the instance side"
 	^self instanceSide hasBindingThatBeginsWith: aString
 ]
 
-{ #category : #'accessing parallel hierarchy - deprecated' }
+{ #category : #'accessing - parallel hierarchy - deprecated' }
 Metaclass >> hasClassSide [
 	^ false
-]
-
-{ #category : #initialize }
-Metaclass >> initializeFrom: anotherClassTrait [
-	self traitComposition: self traitComposition copyTraitExpression.
-	self methodDict: self methodDict copy.
-	self basicOrganization: self organization copy.
 ]
 
 { #category : #compiling }
@@ -183,7 +166,7 @@ Metaclass >> innerBindingOf: varName [
 	^self instanceSide innerBindingOf: varName
 ]
 
-{ #category : #'accessing parallel hierarchy' }
+{ #category : #'accessing - parallel hierarchy' }
 Metaclass >> instanceSide [
 	"Return the class of the couple class/metaclass. Useful to avoid explicit test."
 	"Point instanceSide >>> Point"
@@ -222,6 +205,12 @@ Metaclass >> isObsolete [
 	^self soleInstance == nil "Either no thisClass"
 		or:[self soleInstance classSide ~~ self "or I am not the class of thisClass"
 			or:[self soleInstance isObsolete]] "or my instance is obsolete"
+]
+
+{ #category : #testing }
+Metaclass >> isReferenced [
+	"Metaclasses are never directly referenced in code"
+	^false
 ]
 
 { #category : #testing }
@@ -266,14 +255,6 @@ Metaclass >> obsoleteSubclasses [
 
 	self isMetaclassOfClassOrNil ifTrue: [ ^ #() ].
 	^ self instanceSide obsoleteSubclasses collect: [ :aSubclass | aSubclass classSide ]
-]
-
-{ #category : #'file in/out' }
-Metaclass >> oldDefinition [
-	"Refer to the comment in ClassDescription|definition.
-	 This method is for compatibility with Class>>#oldDefinition"
-
-	^ self definition
 ]
 
 { #category : #compiling }

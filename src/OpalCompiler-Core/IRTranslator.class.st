@@ -92,7 +92,7 @@ IRTranslator >> pushOuterVectors: scope [
 	| scopesWithVector sc |
 	scopesWithVector := OrderedCollection new.
 	sc := scope.
-	[ sc outerScope isNil ] whileFalse: [ 
+	[ sc outerScope isBehavior ] whileFalse: [ 
 		sc := sc outerScope.
 		sc hasTempVector ifTrue: [ scopesWithVector add: sc ] ].
 	scopesWithVector reverseDo: [ :scopeWithVector |
@@ -250,10 +250,8 @@ IRTranslator >> visitPushInstVar: instVar [
 IRTranslator >> visitPushLiteral: lit [
 	| literal |
 	literal := lit literal.
-	"During bootstrap script 1, 1 class isImmediateClass answers false, so we 
-	 cannot rely on literal class isImmediateClass here or it breaks the bootstrap."
-	({Character.SmallInteger.SmallFloat64} includes: literal class) ifTrue: [ ^ gen pushLiteral: literal ].
-	Smalltalk vm supportsWriteBarrier ifFalse: [ ^ gen pushLiteral: literal ].
+	"all objects that are not literals we keep writable"
+	literal isLiteral ifFalse: [ ^ gen pushLiteral: literal ].
 	"For symbol we need to set explicitly to writable or read-only. 
 	 Compilation to read-only then back to writable keep the object 
 	 read-only if we don't set it back to writable."
@@ -307,6 +305,11 @@ IRTranslator >> visitPushThisContext: ctxt [
 	gen pushThisContext
 
 
+]
+
+{ #category : #visiting }
+IRTranslator >> visitPushThisProcess: pushThisProcess [
+	gen pushThisProcess
 ]
 
 { #category : #visiting }

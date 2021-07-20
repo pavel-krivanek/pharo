@@ -11,6 +11,12 @@ Class {
 	#category : #'Kernel-Layout'
 }
 
+{ #category : #description }
+AbstractLayout class >> kind [
+	"Return an identifier describing uniquely the layout"
+	^ self subclassResponsibility
+]
+
 { #category : #comparing }
 AbstractLayout >> = other [
 	^ self class = other class
@@ -56,9 +62,10 @@ AbstractLayout >> fieldSize [
 	^ 0
 ]
 
-{ #category : #finalization }
-AbstractLayout >> finalize [
-	self allSlotsDo: [ :aSlot | aSlot finalize: self ]
+{ #category : #testing }
+AbstractLayout >> hasBindingThatBeginsWith: aString [
+	"Answer true if there is a Slot that begins with aString, false otherwise"
+	^false
 ]
 
 { #category : #testing }
@@ -109,11 +116,6 @@ AbstractLayout >> isBits [
 ]
 
 { #category : #testing }
-AbstractLayout >> isCustomLayout [
-	^false
-]
-
-{ #category : #testing }
 AbstractLayout >> isFixedLayout [
 	^false
 ]
@@ -126,6 +128,12 @@ AbstractLayout >> isVariable [
 { #category : #testing }
 AbstractLayout >> isWeak [
 	^ false
+]
+
+{ #category : #accessing }
+AbstractLayout >> kindOfSubclass [
+	"As a fallback we just return a standard class creation substring. This will be called for user 	defined Layouts, for old style class definitions that can not support user defined Layouts"
+	^' subclass: '
 ]
 
 { #category : #accessing }
@@ -146,6 +154,12 @@ AbstractLayout >> slotScope [
 { #category : #accessing }
 AbstractLayout >> slots [
 	^ {}
+]
+
+{ #category : #accessing }
+AbstractLayout >> typeOfClass [
+	"The type is the class name of the layout. But for ST80 layouts, we define some special symbols to stay backward compatible"
+	^self class name asSymbol
 ]
 
 { #category : #accessing }

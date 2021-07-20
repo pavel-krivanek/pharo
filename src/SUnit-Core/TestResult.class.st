@@ -22,37 +22,37 @@ TestResult class >> currentTheme [
 	^ Smalltalk ui theme
 ]
 
-{ #category : #'default-color' }
+{ #category : #'default - color' }
 TestResult class >> defaultColorBackGroundForErrorTest [
 	^ self currentTheme testColorError
 ]
 
-{ #category : #'default-color' }
+{ #category : #'default - color' }
 TestResult class >> defaultColorBackGroundForFailureTest [
 	^ self currentTheme testColorFailure
 ]
 
-{ #category : #'default-color' }
+{ #category : #'default - color' }
 TestResult class >> defaultColorBackGroundForPassingTest [
 	^ self currentTheme testColorPassing
 ]
 
-{ #category : #'default-color' }
+{ #category : #'default - color' }
 TestResult class >> defaultColorText [
 	^ Color black
 ]
 
-{ #category : #'default-color' }
+{ #category : #'default - color' }
 TestResult class >> defaultColorTextForErrorTest [
 	^ self defaultColorText
 ]
 
-{ #category : #'default-color' }
+{ #category : #'default - color' }
 TestResult class >> defaultColorTextForFailureTest [
 	^ self defaultColorText
 ]
 
-{ #category : #'default-color' }
+{ #category : #'default - color' }
 TestResult class >> defaultColorTextForPassingTest [
 	^ self defaultColorText
 ]
@@ -139,7 +139,7 @@ TestResult class >> signalFailureWith: aString [
 
 { #category : #exceptions }
 TestResult class >> skip [
-	^ TestSkip
+	^ TestSkipped
 ]
 
 { #category : #history }
@@ -356,6 +356,16 @@ TestResult >> isPassed: aTestCase [
 { #category : #querying }
 TestResult >> isPassedFor: class selector: selector [
 	^ self passed anySatisfy: [:testCase | testCase class == class and: [testCase selector == selector]]
+]
+
+{ #category : #combining }
+TestResult >> mergeWith: aTestResult [
+
+	timeStamp := DateAndTime now.
+	failures addAll: aTestResult failures.
+	errors addAll: aTestResult errors.
+	passed addAll: aTestResult passed.
+	skipped addAll: aTestResult skipped
 ]
 
 { #category : #compatibility }

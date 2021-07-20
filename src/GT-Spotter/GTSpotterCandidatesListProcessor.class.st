@@ -13,7 +13,6 @@ Class {
 		'actBlock',
 		'wantsToDisplayOnEmptyQuery',
 		'filterBlock',
-		'itemFilterNameBlock',
 		'keyBinding',
 		'sortBlock'
 	],
@@ -59,13 +58,13 @@ GTSpotterCandidatesListProcessor >> defaultCandidatesLimit [
 	^ self defaultItemsLimit
 ]
 
-{ #category : #'accessing-defaults' }
+{ #category : #'accessing - defaults' }
 GTSpotterCandidatesListProcessor >> defaultContinueItemsLimit [
 	" Spotter becomes extraordenary slow when rendering too many results. So we set the maximum limit to 100. This is only a temporary solution until we have fixed the problem. Until then no spotter processor will ever generate more then 100 results. "
 	^ 100
 ]
 
-{ #category : #'accessing-defaults' }
+{ #category : #'accessing - defaults' }
 GTSpotterCandidatesListProcessor >> defaultItemsLimit [
 	^ self class defaultItemsLimit
 ]
@@ -100,24 +99,6 @@ GTSpotterCandidatesListProcessor >> filterUsing: aFilter [
 { #category : #testing }
 GTSpotterCandidatesListProcessor >> hasDynamicItems [
 	^ allCandidatesBlock hasDynamicItems
-]
-
-{ #category : #accessing }
-GTSpotterCandidatesListProcessor >> itemFilterName [
-	^ itemFilterNameBlock
-]
-
-{ #category : #scripting }
-GTSpotterCandidatesListProcessor >> itemFilterName: aBlockWithOneArgument [
-	itemFilterNameBlock := aBlockWithOneArgument
-]
-
-{ #category : #private }
-GTSpotterCandidatesListProcessor >> itemFilterNameFor: anObject [
-
-	^ itemFilterNameBlock
-		ifNil: [ super itemFilterNameFor: anObject ]
-		ifNotNil: [ itemFilterNameBlock cull: anObject ]
 ]
 
 { #category : #accessing }

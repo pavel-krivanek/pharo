@@ -24,7 +24,7 @@ TraitedMetaclass class >> traitedClassTrait [
 	^ (TaCompositionElement for: TraitedClass)
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 TraitedMetaclass >> addAndClassifySelector: selector withMethod: compiledMethod inProtocol: aCategory [
 	
 	self localMethodDict at: selector put: compiledMethod.
@@ -37,15 +37,18 @@ TraitedMetaclass >> addAndClassifySelector: selector withMethod: compiledMethod 
 	TraitChange addSelector: selector on: self.
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 TraitedMetaclass >> addSelector: selector withMethod: compiledMethod [
 	self localMethodDict at: selector put: compiledMethod.
 	super addSelector: selector withMethod: compiledMethod.
 	TraitChange addSelector: selector on: self
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 TraitedMetaclass >> addSelector: selector withRecompiledMethod: compiledMethod [ 
+
+	compiledMethod isFromTrait 
+		ifTrue: [ ^ super addSelector: selector withRecompiledMethod: compiledMethod ].
 
 	self localMethodDict at: selector put: compiledMethod.
 	super addSelector: selector withRecompiledMethod: compiledMethod.
@@ -78,30 +81,21 @@ TraitedMetaclass >> baseLocalMethods: anObject [
 	baseLocalMethods := anObject
 ]
 
-{ #category : #'file in/out' }
+{ #category : #generated }
 TraitedMetaclass >> definition [
+
 	"Refer to the comment in ClassDescription|definition."
 
-	^ String streamContents: 
-		[:strm |
-		strm print: self.
-		self hasTraitComposition ifTrue: [
-			strm
-				crtab;
-				nextPutAll: 'uses: ';
-				print: self traitComposition ].
-		
-		(self slotsNeedFullDefinition or: [ Slot showSlotClassDefinition ])
-			ifFalse: [  
-						strm
-							crtab;
-							nextPutAll: 'instanceVariableNames: ';
-							store: self instanceVariablesString]
-			ifTrue: [ 
-						strm
-							crtab;
-							nextPutAll: 'slots: ';
-							nextPutAll: self slotDefinitionString]]
+	self
+		deprecated: 'Use #definitionString instead'
+		transformWith: '`@rec definition' -> '`@rec definitionString'.
+	^ self definitionString
+]
+
+{ #category : #fileout }
+TraitedMetaclass >> definitionStringFor: aConfiguredPrinter [
+
+	^ aConfiguredPrinter traitedMetaclassDefinitionString 
 ]
 
 { #category : #initialization }
@@ -156,7 +150,7 @@ TraitedMetaclass >> hasTraitComposition [
 	^ self traitComposition isEmpty not 
 ]
 
-{ #category : #'testing method dictionary' }
+{ #category : #'testing - method dictionary' }
 TraitedMetaclass >> includesLocalSelector: aSymbol [
 	^ self isLocalSelector: aSymbol
 ]
@@ -281,14 +275,14 @@ TraitedMetaclass >> rebuildMethodDictionary [
 	
 	modified := false.
 	
-	methodDict valuesDo: [ :m | m traitSource ifNil: [ localMethods at: m selector put: m ]].
+	self methodDict valuesDo: [ :m | m traitSource ifNil: [ localMethods at: m selector put: m ]].
 	
 	selectors := self traitComposition selectors reject: [ :e | self isRejectedMethod: e ].
 	selectors do: [ :e | modified := modified | (self traitComposition installSelector: e into: self replacing: false) ].
 	
-	removedSelectors := methodDict keys reject: [ :aSelector | (selectors includes: aSelector) or: [ self isSelectorToKeep: aSelector ] ].
+	removedSelectors := self methodDict keys reject: [ :aSelector | (selectors includes: aSelector) or: [ self isSelectorToKeep: aSelector ] ].
 	modified := modified | (removedSelectors isNotEmpty).
-	removedSelectors do: [ :aSelector | methodDict removeKey: aSelector ].
+	removedSelectors do: [ :aSelector | self methodDict removeKey: aSelector ].
 	removedSelectors do: [ :aSelector | self organization removeElement: aSelector ]. 
 	
 	^ modified
@@ -315,12 +309,33 @@ TraitedMetaclass >> recategorizeSelector: selector from: oldCategory to: newCate
 	self organization removeEmptyCategories
 ]
 
+{ #category : #recompilation }
+TraitedMetaclass >> recompile: selector from: oldClass [
+	"Compile the method associated with selector in the receiver's method dictionary."
+
+	| method newMethod |
+	method := oldClass compiledMethodAt: selector.
+	newMethod := self compiler
+				source: (oldClass sourceCodeAt: selector);
+				class: self;
+				failBlock: [^ self];
+				compiledMethodTrailer: method trailer;
+				compile.   "Assume OK after proceed from SyntaxError"
+	selector == newMethod selector ifFalse: [self error: 'selector changed!'].
+	
+	method properties 
+		at: #traitSource 
+		ifPresent: [ :aSource | newMethod propertyAt: #traitSource put: aSource].
+	
+	self addSelector: selector withRecompiledMethod: newMethod.
+]
+
 { #category : #traits }
 TraitedMetaclass >> removeFromComposition: aTrait [ 
 	self setTraitComposition: (self traitComposition copyWithoutTrait: aTrait asTraitComposition)
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 TraitedMetaclass >> removeSelector: aSelector [
 
 	"When a selector is removed it should be notified to my users.

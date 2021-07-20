@@ -25,7 +25,8 @@ Class {
 	#instVars : [
 		'cachedClassNames',
 		'cachedNonClassNames',
-		'cachedBehaviors'
+		'cachedBehaviors',
+		'reservedVariables'
 	],
 	#category : #'System-Support-Utilities'
 }
@@ -114,7 +115,7 @@ SystemDictionary >> at: aKey put: anObject [
 	^ anObject
 ]
 
-{ #category : #accessing }
+{ #category : #'variable lookup' }
 SystemDictionary >> bindingOf: varName [
 	"SystemDictionaries includes symbols only"
 	
@@ -235,9 +236,11 @@ SystemDictionary >> forgetClass: aClass logged: aBool [
 
 { #category : #testing }
 SystemDictionary >> hasBindingThatBeginsWith: aString [
+
 	"Use the cached class and non-class names for better performance."
 
 	| name searchBlock |
+	(self reservedVariables hasBindingThatBeginsWith: aString) ifTrue: [ ^true ].
 	searchBlock := [ :element |
 		(element beginsWith: aString)
 			ifTrue: [ 0 ]
@@ -257,12 +260,28 @@ SystemDictionary >> hasBindingThatBeginsWith: aString [
 
 { #category : #'classes and traits' }
 SystemDictionary >> hasClassNamed: aString [
-	"Answer whether there is a class of the given name, but don't intern aString if it's not alrady interned."
+	"Answer whether there is a class of the given name, but don't intern aString if it's not already interned."
 
 	Symbol 
 		hasInterned: aString 
 		ifTrue:  [:aSymbol | ^ (self at: aSymbol ifAbsent: [nil]) isClass].
 	^ false
+]
+
+{ #category : #'classes and traits' }
+SystemDictionary >> hasClassOrTraitNamed: aString [
+	"Answer whether there is a class of the given name, but don't intern aString if it's not already interned."
+
+	Symbol 
+		hasInterned: aString 
+		ifTrue:  [:aSymbol | ^ (self at: aSymbol ifAbsent: [nil]) isClassOrTrait].
+	^ false
+]
+
+{ #category : #'variable lookup' }
+SystemDictionary >> lookupVar: name [
+	"Return a var with this name.  Return nil if none found"
+	^self reservedVariables at: name ifAbsent: [self bindingOf: name]
 ]
 
 { #category : #'system attributes' }
@@ -292,6 +311,11 @@ SystemDictionary >> organization: anOrganization [
 	
 	anOrganization environment: self.
 	^self at: #SystemOrganization put: anOrganization
+]
+
+{ #category : #'variable lookup' }
+SystemDictionary >> outerScope [
+	^nil
 ]
 
 { #category : #accessing }
@@ -393,6 +417,18 @@ SystemDictionary >> renameClassNamed: oldName as: newName [
 			SystemNotification signal: 'Class-rename for ' , oldName , ' ignored because ' , oldName , ' does not exist.'.
 			^ self ].
 	oldClass rename: newName
+]
+
+{ #category : #'variable lookup' }
+SystemDictionary >> reservedVariables [
+	"we cache the variables for speed"
+	^reservedVariables ifNil: [ reservedVariables := ReservedVariable lookupDictionary]
+]
+
+{ #category : #'variable lookup' }
+SystemDictionary >> resetReservedVariables [
+	"lazy init in the accessor, resetting it will take new subclasses on ReserverdVariable into account"
+	^reservedVariables := nil
 ]
 
 { #category : #'class and trait names' }

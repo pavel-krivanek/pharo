@@ -4,7 +4,7 @@ I model an abstract type of result for the run of a test case.
 Class {
 	#name : #DTTestResultType,
 	#superclass : #Object,
-	#category : #'DrTests-TestsRunner'
+	#category : #'DrTests-TestsRunner-Results'
 }
 
 { #category : #factory }
@@ -14,22 +14,22 @@ DTTestResultType class >> backgroundColor [
 
 { #category : #factory }
 DTTestResultType class >> error [
-	^ DTError new
+	^ DTErrorResultType new
 ]
 
 { #category : #factory }
 DTTestResultType class >> fail [
-	^ DTFail new
+	^ DTFailResultType new
 ]
 
 { #category : #factory }
 DTTestResultType class >> pass [
-	^ DTPass new
+	^ DTPassResultType new
 ]
 
 { #category : #factory }
 DTTestResultType class >> skipped [
-	^ DTSkipped new
+	^ DTSkippedResultType new
 ]
 
 { #category : #factory }

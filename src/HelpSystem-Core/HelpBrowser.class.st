@@ -55,8 +55,8 @@ HelpBrowser class >> defaultHelpBrowser: aClass [
 HelpBrowser class >> menuCommandOn: aBuilder [
 	<worldMenu>
 	(aBuilder item: #'Help Browser')
-		parent: #Help;
-		order: 1.0;
+		parent: #HelpBrowser;
+		order: 1;
 		action: [ self open ];
 		iconName: #smallHelpIcon;
 		help: 'Explore a list of help topics to learn to use Pharo tools.';
@@ -106,6 +106,13 @@ HelpBrowser class >> taskbarIconName [
 	"Answer the icon for the receiver in a task bar."
 
 	^ #bookIcon
+]
+
+{ #category : #ui }
+HelpBrowser >> bindings [
+	"I'm used as an interaction model for the Help Browser text editors.
+	Return an empty collection of bindings, since no compilation or code completion happen on myself"
+	^ Dictionary new
 ]
 
 { #category : #ui }

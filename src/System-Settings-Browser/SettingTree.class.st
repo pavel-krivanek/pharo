@@ -31,10 +31,11 @@ SettingTree class >> acceptableKeywords: aCollectionOfStrings [
 
 { #category : #accessing }
 SettingTree >> acceptableKeywords: keywords [
-	self collector filter: [:prg | prg methodClass isMeta and: [keywords includes: prg selector]].
+	self collector 
+		selectors: keywords;
+		filter: [:prg | prg methodClass isMeta].
 	nodeList := nil.
-	self collector reset.
-
+	self collector reset
 ]
 
 { #category : #checking }
@@ -109,7 +110,7 @@ SettingTree >> deeplySelect: aBlock in: aCollection [
 	^ aCollection
 ]
 
-{ #category : #'private tree building' }
+{ #category : #'private - tree building' }
 SettingTree >> emptyNodeNamed: aSymbol [
 	(self nodeNamed: aSymbol)
 
@@ -139,13 +140,13 @@ SettingTree >> nodeList [
 			self nodeList]
 ]
 
-{ #category : #'private tree building' }
+{ #category : #'private - tree building' }
 SettingTree >> nodeNamed: aSymbol [
 	^ self nodeNamed: aSymbol ifAbsent: []
 
 ]
 
-{ #category : #'private tree building' }
+{ #category : #'private - tree building' }
 SettingTree >> nodeNamed: aSymbol ifAbsent: aBlock [
 	^ self nodeList detect: [:d | d settingDeclaration name = aSymbol] ifNone: aBlock
 ]

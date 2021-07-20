@@ -33,6 +33,11 @@ GLMPane class >> in: aBrowser [
 	^self new initializeIn: aBrowser
 ]
 
+{ #category : #testing }
+GLMPane class >> isDeprecated [
+	^ true
+]
+
 { #category : #'instance creation' }
 GLMPane class >> named: aString [ 
 	^self new initializeNamed: aString
@@ -267,7 +272,7 @@ GLMPane >> printOn: aStream [
 	super printOn: aStream.
 	aStream
 		nextPut: $(;
-		nextPutAll: self identityHash printString;
+		print: self identityHash ;
 		space;
 		nextPutAll: self name;
 		nextPut: $)

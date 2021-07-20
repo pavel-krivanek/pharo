@@ -81,21 +81,21 @@ LinkInstallerTest >> testLinkOnClassVar [
 	| link|
 	link := MetaLink new.
 	
-	link installOnClassVarNamed: #classVar for: ReflectivityExamples2 option: #read instanceSpecific: false.
+	link installOnVariableNamed: #classVar for: ReflectivityExamples2 option: #read instanceSpecific: false.
 	self assert: link nodes size equals: 2.
 	self assert: (link nodes allSatisfy: [:node| node isRead]).
 	self assert: (link nodes allSatisfy: [:node| node name = #classVar]).		
 	link uninstall.
 	self assert: link nodes isEmpty.
 	
-	link installOnClassVarNamed: #classVar for: ReflectivityExamples2 option: #write instanceSpecific: false.
+	link installOnVariableNamed: #classVar for: ReflectivityExamples2 option: #write instanceSpecific: false.
 	self assert: link nodes size equals: 2.
 	self assert: (link nodes allSatisfy: [:node| node isAssignment]).
 	self assert: (link nodes allSatisfy: [:node| node variable name = #classVar]).			
 	link uninstall.
 	self assert: link nodes isEmpty.
 	
-	link installOnClassVarNamed: #classVar for: ReflectivityExamples2 option: #all instanceSpecific: false.
+	link installOnVariableNamed: #classVar for: ReflectivityExamples2 option: #all instanceSpecific: false.
 	self assert: link nodes size equals: 4.	
 	link uninstall.
 	self assert: link nodes isEmpty.
@@ -106,26 +106,24 @@ LinkInstallerTest >> testLinkOnClassVar [
 { #category : #permalinks }
 LinkInstallerTest >> testLinkOnClassVarForObject [
 	| link obj |
-	self skip.
-	self flag: 'must be fixed'.
 	link := MetaLink new.
 	obj := ReflectivityExamples2 new.
 	
-	link installOnClassVarNamed: #classVar for: obj option: #read instanceSpecific: false.
+	link installOnVariableNamed: #classVar for: obj option: #read instanceSpecific: false.
 	self assert: link nodes size equals: 2.
 	self assert: (link nodes allSatisfy: [:node| node isRead]).
 	self assert: (link nodes allSatisfy: [:node| node name = #classVar]).		
 	link uninstall.
 	self assert: link nodes isEmpty.
 	
-	link installOnClassVarNamed:  #classVar for: obj option: #write instanceSpecific: false.
+	link installOnVariableNamed:  #classVar for: obj option: #write instanceSpecific: false.
 	self assert: link nodes size equals: 2.
 	self assert: (link nodes allSatisfy: [:node| node isAssignment]).
 	self assert: (link nodes allSatisfy: [:node| node variable name = #classVar]).			
 	link uninstall.
 	self assert: link nodes isEmpty.
 	
-	link installOnClassVarNamed: #classVar for: obj option: #all instanceSpecific: false.
+	link installOnVariableNamed: #classVar for: obj option: #all instanceSpecific: false.
 	self assert: link nodes size equals: 4.	
 	link uninstall.
 	self assert: link nodes isEmpty.
@@ -150,36 +148,36 @@ LinkInstallerTest >> testLinkOnRBProgramNode [
 
 { #category : #permalinks }
 LinkInstallerTest >> testLinkOnTempVar [
-	| methodNode link |
+	| methodNode link variable |
 	methodNode := (ReflectivityExamples2 >> #methodWithTempVarAccess) ast.
 	link := MetaLink new.
+	variable := (ReflectivityExamples2 >> #methodWithTempVarAccess) temporaryVariableNamed: #temp.
 	
-	link installOnTempVarNamed: #temp
-		inMethod: #methodWithTempVarAccess
+	link installOnVariable: variable
 		for: ReflectivityExamples2
 		option: #read
 		instanceSpecific: false.
 	self assert: link nodes size equals: 2.
 	self assert: (link nodes allSatisfy: [ :node | node isRead ]).
 	self assert: (link nodes allSatisfy: [ :node | node name = #temp ]).
-	self assert: (link nodes allSatisfy: [ :node | node isTemp ]).
+	self assert: (link nodes allSatisfy: [ :node | node isTempVariable ]).
 	link uninstall.
 	self assert: link nodes isEmpty.
 	
-	link installOnTempVarNamed: #temp
-		inMethod: #methodWithTempVarAccess
+	variable := (ReflectivityExamples2 >> #methodWithTempVarAccess) temporaryVariableNamed: #temp.
+	link installOnVariable: variable
 		for: ReflectivityExamples2
 		option: #write
 		instanceSpecific: false.
 	self assert: link nodes size equals: 2.
 	self assert: (link nodes allSatisfy: [ :node | node isAssignment ]).
 	self assert: (link nodes allSatisfy: [ :node | node variable name = #temp ]).
-	self assert: (link nodes allSatisfy: [ :node | node variable isTemp ]).
+	self assert: (link nodes allSatisfy: [ :node | node variable isTempVariable ]).
 	link uninstall.
 	self assert: link nodes isEmpty.
 	
-	link installOnTempVarNamed: #temp
-		inMethod: #methodWithTempVarAccess
+	variable := (ReflectivityExamples2 >> #methodWithTempVarAccess) temporaryVariableNamed: #temp.
+	link installOnVariable: variable
 		for: ReflectivityExamples2
 		option: #all
 		instanceSpecific: false.
@@ -190,37 +188,38 @@ LinkInstallerTest >> testLinkOnTempVar [
 
 { #category : #permalinks }
 LinkInstallerTest >> testLinkOnTempVarForObject [
-	|  link obj |
+	|  link obj temp |
 	
 	link := MetaLink new.
 	obj := ReflectivityExamples2 new.
+	temp := (ReflectivityExamples2>>#methodWithTempVarAccess) lookupVar: #temp.
 	
-	link installOnTempVarNamed: #temp
-		inMethod: #methodWithTempVarAccess
+	link installOnVariable: temp
 		for: obj
 		option: #read
 		instanceSpecific: false.
 	self assert: link nodes size equals: 2.
 	self assert: (link nodes allSatisfy: [ :node | node isRead ]).
 	self assert: (link nodes allSatisfy: [ :node | node name = #temp ]).
-	self assert: (link nodes allSatisfy: [ :node | node isTemp ]).
+	self assert: (link nodes allSatisfy: [ :node | node isTempVariable ]).
 	link uninstall.
 	self assert: link nodes isEmpty.
+	temp := (ReflectivityExamples2>>#methodWithTempVarAccess) lookupVar: #temp.
 	
-	link installOnTempVarNamed: #temp
-		inMethod: #methodWithTempVarAccess
+	link installOnVariable: temp
 		for: obj
 		option: #write
 		instanceSpecific: false.
 	self assert: link nodes size equals: 2.
 	self assert: (link nodes allSatisfy: [ :node | node isAssignment]).
 	self assert: (link nodes allSatisfy: [ :node | node variable name = #temp ]).
-	self assert: (link nodes allSatisfy: [ :node | node variable isTemp ]).
+	self assert: (link nodes allSatisfy: [ :node | node variable isTempVariable ]).
 	link uninstall.
 	self assert: link nodes isEmpty.
 	
-	link installOnTempVarNamed: #temp
-		inMethod: #methodWithTempVarAccess
+	temp := (ReflectivityExamples2>>#methodWithTempVarAccess) lookupVar: #temp.
+	
+	link installOnVariable: temp
 		for: obj
 		option: #all
 		instanceSpecific: false.
@@ -348,7 +347,7 @@ LinkInstallerTest >> testNodesRemovedFromLinkWhenMethodRemoved [
 	methodNode := (ReflectivityExamples2 >> #methodWithInstVarAccess) ast.
 	
 	link := MetaLink new.	 
-	link installOnSlotNamed: #instVar for: ReflectivityExamples2 option: #all instanceSpecific: false.	
+	link installOnVariableNamed: #instVar for: ReflectivityExamples2 option: #all instanceSpecific: false.	
 	self assert: link nodes size equals: 8.
 	
 	ReflectivityExamples2 new removeNewMethodWithInstVarAccess.	
@@ -370,7 +369,7 @@ LinkInstallerTest >> testNodesRemovedFromLinkWhenMethodRemovedFromObject [
 	
 	link := MetaLink new.	
 
-	link installOnSlotNamed: #instVar for: obj option: #all instanceSpecific: true.	
+	link installOnVariableNamed: #instVar for: obj option: #all instanceSpecific: true.	
 	
 	self assert: link nodes size equals: 8.	
 	self assert: (link nodes allSatisfy: [:node| (obj class >> #newMethodWithInstVarAccess) ast allChildren includes: node]) .
@@ -482,10 +481,10 @@ LinkInstallerTest >> testPermaLinkNotInstalledOnObjectIfExistsInClass [
 	
 	link := MetaLink new.	
 
-	link installOnSlotNamed: #instVar for: ReflectivityExamples2 option: #all instanceSpecific: true.
+	link installOnVariableNamed: #instVar for: ReflectivityExamples2 option: #all instanceSpecific: true.
 	self assert: link nodes size equals: 8.	
 			
-	link installOnSlotNamed: #instVar for: obj option: #all instanceSpecific: true.
+	link installOnVariableNamed: #instVar for: obj option: #all instanceSpecific: true.
 	self assert: link nodes size equals: 8.		
 	
 	link uninstall.
@@ -752,7 +751,7 @@ LinkInstallerTest >> testSlotOrVarLinksAddedAfterMethodAddition [
 	ReflectivityExamples2 new removeNewMethodWithInstVarAccess.
 	
 	link := MetaLink new.	
-	link installOnSlotNamed: #instVar for: ReflectivityExamples2 option: #all instanceSpecific: false.
+	link installOnVariableNamed: #instVar for: ReflectivityExamples2 option: #all instanceSpecific: false.
 
 	self assert: link nodes size equals: 4.
 	
@@ -776,7 +775,7 @@ LinkInstallerTest >> testSlotOrVarLinksAddedAfterMethodAdditionForObject [
 	ReflectivityExamples2 new removeNewMethodWithInstVarAccess.
 	
 	link := MetaLink new.	
-	link installOnSlotNamed: #instVar for: obj option: #all instanceSpecific: true.
+	link installOnVariableNamed: #instVar for: obj option: #all instanceSpecific: true.
 
 	self assert: link nodes size equals: 4.
 	
@@ -798,7 +797,7 @@ LinkInstallerTest >> testSlotOrVarLinksRemainAfterMethodModification [
 	methodNode := (ReflectivityExamples2 >> #modifiedMethodWithInstVarAccess) ast.
 	
 	link := MetaLink new.	
-	link installOnSlotNamed: #instVar for: ReflectivityExamples2 option: #all instanceSpecific: false.
+	link installOnVariableNamed: #instVar for: ReflectivityExamples2 option: #all instanceSpecific: false.
 
 	self assert: link nodes size equals: 12.
 	
@@ -819,7 +818,7 @@ LinkInstallerTest >> testSlotOrVarLinksRemainAfterMethodModificationForObject [
 	methodNode := (ReflectivityExamples2 >> #modifiedMethodWithInstVarAccess) ast.
 	
 	link := MetaLink new.	
-	link installOnSlotNamed: #instVar for: obj option: #all instanceSpecific: true.
+	link installOnVariableNamed: #instVar for: obj option: #all instanceSpecific: true.
 
 	self assert: link nodes size equals: 12.
 	"self halt."
@@ -917,14 +916,14 @@ LinkInstallerTest >> testUninstallLinkOnSlotOrVar [
 	link := MetaLink new.
 	linkRegistry := link linkInstaller linksRegistry.
 	
-	link installOnSlotNamed: #instVar
+	link installOnVariableNamed: #instVar
 		for: ReflectivityExamples2
 		option: #all
 		instanceSpecific: false.
 		
 	"After installing, registry must be correct"	
 	permalink := (linkRegistry permaLinksFor:link) asArray first.
-	self assert: (linkRegistry registeredClassesAt: ReflectivityExamples2) asArray first 
+	self assert: (linkRegistry slotSourcesAt: ReflectivityExamples2) asArray first asArray first
 		identicalTo: permalink slotOrVariable.
 	self assert: (linkRegistry registeredTargetsAt: permalink slotOrVariable) asArray first 
 		identicalTo: permalink.
@@ -933,26 +932,26 @@ LinkInstallerTest >> testUninstallLinkOnSlotOrVar [
 	link uninstall.
 	self assertEmpty: link nodes.
 	self assertEmpty: (linkRegistry permaLinksFor:link).
-	self assertEmpty: (linkRegistry registeredClassesAt: ReflectivityExamples2).
+	self assertEmpty: (linkRegistry slotSourcesAt: ReflectivityExamples2) flattened.
 	self assertEmpty: (linkRegistry registeredTargetsAt: permalink slotOrVariable).
 	
-	link installOnClassVarNamed: #classVar
+	link installOnVariableNamed: #classVar
 		for: ReflectivityExamples2 new
 		option: #all
 		instanceSpecific: false.
 	
 	"After installing, registry must be correct"	
 	permalink := (linkRegistry permaLinksFor:link) asArray first.
-	self assert: (linkRegistry registeredClassesAt: ReflectivityExamples2) asArray first 
+	self assert: (linkRegistry slotSourcesAt: ReflectivityExamples2) flattened first 
 		identicalTo: permalink slotOrVariable.
-	self assert: (linkRegistry registeredTargetsAt: permalink slotOrVariable) asArray first 
+	self assert: (linkRegistry registeredTargetsAt: permalink slotOrVariable) flattened first 
 		identicalTo: permalink.
 	
 	"After uninstalling, registry must be cleared"
 	link uninstall.
 	self assertEmpty: link nodes.
 	self assertEmpty: (linkRegistry permaLinksFor:link).
-	self assertEmpty: (linkRegistry registeredClassesAt: ReflectivityExamples2).
+	self assertEmpty: (linkRegistry slotSourcesAt: ReflectivityExamples2) flattened.
 	self assertEmpty: (linkRegistry registeredTargetsAt: permalink slotOrVariable)
 ]
 

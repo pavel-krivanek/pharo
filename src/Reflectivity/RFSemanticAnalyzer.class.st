@@ -68,11 +68,11 @@ RFSemanticAnalyzer >> visitAssignmentNode: aNode [
 { #category : #visiting }
 RFSemanticAnalyzer >> visitMethodNode: aMethodNode [
 	
-	scope := compilationContext scope newMethodScope. 
+	scope := OCMethodScope new outerScope: compilationContext scope.
 	aMethodNode scope: scope.  scope node: aMethodNode.
 	aMethodNode arguments do: [:node | self declareArgumentNode: node ].
 	aMethodNode pragmas do: [:each | self visitNode: each].
-	self declareVariableNode: (RBVariableNode named: #RFReifyValueVar).
+	self declareTemporaryNode: (RBVariableNode named: #RFReifyValueVar).
 	self analyseForLinksForNodes: aMethodNode.
 	self visitNode: aMethodNode body.
 
@@ -91,7 +91,7 @@ RFSemanticAnalyzer >> visitStoreIntoTempNode: aNode [
 	name := aNode name.
 	var := scope lookupVarForDeclaration: name.
 	var	ifNil: [ 
-			var := scope addTemp: name ].
+			var := scope addTemp: (TemporaryVariable named: aNode name) ].
 	aNode binding: var.
 ]
 
@@ -101,7 +101,7 @@ RFSemanticAnalyzer >> visitStorePopIntoTempNode: aNode [
 	name := aNode name.
 	var := scope lookupVarForDeclaration: name.
 	var	ifNil: [ 
-			var := scope addTemp: name ].
+			var := scope addTemp: (TemporaryVariable named: aNode name) ].
 	aNode binding: var.
 ]
 
@@ -113,9 +113,5 @@ RFSemanticAnalyzer >> visitVarWrite: aNode [
 { #category : #visiting }
 RFSemanticAnalyzer >> visitVariableNode: aVariableNode [
 	super visitVariableNode: aVariableNode.
-	self flag: #pharoTodo. "needs to be extendend to other kinds of variables and cleaned"
-	aVariableNode isGlobal ifTrue: [  
-		self analyseForLinksForVariables: aVariableNode ].
-	(aVariableNode isInstance) ifTrue: [  
-		self analyseForLinksForVariables: aVariableNode ]
+	self analyseForLinksForVariables: aVariableNode
 ]

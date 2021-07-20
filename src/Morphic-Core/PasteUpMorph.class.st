@@ -31,7 +31,7 @@ PasteUpMorph class >> initialize [
 	self shouldShowWorldMenu: true
 ]
 
-{ #category : #acessing }
+{ #category : #testing }
 PasteUpMorph class >> isMenuOpenByLeftClick [
 	"Truth table:
 	swap 	isMac	methodReturn
@@ -65,12 +65,12 @@ PasteUpMorph class >> shouldShowWorldMenuSettingOn: aBuilder [
 		description: 'Whether the World''s world menu should be shown or not on a click in the World.'
 ]
 
-{ #category : #acessing }
+{ #category : #accessing }
 PasteUpMorph class >> shouldSwapMenuOpenerButtons [
 	^ ShouldSwapMenuOpenerButtons 
 ]
 
-{ #category : #acessing }
+{ #category : #accessing }
 PasteUpMorph class >> shouldSwapMenuOpenerButtons: aBoolean [
 	^ ShouldSwapMenuOpenerButtons := aBoolean
 ]
@@ -85,7 +85,7 @@ PasteUpMorph class >> shouldSwapMenuOpenerButtonsSetting: aBuilder [
 		getSelector: #shouldSwapMenuOpenerButtons;
 		setSelector: #shouldSwapMenuOpenerButtons:;
 		description:
-				'If checked the behaviour of the world menu is changed only under linuex and window. The main menu will appear on right click instead of left click.';
+				'If checked the behaviour of the world menu is changed only under Linux and Windows. The main menu will appear on right click instead of left click.';
 		default: false
 ]
 
@@ -115,7 +115,7 @@ PasteUpMorph >> addMorph: aMorph centeredNear: aPoint [
 
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #'submorphs - add/remove' }
 PasteUpMorph >> addMorphFront: aMorph [
 
 	^self addMorphInFrontOfLayer: aMorph
@@ -743,7 +743,7 @@ PasteUpMorph >> morphToGrab: event [
 	^nil
 ]
 
-{ #category : #'submorphs-accessing' }
+{ #category : #'submorphs - accessing' }
 PasteUpMorph >> morphsInFrontOf: someMorph overlapping: aRectangle do: aBlock [
 	"Include hands if the receiver is the World"
 	self handsDo:[:m|
@@ -935,12 +935,6 @@ PasteUpMorph >> shouldGetStepsFrom: aWorld [
 	^super shouldGetStepsFrom: aWorld
 ]
 
-{ #category : #stepping }
-PasteUpMorph >> startStepping: aMorph [
-	"Add the given morph to the step list. Do nothing if it is already being stepped."
-	^self startStepping: aMorph at: Time millisecondClockValue selector: #stepAt: arguments: nil stepTime: nil
-]
-
 { #category : #'world state' }
 PasteUpMorph >> startSteppingSubmorphsOf: aMorph [
 	"Ensure that all submorphs of the given morph that want to be stepped are added to the step list.   Typically used after adding a morph to the world."
@@ -950,13 +944,6 @@ PasteUpMorph >> startSteppingSubmorphsOf: aMorph [
 	]
 
 
-]
-
-{ #category : #'project state' }
-PasteUpMorph >> steppingMorphsNotInWorld [
-	| all |
-	all := self allMorphs.
-	^ self listOfSteppingMorphs reject: [ :m | all includes: m ]	"self currentWorld steppingMorphsNotInWorld do: [:m | m delete]"
 ]
 
 { #category : #options }

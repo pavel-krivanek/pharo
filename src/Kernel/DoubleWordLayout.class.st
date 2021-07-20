@@ -14,6 +14,11 @@ DoubleWordLayout class >> extending: superLayout scope: aScope host: aClass [
 		yourself
 ]
 
+{ #category : #description }
+DoubleWordLayout class >> kind [ 
+	^ #variableDoubleWord
+]
+
 { #category : #extending }
 DoubleWordLayout >> extendDoubleWord [
 	^ DoubleWordLayout new
@@ -27,4 +32,9 @@ DoubleWordLayout >> instanceSpecification [
 { #category : #testing }
 DoubleWordLayout >> isDoubleWords [
 	^ true
+]
+
+{ #category : #accessing }
+DoubleWordLayout >> kindOfSubclass [
+	^' variableDoubleWordSubclass: '
 ]

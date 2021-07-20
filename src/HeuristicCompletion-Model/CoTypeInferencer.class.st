@@ -4,7 +4,7 @@ That is, I infer a method up to a certain level of the callgraph.
 "
 Class {
 	#name : #CoTypeInferencer,
-	#superclass : #Object,
+	#superclass : #RBProgramNodeVisitor,
 	#instVars : [
 		'returnType',
 		'variables',
@@ -83,7 +83,7 @@ CoTypeInferencer >> inferFrom: aClass typeGetters: aBoolean [
 CoTypeInferencer >> inferMessageReturn: aRBMessageNode receiverType: type argumentTypes: argumentTypes [
 
 	| lookupClass inferer |
-	lookupClass := aRBMessageNode receiver isSuper
+	lookupClass := aRBMessageNode receiver isSuperVariable
 		ifTrue: [ method methodClass superclass ]
 		ifFalse: [ type ].
 	method := lookupClass lookupSelector: aRBMessageNode selector.
@@ -364,4 +364,10 @@ CoTypeInferencer >> visitTemporaryNode: aRBTemporaryNode [
 CoTypeInferencer >> visitThisContextNode: aRBThisContextNode [ 
 	
 	^ { Context }
+]
+
+{ #category : #visiting }
+CoTypeInferencer >> visitVariableNode: aRBVariableNode [ 
+
+	^ self ensureTypeOfVariable: aRBVariableNode name
 ]

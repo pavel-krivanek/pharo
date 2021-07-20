@@ -96,7 +96,7 @@ Float class >> emin [
 { #category : #'instance creation' }
 Float class >> fromIEEE32Bit: word [
 	"Convert the given 32 bit word (which is supposed to be a positive 32-bit value) from
-	 a 32 bit IEEE floating point representation into an actual Squeak float object (being
+	 a 32 bit IEEE floating point representation into an actual float object (being
 	 64 bits wide). Should only be used for conversion in FloatArrays or likewise objects."
 	
 	| sign mantissa exponent delta |
@@ -716,6 +716,20 @@ Float >> asMinimalDecimalFraction [
 			ifFalse: [denominator := (10 raisedTo: 1 - baseExpEstimate) * (denominator max: 1)]].
 	denominator < 2 ifTrue: [^numerator].
 	^numerator / denominator
+]
+
+{ #category : #converting }
+Float >> asScaledDecimal [
+
+	"Answer a scaled decimal number approximating the receiver.
+	
+	IEEE 754 double precision numbers use 53 bits to encode mantissa. This means
+	that the maximum amount of decimal digits that can be represented is log10(2^53).
+	
+	Due to the fact that at least one of the decimal digits has to be placed to 
+	the left of the decimal point, the scale was set to 15 - 1 = 14."
+
+	^ self asScaledDecimal: 14
 ]
 
 { #category : #converting }

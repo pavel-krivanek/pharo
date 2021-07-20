@@ -2,12 +2,12 @@
 I am an abstract base class for refactorings changing a method name.
 
 Doing a method rename involves:
-rename implementors
-rename message sends and
-remove renamed implementors.
+- rename implementors
+- rename message sends and
+- remove renamed implementors.
 
 I implement the above precedures and provide helper functions for finding and renaming references.
-Every concrete subclass has to add its own precondition (see #myPrecondition).
+Every concrete subclass has to add its own precondition (see `myPrecondition`).
 
 "
 Class {
@@ -17,7 +17,8 @@ Class {
 		'newSelector',
 		'oldSelector',
 		'permutation',
-		'implementors'
+		'implementors',
+		'renameMap'
 	],
 	#category : #'Refactoring-Core-Refactorings'
 }
@@ -87,7 +88,7 @@ RBChangeMethodNameRefactoring >> preconditions [
 	^conditions & (RBCondition withBlock: 
 		[self implementors size > 1 
 			ifTrue: 
-				[self refactoringWarning: ('This will modify all <1p> implementors.' 
+				[self refactoringWarning: ('This will modify all <1p> implementors. Proceed anyway?' 
 							expandMacrosWith: self implementors size)].
 		true])
 ]
@@ -98,6 +99,13 @@ RBChangeMethodNameRefactoring >> removeRenamedImplementors [
 		ifTrue: [ ^ self ].
 	self implementors 
 		do: [ :each | each removeMethod: oldSelector ]
+]
+
+{ #category : #action }
+RBChangeMethodNameRefactoring >> renameArgumentsIn: parseTree [
+	self renameMap do: [ :arg |
+		(self parseTreeRewriterClass rename: arg name to: arg newName) executeTree: parseTree
+	] 
 ]
 
 { #category : #transforming }
@@ -121,9 +129,24 @@ RBChangeMethodNameRefactoring >> renameImplementors [
 			]
 ]
 
+{ #category : #accessing }
+RBChangeMethodNameRefactoring >> renameMap [
+	^renameMap ifNil: [ renameMap := { } ]
+]
+
+{ #category : #accessing }
+RBChangeMethodNameRefactoring >> renameMap: aColl [
+	renameMap := aColl
+]
+
 { #category : #transforming }
 RBChangeMethodNameRefactoring >> renameMessageSends [
 	self convertAllReferencesTo: oldSelector using: self parseTreeRewriter
+]
+
+{ #category : #transforming }
+RBChangeMethodNameRefactoring >> renameMessageSendsIn: classes [
+	self convertAllReferencesTo: oldSelector of: classes using: self parseTreeRewriter
 ]
 
 { #category : #initialization }
@@ -131,7 +154,7 @@ RBChangeMethodNameRefactoring >> renameMethod: aSelector in: aClass to: newSel p
 	oldSelector := aSelector asSymbol.
 	newSelector := newSel asSymbol.
 	class := self classObjectFor: aClass.
-	permutation := aMap
+	permutation := aMap.
 ]
 
 { #category : #transforming }

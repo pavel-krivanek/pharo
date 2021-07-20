@@ -1,38 +1,45 @@
 Class {
 	#name : #HiExamplesTest,
 	#superclass : #TestCase,
+	#instVars : [
+		'example'
+	],
 	#category : #'Hiedra-Tests-Model'
 }
 
-{ #category : #accessing }
-HiExamplesTest class >> defaultTimeLimit [ 
+{ #category : #tests }
+HiExamplesTest class >> classWithExamplesToTest [
+	^ self
+]
 
-	^ 30 seconds
+{ #category : #testing }
+HiExamplesTest class >> isAbstract [
+	^ self = HiExamplesTest
 ]
 
 { #category : #tests }
-HiExamplesTest >> exampleMethods [ 
-	^ (((RPackage organizer packages
-		select: [ :each | each name beginsWith: 'Hiedra' ])
-		flatCollect: #classes)
-		flatCollect: [ :each | each classSide methods ])
-		select: [ :each | 
-			(each selector beginsWith: 'example') and: [ each numArgs = 0 ] ]
+HiExamplesTest class >> testSelectors [
+
+	^ self classWithExamplesToTest classSide methods 
+			select: [ :each |  (each selector beginsWith: 'example') and: [ each numArgs = 0 ] ]
+			thenCollect: [ :each | each selector ]
+	
+
 ]
 
 { #category : #tests }
-HiExamplesTest >> testAllExamples [
-	| exampleMethods |
+HiExamplesTest class >> whichClassIncludesTestSelector: aSymbol [
+	^self classWithExamplesToTest classSide whichClassIncludesSelector: aSymbol
+]
+
+{ #category : #private }
+HiExamplesTest >> performTest [
+	example := self class classWithExamplesToTest perform: testSelector asSymbol
+]
+
+{ #category : #running }
+HiExamplesTest >> tearDown [ 
 	
-	self skip: 'This test fails randomly in the CI in different OS due a timeout, even with an increased time limit of 30 seconds'.
-	self timeLimit: 30 seconds.
-	
-	exampleMethods := self exampleMethods.
-	self deny: exampleMethods isEmpty.
-	
-	exampleMethods do: [ :each | | anExample |
-		self
-			shouldnt: [ anExample := each methodClass instanceSide perform: each selector ]
-			raise: Error.
-		anExample ifNotNil: [ anExample close ] ]
+	example ifNotNil: [ example close ].
+	super tearDown
 ]

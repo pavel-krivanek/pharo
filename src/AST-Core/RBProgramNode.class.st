@@ -52,6 +52,12 @@ RBProgramNode class >> formatterClass: aClass [
 		
 ]
 
+{ #category : #testing }
+RBProgramNode class >> isAbstract [
+
+	^ self == RBProgramNode
+]
+
 { #category : #accessing }
 RBProgramNode class >> optimizedSelectors [
 	^ #( and: caseOf: caseOf:otherwise: ifFalse: ifFalse:ifTrue: ifNil: ifNil:ifNotNil: ifNotNil: ifNotNil:ifNil: ifTrue: ifTrue:ifFalse: or: to:by:do: to:do: whileFalse whileFalse: whileTrue whileTrue: )
@@ -122,6 +128,19 @@ RBProgramNode >> allParents [
 ]
 
 { #category : #accessing }
+RBProgramNode >> allStatements [
+	| children |
+	children := self children.
+	children isEmpty ifTrue: [^#()].
+	^children inject: OrderedCollection new
+		into: 
+			[:vars :each | 
+			vars
+				addAll: each allStatements;
+				yourself]
+]
+
+{ #category : #accessing }
 RBProgramNode >> allTemporaryVariables [
 	| children |
 	children := self children.
@@ -164,12 +183,10 @@ RBProgramNode >> assigns: aVariableName [
 
 { #category : #querying }
 RBProgramNode >> bestNodeFor: anInterval [ 
-
-	| selectedChildren |
-	
-	anInterval ifNil: [ ^ nil ].
-	
-	(self intersectsInterval: anInterval) ifFalse: [^nil].
+	| selectedChildren selectedComments |
+	anInterval ifNil: [^nil ].
+	selectedComments := self getCommentsFor: anInterval.
+	(self intersectsInterval: anInterval) ifFalse: [^selectedComments ifNil: [ nil ] ifNotNil: [ selectedComments size = 1 ifTrue: [ selectedComments first ] ifFalse: [ nil ] ] ].
 	(self containedBy: anInterval) ifTrue: [^self].
 	
 	selectedChildren := self children select: [:each | 
@@ -178,7 +195,43 @@ RBProgramNode >> bestNodeFor: anInterval [
 
 	^ selectedChildren size = 1 
 		ifTrue: [ selectedChildren first bestNodeFor: anInterval ]
-		ifFalse: [ self ]
+		ifFalse: [ (selectedChildren isEmpty and: [ selectedComments size = 1 ])
+							ifTrue: [ selectedComments first ]
+							ifFalse: [ self ] ]
+]
+
+{ #category : #querying }
+RBProgramNode >> bestNodeForPosition: aPosition [
+
+	"aPosition is an integer that represents the position of the caret. 
+	A value of N represents that the caret is between the characters N-1 and N.
+	The position 1 is at beginning of the text.
+	
+	Position Heuristic: If the previous character is not a separator, take selection one position before.
+		This heuristic is for the cases where the caret (|) is:
+		   |self foo  => the caret is before self, do not move
+		   self foo|  => the caret is before foo, interpret is as if we are in foo.
+			self foo | => the caret is before a space, interpret is as if we are in foo.
+
+		This heuristic introduces although an ambiguity when code is not nicely formatted:
+		   self foo:|#bar => Here a user may want foo: or bar.
+		For now we decided to favor foo: to motivate people to indent code correctly	"
+
+	| offset position precededBySeparator |
+	precededBySeparator := [ 
+	                       (aPosition
+		                        between: 2
+		                        and: self methodNode sourceCode size + 1) 
+		                       and: [ 
+		                       (self methodNode sourceCode at: aPosition - 1)
+			                       isSeparator ] ].
+	offset := (aPosition = 1 or: precededBySeparator)
+		          ifTrue: [ 0 ]
+		          ifFalse: [ -1 ].
+
+	position := aPosition + offset min: self stop.
+
+	^ self bestNodeFor: (position to: position)
 ]
 
 { #category : #querying }
@@ -191,7 +244,7 @@ RBProgramNode >> blockVariables [
 	^parent ifNil: [#()] ifNotNil: [parent blockVariables]
 ]
 
-{ #category : #'testing-matching' }
+{ #category : #'testing - matching' }
 RBProgramNode >> canMatchMethod: aCompiledMethod [ 
 	^self sentMessages allSatisfy: 
 			[:each | 
@@ -199,7 +252,7 @@ RBProgramNode >> canMatchMethod: aCompiledMethod [
 				or: [aCompiledMethod refersToLiteral: each]]
 ]
 
-{ #category : #'meta variable-accessing' }
+{ #category : #'accessing - meta variable' }
 RBProgramNode >> cascadeListCharacter [
 	^$;
 ]
@@ -321,7 +374,7 @@ RBProgramNode >> dump [
 	| visitor |
 	visitor := RBDumpVisitor new.
 	self acceptVisitor: visitor.
-	^ visitor stream contents
+	^ visitor contents
 ]
 
 { #category : #comparing }
@@ -359,6 +412,23 @@ RBProgramNode >> formatterClass [
 	^ self class formatterClass
 ]
 
+{ #category : #querying }
+RBProgramNode >> getCommentsFor: anInterval [
+	| selectedComments |
+	selectedComments := OrderedCollection new.
+	self nodesDo: 
+		[ :each | 
+			| comments | 
+			comments := each comments select: 
+				[ :com | com intersectsInterval: anInterval ]. 
+	"This precaution is taken to deal with cascades multiple visit of the receiver."
+			(selectedComments isNotEmpty 
+				and: [ comments isNotEmpty 
+				and: [ comments last = selectedComments last ]]) 
+					ifFalse: [selectedComments addAll: comments ] ].
+	^ selectedComments
+]
+
 { #category : #testing }
 RBProgramNode >> hasComments [
 	"Answer whether the receiver as comments"
@@ -389,17 +459,17 @@ RBProgramNode >> hashForCollection: aCollection [
 
 { #category : #querying }
 RBProgramNode >> instanceVariableNodes [
-		^self variableNodes select: [:each | each isInstance]
+		^self variableNodes select: [:each | each isInstanceVariable]
 ]
 
 { #category : #querying }
 RBProgramNode >> instanceVariableReadNodes [
-		^self variableReadNodes select: [:each | each isInstance]
+		^self variableReadNodes select: [:each | each isInstanceVariable]
 ]
 
 { #category : #querying }
 RBProgramNode >> instanceVariableWriteNodes [
-		^self variableWriteNodes select: [:each | each isInstance]
+		^self variableWriteNodes select: [:each | each isInstanceVariable]
 ]
 
 { #category : #testing }
@@ -410,6 +480,20 @@ RBProgramNode >> intersectsInterval: anInterval [
 
 { #category : #testing }
 RBProgramNode >> isArgument [
+	self 
+		deprecated: 'Use #isArgumentVariable instead.' 
+		transformWith: '`@receiver isArgument' -> '`@receiver isArgumentVariable'.
+	
+	^ self isArgumentVariable
+]
+
+{ #category : #testing }
+RBProgramNode >> isArgumentVariable [
+	^ false
+]
+
+{ #category : #testing }
+RBProgramNode >> isArrayError [
 	^false
 ]
 
@@ -419,14 +503,22 @@ RBProgramNode >> isAssignment [
 ]
 
 { #category : #testing }
-RBProgramNode >> isBlockVar [
-	"true if a variable node is defined by a block"
-
-	^ false
+RBProgramNode >> isBlockError [
+	^false
 ]
 
 { #category : #testing }
 RBProgramNode >> isCascade [
+	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isClassVariable [
+	^ false
+]
+
+{ #category : #testing }
+RBProgramNode >> isCommentNode [
 	^false
 ]
 
@@ -443,6 +535,11 @@ RBProgramNode >> isDynamicArray [
 ]
 
 { #category : #testing }
+RBProgramNode >> isEnglobingError [
+	^false
+]
+
+{ #category : #testing }
 RBProgramNode >> isEvaluatedFirst [
 	"Return true if we are the first thing evaluated in this statement."
 
@@ -453,6 +550,16 @@ RBProgramNode >> isEvaluatedFirst [
 RBProgramNode >> isFaulty [
 	"return true if the AST contains a RBParseErrorNode"
 	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isGlobalVariable [
+	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isHaltNode [
+	^ false
 ]
 
 { #category : #deprecated }
@@ -466,13 +573,18 @@ RBProgramNode >> isImmediateNode [
 ]
 
 { #category : #testing }
+RBProgramNode >> isInstanceVariable [
+	^false
+]
+
+{ #category : #testing }
 RBProgramNode >> isLast: aNode [ 
 	| children |
 	children := self children.
 	^children notEmpty and: [children last == aNode]
 ]
 
-{ #category : #'testing-matching' }
+{ #category : #'testing - matching' }
 RBProgramNode >> isList [
 	^false
 ]
@@ -483,7 +595,22 @@ RBProgramNode >> isLiteralArray [
 ]
 
 { #category : #testing }
+RBProgramNode >> isLiteralArrayError [
+	^false
+]
+
+{ #category : #testing }
 RBProgramNode >> isLiteralNode [
+	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isLiteralVariable [
+	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isLocalVariable [
 	^false
 ]
 
@@ -498,11 +625,16 @@ RBProgramNode >> isMethod [
 ]
 
 { #category : #testing }
+RBProgramNode >> isParenthesesError [
+	^false
+]
+
+{ #category : #testing }
 RBProgramNode >> isParseError [
 	^false
 ]
 
-{ #category : #'testing-matching' }
+{ #category : #'testing - matching' }
 RBProgramNode >> isPatternNode [
 	^false
 ]
@@ -513,17 +645,32 @@ RBProgramNode >> isPragma [
 ]
 
 { #category : #testing }
+RBProgramNode >> isPragmaError [
+	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isReservedVariable [
+	^false
+]
+
+{ #category : #testing }
 RBProgramNode >> isReturn [
 	^false
 ]
 
 { #category : #testing }
-RBProgramNode >> isSelf [
-	^ false
+RBProgramNode >> isSelector [
+	^false
 ]
 
 { #category : #testing }
-RBProgramNode >> isSelfOrSuper [
+RBProgramNode >> isSelfOrSuperVariable [
+	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isSelfVariable [
 	^ false
 ]
 
@@ -533,18 +680,33 @@ RBProgramNode >> isSequence [
 ]
 
 { #category : #testing }
-RBProgramNode >> isSuper [
+RBProgramNode >> isSuperVariable [
 	^false
 ]
 
 { #category : #testing }
-RBProgramNode >> isTemp [
+RBProgramNode >> isTempVariable [
 	^ false
 ]
 
 { #category : #testing }
-RBProgramNode >> isThisContext [
+RBProgramNode >> isTemporariesError [
+	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isThisContextVariable [
 	^ false
+]
+
+{ #category : #testing }
+RBProgramNode >> isUndeclaredVariable [
+	^false
+]
+
+{ #category : #testing }
+RBProgramNode >> isUnfinishedStatement [
+	^false
 ]
 
 { #category : #testing }
@@ -568,16 +730,21 @@ RBProgramNode >> isVariable [
 ]
 
 { #category : #testing }
+RBProgramNode >> isWorkspaceVariable [
+	^false
+]
+
+{ #category : #testing }
 RBProgramNode >> lastIsReturn [
 	^self isReturn
 ]
 
-{ #category : #'meta variable-accessing' }
+{ #category : #'accessing - meta variable' }
 RBProgramNode >> listCharacter [
 	^$@
 ]
 
-{ #category : #'meta variable-accessing' }
+{ #category : #'accessing - meta variable' }
 RBProgramNode >> literalCharacter [
 	^$#
 ]
@@ -643,11 +810,6 @@ RBProgramNode >> matchList: matchNodes index: matchIndex against: programNodes i
 ]
 
 { #category : #accessing }
-RBProgramNode >> methodComments [
-	^self comments
-]
-
-{ #category : #accessing }
 RBProgramNode >> methodNode [
 	^parent ifNotNil: [parent methodNode]
 ]
@@ -689,15 +851,9 @@ RBProgramNode >> parent: aRBProgramNode [
 	parent := aRBProgramNode
 ]
 
-{ #category : #accessing }
-RBProgramNode >> parents [
-	"see discussion in https://github.com/pharo-project/pharo/issues/6278"
-		self
-		deprecated: 'Use #withAllParents instead'
-		on: '25 may 2020'
-		in: #Pharo9
-		transformWith: '`@receiver parents' 
-						-> '`@receiver withALlParents'.
+{ #category : #hook }
+RBProgramNode >> parserClass [
+	^ RBParser
 ]
 
 { #category : #copying }
@@ -758,12 +914,12 @@ RBProgramNode >> propertyAt: aKey put: anObject [
 		at: aKey put: anObject
 ]
 
-{ #category : #'testing-matching' }
+{ #category : #'testing - matching' }
 RBProgramNode >> recurseInto [
 	^false
 ]
 
-{ #category : #'meta variable-accessing' }
+{ #category : #'accessing - meta variable' }
 RBProgramNode >> recurseIntoCharacter [
 	^$`
 ]
@@ -816,13 +972,13 @@ RBProgramNode >> replaceNode: aNode withNode: anotherNode [
 	self error: 'I don''t store other nodes'
 ]
 
-{ #category : #'private-replacing' }
+{ #category : #'private - replacing' }
 RBProgramNode >> replaceSourceFrom: aNode [
 	self == aNode
 		ifFalse: [ self clearReplacements ]
 ]
 
-{ #category : #'private-replacing' }
+{ #category : #'private - replacing' }
 RBProgramNode >> replaceSourceWith: aNode [ 
 	aNode replaceSourceFrom: self
 ]
@@ -894,7 +1050,7 @@ RBProgramNode >> start [
 	self subclassResponsibility
 ]
 
-{ #category : #'meta variable-accessing' }
+{ #category : #'accessing - meta variable' }
 RBProgramNode >> statementCharacter [
 	^$.
 ]
@@ -933,7 +1089,7 @@ RBProgramNode >> superMessages [
 
 { #category : #querying }
 RBProgramNode >> tempVariableReadNodes [
-		^self variableReadNodes select: [:each | each isTemp]
+		^self variableReadNodes select: [:each | each isTempVariable]
 ]
 
 { #category : #accessing }
@@ -947,9 +1103,16 @@ RBProgramNode >> uses: aNode [
 ]
 
 { #category : #querying }
+RBProgramNode >> variableDefinitionNodes [
+	^ self allChildren select: [ :each | 
+		  each isVariable and: [ each isDefinition ] ]
+]
+
+{ #category : #querying }
 RBProgramNode >> variableNodes [
-		^self allChildren select: [:each | 
-			each isVariable and: [each isDefinition not]].
+
+	^ self allChildren select: [ :each | 
+		  each isVariable and: [ each isDefinition not ] ]
 ]
 
 { #category : #querying }

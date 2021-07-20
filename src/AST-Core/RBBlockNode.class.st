@@ -73,6 +73,15 @@ RBBlockNode >> allDefinedVariables [
 ]
 
 { #category : #accessing }
+RBBlockNode >> allStatements [
+	"including temp variable definition."
+	^ self temporaries asOrderedCollection copy
+			addAll: super allStatements;
+			yourself
+
+]
+
+{ #category : #accessing }
 RBBlockNode >> argumentNames [
 	^ self arguments collect: [:each | each name] as: Array 
 ]
@@ -88,12 +97,12 @@ RBBlockNode >> arguments: argCollection [
 	arguments do: [:each | each parent: self ]
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBBlockNode >> bar [
 	^ bar
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBBlockNode >> bar: anInteger [
 	bar := anInteger
 ]
@@ -119,15 +128,15 @@ RBBlockNode >> body: stmtsNode [
 
 { #category : #accessing }
 RBBlockNode >> children [
-	^self arguments copyWith: self body
+	^ arguments copyWith: body
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBBlockNode >> colons [
 	^ colons
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBBlockNode >> colons: anArray [ 
 	colons := anArray
 ]
@@ -169,8 +178,20 @@ RBBlockNode >> hasArgumentNamed: aString [
 ]
 
 { #category : #testing }
+RBBlockNode >> hasArguments [
+
+	^ arguments isNotEmpty
+]
+
+{ #category : #testing }
 RBBlockNode >> hasBlockReturn [
 	^ self body lastIsReturn
+]
+
+{ #category : #testing }
+RBBlockNode >> hasTemporaries [
+
+	^ self temporaries isNotEmpty
 ]
 
 { #category : #testing }
@@ -181,6 +202,13 @@ RBBlockNode >> hasTemporaryNamed: aString [
 { #category : #comparing }
 RBBlockNode >> hash [
 	^ (self hashForCollection: self arguments) bitXor: self body hash
+]
+
+{ #category : #testing }
+RBBlockNode >> headIsNotEmpty [
+	"Return true whether the receiver has some arguments or comments"
+	
+	^ arguments isNotEmpty or: [ self comments isNotEmpty ]
 ]
 
 { #category : #initialization }
@@ -200,7 +228,7 @@ RBBlockNode >> isBlock [
 
 { #category : #testing }
 RBBlockNode >> isFaulty [
-	^(self arguments anySatisfy:  #isFaulty ) or: [ self body isFaulty]
+	^(self arguments anySatisfy: [:each | each isFaulty] ) or: [ self body isFaulty]
 ]
 
 { #category : #testing }
@@ -218,12 +246,12 @@ RBBlockNode >> lastIsReturn [
 	^ false
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBBlockNode >> left [
 	^ left
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBBlockNode >> left: anInteger [
 	left := anInteger
 ]
@@ -240,7 +268,7 @@ RBBlockNode >> match: aNode inContext: aDictionary [
 
 { #category : #accessing }
 RBBlockNode >> methodOrBlockNode [
-	"^ self"
+	^ self
 ]
 
 { #category : #testing }
@@ -278,12 +306,12 @@ RBBlockNode >> replaceNode: aNode withNode: anotherNode [
 				collect: [:each | each == aNode ifTrue: [anotherNode] ifFalse: [each]])
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBBlockNode >> right [
 	^ right
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBBlockNode >> right: anInteger [
 	right := anInteger
 ]

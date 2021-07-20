@@ -95,8 +95,16 @@ RBArrayNode >> addNodesFirst: aCollection [
 ]
 
 { #category : #accessing }
+RBArrayNode >> allStatements [
+	^ statements asOrderedCollection copy
+			addAll: super allStatements;
+			yourself
+
+]
+
+{ #category : #accessing }
 RBArrayNode >> children [
-	^ self statements
+	^ statements
 ]
 
 { #category : #matching }
@@ -135,7 +143,8 @@ RBArrayNode >> indexOfNode: aNode [
 { #category : #initialization }
 RBArrayNode >> initialize [
 	super initialize.
-	statements := periods := #().
+	statements := OrderedCollection new.
+	periods := #().
 	left := right := 0.
 ]
 
@@ -145,8 +154,13 @@ RBArrayNode >> isDynamicArray [
 ]
 
 { #category : #testing }
+RBArrayNode >> isEmpty [
+	^ statements isEmpty 
+]
+
+{ #category : #testing }
 RBArrayNode >> isFaulty [
-	^self statements anySatisfy: #isFaulty
+	^self statements anySatisfy: [:each | each isFaulty]
 ]
 
 { #category : #testing }
@@ -155,12 +169,12 @@ RBArrayNode >> lastIsReturn [
 	^statements last lastIsReturn
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBArrayNode >> left [
 	^ left
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBArrayNode >> left: anInteger [
 	left := anInteger
 ]
@@ -176,12 +190,12 @@ RBArrayNode >> needsParenthesis [
 	^ false
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBArrayNode >> periods [
 	^ periods
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBArrayNode >> periods: anArray [
 	periods := anArray
 ]
@@ -210,12 +224,12 @@ RBArrayNode >> replaceNode: oldNode  withNode: newNode [
 			ifFalse: [ statement ] ])
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBArrayNode >> right [
 	^ right
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBArrayNode >> right: anInteger [
 	right := anInteger
 ]

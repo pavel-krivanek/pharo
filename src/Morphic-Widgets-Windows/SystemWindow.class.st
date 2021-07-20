@@ -23,7 +23,6 @@ Class {
 		'labelArea',
 		'expandBox',
 		'embeddable',
-		'menuBuilder',
 		'isResizeable'
 	],
 	#classVars : [
@@ -870,7 +869,7 @@ SystemWindow >> createBox [
 	"Transcript show: self paneColor asString;  
 	cr."
 	| box |
-	box := IconicButton new.
+	box := IconicButtonMorph new.
 	box color: Color transparent;
 		 target: self;
 		 useSquareCorners;
@@ -1334,17 +1333,9 @@ SystemWindow >> maximumExtent: aPoint [
 { #category : #api }
 SystemWindow >> menu [
 
-	| aMenuBuilder res |
-
-	aMenuBuilder := BlockMenuBuilder owner: self.
-	aMenuBuilder model: self.
-	aMenuBuilder buildingBlock: [ :aBuilder |
-		self class windowMenuOn: aMenuBuilder.
-		self class tilingMenuOn: aBuilder.
-		self class tilingMenuItemsOn: aBuilder ].
-	aMenuBuilder menuSpec.
-	res := aMenuBuilder menu.
-	^ res.
+	^(PragmaMenuBuilder 
+		pragmaKeyword: self discoveredMenuPragmaKeyword 
+		model: self) menu
 ]
 
 { #category : #'resize/collapse' }
@@ -1518,6 +1509,18 @@ SystemWindow >> offerWindowMenu [
 	model ifNotNil:
 		[model addModelItemsToWindowMenu: aMenu].
 	aMenu popUpEvent: self currentEvent in: self world
+]
+
+{ #category : #'as yet unclassified' }
+SystemWindow >> openInWorldExtent: extent [
+
+	"This msg and its callees result in the window being activeOnlyOnTop"
+
+	self
+		deprecated: 'Use #extent: instead'
+		transformWith:
+		'`@rec openInWorldExtent: `@arg' -> '`@rec extent: `@arg'.
+	^ self extent: extent
 ]
 
 { #category : #'open/close' }

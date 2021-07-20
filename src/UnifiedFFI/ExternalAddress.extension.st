@@ -102,25 +102,33 @@ ExternalAddress >> doubleAt: byteIndex put: value [
 { #category : #'*UnifiedFFI' }
 ExternalAddress >> float32AtOffset: zeroBasedOffset [
 	<primitive: 643>
-	^ self oldFFIPrimFloat32At: zeroBasedOffset + 1
+	
+	^ FFIBackend current on: self float32At: zeroBasedOffset + 1
 ]
 
 { #category : #'*UnifiedFFI' }
 ExternalAddress >> float32AtOffset: zeroBasedOffset put: value [
 	<primitive: 658>
-	^ self oldFFIPrimFloat32At: zeroBasedOffset + 1 put: value
+	
+	^ FFIBackend current on: self float32At: zeroBasedOffset + 1 put: value
 ]
 
 { #category : #'*UnifiedFFI' }
 ExternalAddress >> float64AtOffset: zeroBasedOffset [
 	<primitive: 644>
-	^ self oldFFIPrimFloat64At: zeroBasedOffset + 1
+	
+	^ FFIBackend current on: self float64At: zeroBasedOffset + 1
+
 ]
 
 { #category : #'*UnifiedFFI' }
 ExternalAddress >> float64AtOffset: zeroBasedOffset put: value [
+
 	<primitive: 659>
-	^ self oldFFIPrimFloat64At: zeroBasedOffset + 1 put: value
+	^ FFIBackend current
+		  on: self
+		  float64At: zeroBasedOffset + 1
+		  put: value
 ]
 
 { #category : #'*UnifiedFFI' }
@@ -370,7 +378,12 @@ ExternalAddress >> readArrayOf: aType until: aBlock [
 
 { #category : #'*UnifiedFFI-Deprecated50' }
 ExternalAddress >> registerAsExternalResource [
-	self deprecated: 'Use #autoRelease instead.' on: '2016-01-22' in: #Pharo5.  
+	self
+		deprecated: 'Use #autoRelease instead.'
+		on: '2016-01-22'
+		in: #Pharo5
+		transformWith: '`@rec registerAsExternalResource' -> '`@rec autoRelease'.
+	  
 	^ self class finalizationRegistry add: self
 ]
 

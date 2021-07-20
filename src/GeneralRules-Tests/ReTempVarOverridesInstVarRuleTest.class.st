@@ -13,7 +13,27 @@ Class {
 	#category : #'GeneralRules-Tests-Migrated'
 }
 
-{ #category : #'test-help' }
+{ #category : #accessing }
+ReTempVarOverridesInstVarRuleTest >> dummy1 [
+	^ dummy1
+]
+
+{ #category : #accessing }
+ReTempVarOverridesInstVarRuleTest >> dummy2 [
+	^ dummy2
+]
+
+{ #category : #accessing }
+ReTempVarOverridesInstVarRuleTest >> dummy3 [
+	^ dummy3
+]
+
+{ #category : #accessing }
+ReTempVarOverridesInstVarRuleTest >> dummy4 [
+	^ dummy4
+]
+
+{ #category : #sample }
 ReTempVarOverridesInstVarRuleTest >> sampleMethod: dummy1 [
 	"I override dummy1, dummy2, dummy3  "
 	| dummy2 |
@@ -25,14 +45,10 @@ ReTempVarOverridesInstVarRuleTest >> sampleMethod: dummy1 [
 { #category : #tests }
 ReTempVarOverridesInstVarRuleTest >> testRule [
 	| critiques |
-	self class compile: 'sampleMethod: dummy1
-	"I override dummy1, dummy2, dummy3  "
-	| dummy2 |
-	dummy2 := [ :dummy3 | dummy4 := dummy1 + dummy3 ].
-	^ dummy2 value: dummy1.
-	' classified: 'test-help'.
 	critiques := self myCritiquesOnMethod: self class >> #sampleMethod:.
 	
-	self assert: critiques size equals: 2.
+	self assert: critiques size equals: 3.
+	self assert: (self sourceAtChritique:  critiques first) equals: 'dummy1'.
 	self assert: (self sourceAtChritique:  critiques second) equals: 'dummy2'.
+	self assert: (self sourceAtChritique:  critiques third) equals: 'dummy3'.
 ]

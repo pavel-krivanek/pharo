@@ -51,7 +51,6 @@ BaselineOfMorphic >> baseline: spec [
 		spec package: 'System-Clipboard'.
 		
 		spec package: 'EmbeddedFreeType'.
-		spec package: 'EmergencyEvaluator'.
 		spec package: 'FileSystem-Zip'.
 		spec package: 'Fonts-Infrastructure'.
 		spec package: 'FreeType'.
@@ -91,9 +90,6 @@ BaselineOfMorphic >> baseline: spec [
 		"Several packages depend on Rubric as a basic Morphic component"
 		spec package: 'Rubric'.
 		
-		spec package: 'Multilingual-OtherLanguages'.
-		spec package: 'Multilingual-TextConverterOtherLanguages'.
-
 		spec package: 'NewValueHolder-Core'.
 
 		spec package: 'Polymorph-Widgets'.
@@ -221,38 +217,49 @@ BaselineOfMorphic >> loadBitmapDejaVuSans [
 
 { #category : #fonts }
 BaselineOfMorphic >> loadBitmapFontFamily: familyName sizes: pointSizes [
-
-	| fonts styleNames fileName directoryReference |
-
-	directoryReference := (Smalltalk os environment at: 'BOOTSTRAP_REPOSITORY' ifAbsent: [ FileSystem workingDirectory ]) asFileReference / 'resources' / 'fonts'.
-
-	fonts := pointSizes collect: [ :pointSize | 	
-		| regular bold italic boldItalic |
-		styleNames := #('Regular' 'Bold' 'Italic' 'Bold Italic').
-
-		fileName := familyName, ' ', pointSize asString.
-		regular := STON fromStream: (directoryReference / (fileName, ' Regular.ston')) readStream.
-		regular setGlyphs: (PNGReadWriter formFromFileNamed: (directoryReference / (fileName, ' Regular.png')) fullName).
-
-		bold := STON fromStream: (directoryReference / (fileName, ' Bold.ston')) readStream.
-		bold setGlyphs: (PNGReadWriter formFromFileNamed: (directoryReference / (fileName, ' Bold.png')) fullName).
-		
-		italic := STON fromStream: (directoryReference / (fileName, ' Italic.ston')) readStream.
-		italic setGlyphs: (PNGReadWriter formFromFileNamed: (directoryReference / (fileName, ' Italic.png')) fullName).
-
-		boldItalic := STON fromStream: (directoryReference / (fileName, ' Bold Italic.ston')) readStream.
-		boldItalic setGlyphs: (PNGReadWriter formFromFileNamed: (directoryReference / (fileName, ' Bold Italic.png')) fullName).
-		
-		regular instVarNamed: #derivativeFonts put: ({bold. italic. boldItalic}, (Array new: 29)).
-		bold instVarNamed: #derivativeFonts put: (Array new: 32).
-		italic instVarNamed: #derivativeFonts put: (Array new: 32).
-		boldItalic instVarNamed: #derivativeFonts put: (Array new: 32).
-		regular
-	].
-
-	^ TextStyle fontArray: fonts.		
-
-	
+	| fonts fileName directoryReference |
+	directoryReference := (Smalltalk os environment
+		                       at: 'BOOTSTRAP_REPOSITORY'
+		                       ifAbsent: [ FileSystem workingDirectory ])
+		                      asFileReference / 'resources' / 'fonts'.
+	fonts := pointSizes collect: [ :pointSize | 
+		         | regular bold italic boldItalic |
+		         fileName := familyName , ' ' , pointSize asString.
+		         regular := STON fromStream:
+			                    (directoryReference
+			                     / (fileName , ' Regular.ston')) readStream.
+		         regular setGlyphs: (PNGReadWriter formFromFileNamed:
+				          (directoryReference / (fileName , ' Regular.png'))
+					          fullName).
+		         bold := STON fromStream:
+			                 (directoryReference / (fileName , ' Bold.ston'))
+				                 readStream.
+		         bold setGlyphs: (PNGReadWriter formFromFileNamed:
+				          (directoryReference / (fileName , ' Bold.png')) fullName).
+		         italic := STON fromStream:
+			                   (directoryReference
+			                    / (fileName , ' Italic.ston')) readStream.
+		         italic setGlyphs: (PNGReadWriter formFromFileNamed:
+				          (directoryReference / (fileName , ' Italic.png'))
+					          fullName).
+		         boldItalic := STON fromStream:
+			                       (directoryReference
+			                        / (fileName , ' Bold Italic.ston'))
+				                       readStream.
+		         boldItalic setGlyphs: (PNGReadWriter formFromFileNamed:
+				          (directoryReference / (fileName , ' Bold Italic.png'))
+					          fullName).
+		         regular instVarNamed: #derivativeFonts put: { 
+				         bold.
+				         italic.
+				         boldItalic } , (Array new: 29).
+		         bold instVarNamed: #derivativeFonts put: (Array new: 32).
+		         italic instVarNamed: #derivativeFonts put: (Array new: 32).
+		         boldItalic
+			         instVarNamed: #derivativeFonts
+			         put: (Array new: 32).
+		         regular ].
+	^ TextStyle fontArray: fonts
 ]
 
 { #category : #fonts }
@@ -286,9 +293,8 @@ BaselineOfMorphic >> postload: loader package: packageSpec [
 	self class environment at: #Morph ifAbsent: [ ^ self ].
 	
 	"Initialize Fuel"
-
 	FLLargeIdentityHashedCollection initialize.
-	FLPlatform classPool at: #Current put: FLPharo7Platform new.
+	FLPlatform reset.
 
 	Stdio stdout nextPutAll: 'starting...'; lf.
 
@@ -347,7 +353,7 @@ BaselineOfMorphic >> postload: loader package: packageSpec [
 
 	Smalltalk cleanOutUndeclared.
 
-	#(#AbstractFont #BalloonMorph #CP1253TextConverter #Clipboard #EditorFindReplaceDialogWindow #EmbeddedFreeTypeFontInstaller #FLCompiledMethodCluster #FLLargeIdentityHashedCollection #FLPlatform #FreeTypeFontProvider #GB2312 #GradientFillStyle #GreekEnvironment #ISO88597TextConverter #IconicButton #JISX0208 #JapaneseEnvironment #KOI8RTextConverter #KMLog #KSX1001 #KoreanEnvironment #LogicalFont #LucidaGrandeRegular #OSEnvironment #RussianEnvironment #ScrollBar #SimplifiedChineseEnvironment "#SourceCodeProRegular #SourceSansProRegular" #StrikeFont #SystemSettingsPersistence #TabMorph #TaskbarMorph #Text #TextAction #TextConstants #TextEditor #TextStyle) do: [:each |
+	#(#AbstractFont #BalloonMorph #Clipboard #EditorFindReplaceDialogWindow #EmbeddedFreeTypeFontInstaller #FLCompiledMethodCluster #FLLargeIdentityHashedCollection #FLPlatform #FreeTypeFontProvider #GradientFillStyle #IconicButtonMorph #KMLog #LogicalFont #LucidaGrandeRegular #OSEnvironment #ScrollBar #StrikeFont #SystemSettingsPersistence #TabMorph #TaskbarMorph #Text #TextAction #TextConstants #TextEditor #TextStyle) do: [:each |
 		 (Smalltalk globals at: each) initialize. ].
 
 	LogicalFontManager current addFontProvider: FreeTypeFontProvider current.

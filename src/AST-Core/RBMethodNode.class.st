@@ -100,8 +100,8 @@ RBMethodNode >> addNode: aNode [
 { #category : #'adding/removing' }
 RBMethodNode >> addPragma: aPragmaNode [
 
-	pragmas ifNil: [ self pragmas: OrderedCollection new ].
-	pragmas add: aPragmaNode
+	pragmas := pragmas copyWith: aPragmaNode.
+	aPragmaNode parent: self
 ]
 
 { #category : #replacing }
@@ -141,6 +141,15 @@ RBMethodNode >> allSequenceNodes [
 ]
 
 { #category : #accessing }
+RBMethodNode >> allStatements [
+	"return the statements including variable definition."
+	^ self temporaries asOrderedCollection copy
+			addAll: super allStatements;
+			yourself
+
+]
+
+{ #category : #accessing }
 RBMethodNode >> argumentNames [
 	^ self arguments collect: [:each | each name] as: Array
 ]
@@ -172,7 +181,7 @@ RBMethodNode >> body: stmtsNode [
 	body parent: self
 ]
 
-{ #category : #'private-replacing' }
+{ #category : #'private - replacing' }
 RBMethodNode >> changeSourceSelector: oldSelector keywordsIntervals: oldIntervals arguments: oldArguments [
 	"If this is the same number of arguments, we try a one to one replacement of selector parts and arguments. If this is not the c
 ase try to rewrite the signature as a whole, what unfortunately drops the comments within the signature."
@@ -208,9 +217,9 @@ ase try to rewrite the signature as a whole, what unfortunately drops the commen
 { #category : #accessing }
 RBMethodNode >> children [
 	^ OrderedCollection new
-		addAll: self arguments;
-		addAll: self pragmas;
-		add: self body;
+		addAll: arguments;
+		addAll: pragmas;
+		add: body;
 		yourself
 ]
 
@@ -219,12 +228,12 @@ RBMethodNode >> clearReplacements [
 	replacements := nil
 ]
 
-{ #category : #'accessing compiled method' }
+{ #category : #'accessing - compiled method' }
 RBMethodNode >> compilationContext [
 	^ compilationContext
 ]
 
-{ #category : #'accessing compiled method' }
+{ #category : #'accessing - compiled method' }
 RBMethodNode >> compilationContext: aCompilationContext [
 	compilationContext := aCompilationContext.
 ]
@@ -337,9 +346,20 @@ RBMethodNode >> hasArgumentNamed: aString [
 ]
 
 { #category : #testing }
+RBMethodNode >> hasArguments [
+
+	^ arguments isNotEmpty
+]
+
+{ #category : #testing }
 RBMethodNode >> hasPragmaNamed: aSymbol [	
 	self pragmaNamed: aSymbol ifAbsent: [ ^ false ].
 	^ true
+]
+
+{ #category : #testing }
+RBMethodNode >> hasTemporaries [
+	^ self temporaries isNotEmpty
 ]
 
 { #category : #testing }
@@ -354,6 +374,7 @@ RBMethodNode >> hash [
 
 { #category : #initialization }
 RBMethodNode >> initialize [
+	pragmas := #().
 	replacements := SortedCollection sortBlock: 
 					[:a :b | 
 					a startPosition < b startPosition 
@@ -363,8 +384,8 @@ RBMethodNode >> initialize [
 
 { #category : #testing }
 RBMethodNode >> isFaulty [
-	(self arguments anySatisfy: #isFaulty) ifTrue:[ ^true].
-	(self pragmas anySatisfy: #isFaulty) ifTrue:[ ^true].
+	(self arguments anySatisfy: [:each | each isFaulty]) ifTrue:[ ^true].
+	(self pragmas anySatisfy: [:each | each isFaulty]) ifTrue:[ ^true].
 	^self body isFaulty
 ]
 
@@ -440,30 +461,23 @@ RBMethodNode >> matchPragmas: matchNodes against: pragmaNodes inContext: aDictio
 			matchNode match: pragmaNode inContext: aDictionary ] ]
 ]
 
-{ #category : #'accessing compiled method' }
+{ #category : #'accessing - compiled method' }
 RBMethodNode >> method [
 	"return the method that I have been compiled for"
-	self compilationContext ifNil: [ ^nil ].
-	^self compilationContext getClass >> self selector
+	^self compilationContext ifNotNil: [ :ccntx |
+		 ccntx compiledMethod ifNil: [ccntx getClass >> self selector]]
 ]
 
-{ #category : #'accessing compiled method' }
+{ #category : #'accessing - compiled method' }
 RBMethodNode >> methodClass [
-	^self compilationContext getClass 
+
+	^ self compilationContext ifNotNil: [ :ctxt | ctxt getClass ]
 ]
 
-{ #category : #'accessing compiled method' }
+{ #category : #'accessing - compiled method' }
 RBMethodNode >> methodClass: aClass [	
 	compilationContext ifNil: [compilationContext := aClass compiler compilationContext].
 	self compilationContext class: aClass
-]
-
-{ #category : #accessing }
-RBMethodNode >> methodComments [
-	| methodComments |
-	methodComments := OrderedCollection withAll: self comments.
-	arguments do: [:each | methodComments addAll: each comments].
-	^methodComments asSortedCollection: [:a :b | a start < b start]
 ]
 
 { #category : #accessing }
@@ -473,7 +487,7 @@ RBMethodNode >> methodNode [
 
 { #category : #accessing }
 RBMethodNode >> methodOrBlockNode [
-	"^ self"
+	^ self
 ]
 
 { #category : #accessing }
@@ -485,6 +499,14 @@ RBMethodNode >> newSource [
 { #category : #accessing }
 RBMethodNode >> numArgs [
 	^self selector numArgs
+]
+
+{ #category : #testing }
+RBMethodNode >> offsetIsComment: anOffset [
+	"check is the offset in the source part of a comment"
+
+	^ self allComments
+		anySatisfy: [ :comment | anOffset between: comment start and: comment stop ]
 ]
 
 { #category : #'tree accessing' }
@@ -535,7 +557,7 @@ RBMethodNode >> pragmaNamed: aSymbol ifPresent: presentBlock ifAbsent: absentBlo
 
 { #category : #accessing }
 RBMethodNode >> pragmas [
-	^ pragmas ifNil: [ #() ]
+	^ pragmas
 ]
 
 { #category : #accessing }
@@ -580,7 +602,7 @@ RBMethodNode >> reformatSource [
 { #category : #'adding/removing' }
 RBMethodNode >> removePragma: aPragmaNode [
 
-	pragmas remove: aPragmaNode ifAbsent: [ ]
+	pragmas := pragmas copyWithout: aPragmaNode
 ]
 
 { #category : #'adding/removing' }
@@ -694,7 +716,7 @@ RBMethodNode >> statements: aCollection [
 
 { #category : #accessing }
 RBMethodNode >> stop [
-	^ self newSource size
+	^(self sourceCode ifNotNil: [:src | src] ifNil: [ self formattedCode ]) size
 ]
 
 { #category : #accessing }

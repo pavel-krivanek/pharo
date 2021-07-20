@@ -22,7 +22,12 @@ Class {
 	#category : #'Glamour-FastTable-Model'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
+GLMFastTableDataSource class >> isDeprecated [
+	^ true
+]
+
+{ #category : #private }
 GLMFastTableDataSource >> dataFromPresentationItem: anItem [
 	^ anItem
 ]

@@ -34,7 +34,7 @@ RBReplacePreview class >> change: anObject [
 RBReplacePreview class >> defaultSpec [
 	<spec: #default>
 	
-	^ SpBoxLayout newVertical 
+	^ SpBoxLayout newTopToBottom 
 				add: #diffPresenter;
 				yourself 
 ]
@@ -50,7 +50,9 @@ RBReplacePreview >> accept: presenter [
 	self okToChange
 		ifFalse: [ ^ self ].
 	[ change do: 
-		[ :aChange | RBRefactoryChangeManager instance performChange: aChange ] 
+		[ :aChange | RBRefactoryChangeManager instance 
+			performChange: aChange;
+			addUndoPointer: (RBRefactoryChangeManager nextCounter) ] 
 	] asJob
 		title: 'Refactoring';
 		run.

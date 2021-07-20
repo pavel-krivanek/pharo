@@ -15,7 +15,6 @@ CoGlobalSorterResultSetBuilder >> parseNode [
 
 	| aNewNode |
 	aNewNode := super parseNode.
-	aNewNode methodNode doSemanticAnalysis.
 	TypingVisitor new visitNode: aNewNode methodNode.
 	^ aNewNode
 ]
@@ -44,5 +43,4 @@ CoGlobalSorterResultSetBuilder >> visitNode: aNode [
 	^ self
 		configureFetcher: fetcher
 		forNode: aNode
-		narrowingWith: (aNode completionToken: completionContext position)
 ]

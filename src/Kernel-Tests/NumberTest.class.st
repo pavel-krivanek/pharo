@@ -7,7 +7,13 @@ Class {
 	#category : #'Kernel-Tests-Numbers'
 }
 
-{ #category : #test }
+{ #category : #coverage }
+NumberTest >> classToBeTested [
+	
+	^ Number
+]
+
+{ #category : #tests }
 NumberTest >> testAsInteger [
 	"ensure we keep using truncated in asInteger"
 	self assert: 0.5 asInteger equals: 0.
@@ -166,7 +172,7 @@ NumberTest >> testReciprocal [
 	self should: [ 0 reciprocal ] raise: ZeroDivide
 ]
 
-{ #category : #test }
+{ #category : #tests }
 NumberTest >> testRounded [
 
 	self assert: 0 rounded equals: 0.

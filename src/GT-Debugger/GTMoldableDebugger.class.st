@@ -20,13 +20,6 @@ Class {
 	#category : #'GT-Debugger-UI'
 }
 
-{ #category : #testing }
-GTMoldableDebugger class >> availableAutomatically [
-	"Should this debugger be taken into account when looking for a debugger to handle an exception."
-	
-	^ false
-]
-
 { #category : #'instance creation' }
 GTMoldableDebugger class >> debugSession: aSession [
 
@@ -62,17 +55,6 @@ GTMoldableDebugger class >> enableStackColoring: aBoolean [
 	EnableStackColoring := aBoolean.
 ]
 
-{ #category : #testing }
-GTMoldableDebugger class >> handlesContext: aContext [
-	self subclassResponsibility 
-]
-
-{ #category : #accessing }
-GTMoldableDebugger class >> helpClass [
-
-	self subclassResponsibility
-]
-
 { #category : #'instance creation api' }
 GTMoldableDebugger class >> on: aDebugSession [
 
@@ -88,21 +70,14 @@ GTMoldableDebugger class >> openOn: aDebugSession withFullView: aBool [
 
 { #category : #'opening api' }
 GTMoldableDebugger class >> openOn: aDebugSession withFullView: aBool andNotification: aString [
-	
+
 	| debugger |
-	debugger := (Smalltalk tools 
-		debuggerDispatcherFor: aDebugSession interruptedContext
-		matching: [:aDebugger | aDebugger availableAutomatically ]) 
-			ifNil: [ 
-				"Use the current debugger"
-				self on: aDebugSession ]
-			ifNotNil: [ :aDebugger | 
-				"Use a custom extension"
-				aDebugger on: (aDebugger spanNewSessionFrom: aDebugSession) ].
-	
-	aBool | aString isNil "In case the string is nil it means we should show the full debugger and not a notification"
+	debugger := self on: aDebugSession.
+
+	"In case the string is nil it means we should show the full debugger and not a notification"
+	aBool | aString isNil
 		ifTrue: [ debugger openWithFullView ]
-		ifFalse: [ debugger openWithNotification: aString]
+		ifFalse: [ debugger openWithNotification: aString ]
 ]
 
 { #category : #'window color api' }
@@ -201,12 +176,12 @@ GTMoldableDebugger >> compose [
 	self registerActions
 ]
 
-{ #category : #'accessing context' }
+{ #category : #'accessing - context' }
 GTMoldableDebugger >> contextToSelectFrom: aSession [
 	^ aSession interruptedContext
 ]
 
-{ #category : #'accessing context' }
+{ #category : #'accessing - context' }
 GTMoldableDebugger >> currentContext [
 
 	^self selectedContext 
@@ -275,7 +250,7 @@ GTMoldableDebugger >> installDebuggingActionsFor: aPresentation [
 	self subclassResponsibility
 ]
 
-{ #category : #'accessing context' }
+{ #category : #'accessing - context' }
 GTMoldableDebugger >> interruptedContext [
 
 	^ self session interruptedContext
@@ -343,7 +318,7 @@ GTMoldableDebugger >> removeSessionSilently [
 	(self browser pane port: #entity) silentValue: nil
 ]
 
-{ #category : #'accessing context' }
+{ #category : #'accessing - context' }
 GTMoldableDebugger >> selectedContext [
 	self subclassResponsibility 
 ]

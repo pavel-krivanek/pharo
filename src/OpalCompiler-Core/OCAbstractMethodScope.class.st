@@ -5,25 +5,19 @@ Class {
 	#name : #OCAbstractMethodScope,
 	#superclass : #OCAbstractScope,
 	#instVars : [
-		'thisContextVar',
 		'tempVars',
 		'copiedVars',
 		'tempVector',
 		'id',
-		'tempVectorVar'
+		'tempVectorVar',
+		'node'
 	],
 	#category : #'OpalCompiler-Core-Semantics'
 }
 
 { #category : #'temp vars - copying' }
 OCAbstractMethodScope >> addCopyingTemp: aTempVar [
-	^copiedVars at: aTempVar name put: (OCCopyingTempVariable new
-			originalVar: aTempVar originalVar;
-			name: aTempVar name;
-			escaping: aTempVar escaping;
-			usage: aTempVar usage;
-			scope: self;
-			yourself)
+	^copiedVars at: aTempVar name put: (aTempVar createCopiedVariableFor: self)
 ]
 
 { #category : #'temp vars - copying' }
@@ -36,18 +30,11 @@ OCAbstractMethodScope >> addCopyingTempToAllScopesUpToDefTemp: aVar [
 ]
 
 { #category : #'temp vars' }
-OCAbstractMethodScope >> addTemp: name [
-	^self addTemp: OCTempVariable new withName: name
-]
-
-{ #category : #'temp vars' }
-OCAbstractMethodScope >> addTemp: aTempVariable withName: aString [
+OCAbstractMethodScope >> addTemp: aTempVar [	
+	aTempVar scope: self.
 	^ tempVars
-		at: aString
-		put: (aTempVariable
-				name: aString;
-				scope: self;
-				yourself)
+		at: aTempVar name
+		put: aTempVar
 ]
 
 { #category : #'temp vars - vector' }
@@ -91,13 +78,20 @@ OCAbstractMethodScope >> copiedVars [
 	^ copiedVars
 ]
 
+{ #category : #'temp vars - copying' }
+OCAbstractMethodScope >> copyEscapingReads [
+
+	self tempVars values 
+		select: [ :each | each isEscapingRead ]
+		thenDo: [ :each | self addCopyingTemp: each ]
+]
+
 { #category : #lookup }
 OCAbstractMethodScope >> hasBindingThatBeginsWith: aString [
 	"check weather there are any temporaries defined that start with aString"
 	(copiedVars hasBindingThatBeginsWith: aString) ifTrue: [ ^true ].
 	(tempVector hasBindingThatBeginsWith: aString) ifTrue: [ ^true ].
 	(tempVars hasBindingThatBeginsWith: aString) ifTrue: [ ^true ].
-	(thisContextVar name  beginsWith: aString) ifTrue: [ ^true ].
 	
 	^ self outerScope hasBindingThatBeginsWith: aString
 ]
@@ -116,11 +110,9 @@ OCAbstractMethodScope >> id: int [
 OCAbstractMethodScope >> initialize [
 
 	tempVars :=  OrderedDictionary new.
-	tempVector  := Dictionary new.
-	copiedVars := Dictionary new.
-	id := 0.
-	
-	thisContextVar := ThisContextVariable instance
+	tempVector  := OrderedDictionary new.
+	copiedVars := OrderedDictionary new.
+	id := 0
 ]
 
 { #category : #'temp vars' }
@@ -150,29 +142,28 @@ OCAbstractMethodScope >> lookupDefiningContextForVariable: var startingFrom: aCo
 ]
 
 { #category : #lookup }
-OCAbstractMethodScope >> lookupVar: name [
+OCAbstractMethodScope >> lookupVar: name declare: aBoolean [
 
 	copiedVars at: name ifPresent: [:v | ^ v].
 	tempVector at: name ifPresent: [:v | ^ v].
 	tempVars at: name ifPresent: [:v | ^ v].
-	name = thisContextVar name ifTrue: [^ thisContextVar].
 	name = self tempVectorName ifTrue: [ ^ self tempVectorVar ].
-	^self outerScope lookupVar: name
+	^self outerScope lookupVar: name declare: aBoolean
 	
-]
-
-{ #category : #lookup }
-OCAbstractMethodScope >> lookupVarForDeclaration: name [
-	"This is a version of #lookupVar: that skips the OCRequestorScope"
-	tempVars at: name ifPresent: [:v | ^ v].
-	name = thisContextVar name ifTrue: [^ thisContextVar].
-	^self outerScope lookupVarForDeclaration: name
 ]
 
 { #category : #scope }
 OCAbstractMethodScope >> methodScope [
 
 	^ self outerScope methodScope
+]
+
+{ #category : #'temp vars - vector' }
+OCAbstractMethodScope >> moveEscapingWritesToTempVector [
+
+	self tempVars values
+		select: [ :each | each isEscapingWrite ]
+		thenDo: [ :each | self moveToVectorTemp: each ]
 ]
 
 { #category : #'temp vars - vector' }
@@ -198,6 +189,16 @@ OCAbstractMethodScope >> newOptimizedBlockScope: int [
 { #category : #lookup }
 OCAbstractMethodScope >> nextOuterScopeContextOf: aContext [
 	^aContext
+]
+
+{ #category : #accessing }
+OCAbstractMethodScope >> node [
+	^node
+]
+
+{ #category : #accessing }
+OCAbstractMethodScope >> node: aNode [
+	node := aNode
 ]
 
 { #category : #scope }
@@ -227,6 +228,12 @@ OCAbstractMethodScope >> removeTemp: tempVar [
 	tempVars removeKey: tempVar name
 ]
 
+{ #category : #printing }
+OCAbstractMethodScope >> scopeLevel [
+	"For debugging we print a counter for all Method and Block scopes"
+	^ outerScope scopeLevel + 1
+]
+
 { #category : #'temp vars - copying' }
 OCAbstractMethodScope >> setCopyingTempToAllScopesUpToDefTemp: aVar to: aValue from: aContext [
 	"we need to update all the copies if we change the value of a copied temp"
@@ -249,7 +256,7 @@ OCAbstractMethodScope >> tempVarNames [
 { #category : #'temp vars' }
 OCAbstractMethodScope >> tempVarNamesWithoutArguments [
 
-	^ tempVars values reject: [ :each | each isArg ] thenCollect: [ :each | each name ]
+	^ tempVars values reject: [ :each | each isArgumentVariable ] thenCollect: [ :each | each name ]
 ]
 
 { #category : #'temp vars' }
@@ -272,7 +279,7 @@ OCAbstractMethodScope >> tempVectorName [
 
 { #category : #'temp vars - vector' }
 OCAbstractMethodScope >> tempVectorVar [
-	^ tempVectorVar ifNil: [ tempVectorVar := OCTempVariable new
+	^ tempVectorVar ifNil: [ tempVectorVar := TemporaryVariable new
 			name: self tempVectorName;
 			scope: self;
 			yourself]

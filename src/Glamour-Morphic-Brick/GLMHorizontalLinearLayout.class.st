@@ -13,6 +13,11 @@ GLMHorizontalLinearLayout class >> cleanUp [
 	self reset
 ]
 
+{ #category : #testing }
+GLMHorizontalLinearLayout class >> isDeprecated [
+	^ true
+]
+
 { #category : #initialization }
 GLMHorizontalLinearLayout class >> reset [
 	"
@@ -79,7 +84,7 @@ GLMHorizontalLinearLayout >> layout: aBrick in: newBounds [
 { #category : #width }
 GLMHorizontalLinearLayout >> widthChildrenDependency: aBrick [
 	"returns the width of aBrick when it depends on children"
-	^ aBrick paddingLeft + aBrick paddingRight + ((self nonFloatSubbricks: aBrick) detectSum: [ :each | each outerBounds width ])
+	^ aBrick paddingLeft + aBrick paddingRight + ((self nonFloatSubbricks: aBrick) sum: [ :each | each outerBounds width ])
 ]
 
 { #category : #width }

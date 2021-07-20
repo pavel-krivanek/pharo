@@ -1050,11 +1050,10 @@ String >> deepCopy [
 	^self shallowCopy
 ]
 
-{ #category : #displaying }
+{ #category : #printing }
 String >> displayStringOn: aStream [
-	
+	"Make sure that this is not printOn: because we do not want to have multiple quotes."
 	aStream nextPutAll: self
-	
 ]
 
 { #category : #printing }
@@ -1388,7 +1387,7 @@ String >> findString: key startingAt: start caseSensitive: caseSensitive [
 						matchTable: CaseInsensitiveOrder]]
 ]
 
-{ #category : #'system primitives' }
+{ #category : #comparing }
 String >> findSubstring: key in: body startingAt: start matchTable: matchTable [
 	"Answer the index in the string body at which the substring key first occurs, at or beyond start.  The match is determined using matchTable, which can be used to effect, eg, case-insensitive matches.  If no match is found, zero will be returned."
 	| index c1 c2 |
@@ -1563,6 +1562,11 @@ String >> findWordStart: key startingAt: start [
 	ind = 1 ifTrue: [^ 1].	"First char is the start of a word"
 	(self at: ind-1) isSeparator] whileFalse: [ind := ind + 1].
 	^ ind	"is a word start"
+]
+
+{ #category : #enumerating }
+String >> flattenOn: aStream [
+		aStream nextPut: self
 ]
 
 { #category : #formatting }
@@ -1933,18 +1937,6 @@ String >> lastSpacePosition [
 ]
 
 { #category : #accessing }
-String >> leadingCharRunLengthAt: index [
-
-	| leadingChar |
-	leadingChar := (self at: index) leadingChar.
-	index to: self size do: [:i |
-		(self at: i) leadingChar ~= leadingChar ifTrue: [^ i - index].
-	].
-	^ self size - index + 1.
-
-]
-
-{ #category : #accessing }
 String >> lineCorrespondingToIndex: anIndex [
 	"Answer a string containing the line at the given character position."
 
@@ -2058,7 +2050,7 @@ String >> match: text [
 	"('foo*baz' match: 'foo23bazo') >>> false"
 	"('foo' match: 'Foo') >>> true"
 	"('foo*baz*zort' match: 'foobazort') >>> false"
-	"('foo*baz*zort' match: 'foobazzort') >>> false"
+	"('foo*baz*zort' match: 'foobazzort') >>> true"
 	"('*foo#zort' match: 'afoo3zortthenfoo3zort') >>> true"
 	"('*foo*zort' match: 'afoodezortorfoo3zort') >>> true"
 
@@ -2167,18 +2159,14 @@ String >> putOn: aStream [
 
 { #category : #converting }
 String >> repeat: aNumber [
+	"Returns a new string concatenated by itself repeated n times"
+	"('abc' repeat: 3) >>> 'abcabcabc'"
 
-	"returns a new string concatenated by itself repeated n times
-		'abc' repeat: 3. 'abcabcabc'
-	"
-
-	aNumber < 0 ifTrue: [ self error: 'aNumber cannot be negative' ].
-	
+	aNumber < 0 ifTrue: [ self error: 'aNumber cannot be negative' ].	
 	^ self species 
 		new: self size * aNumber 
 		streamContents: [ :stringStream |
-			1 to: aNumber do: [ :idx | stringStream nextPutAll: self ].
-		]
+			1 to: aNumber do: [ :idx | stringStream nextPutAll: self ] ]
 ]
 
 { #category : #private }
@@ -2566,6 +2554,23 @@ String >> uncapitalized [
 ]
 
 { #category : #converting }
+String >> unescapeCharacter: aCharacter [
+	"Unescape an escaped string. Assume the string has all occurrences of aCharacter are escaped. That is, they are in pairs.
+	This method returns a copy of the string replacing all pairs of aCharacter by a single appearance of it."
+	
+	"('''''' unescapeCharacter: $') >>> ''''"
+	"('''' unescapeCharacter: $') >>> ''"
+	
+	| result stream |
+	result := WriteStream with: ''.
+	stream := ReadStream on: self.
+	[ stream atEnd ] whileFalse: 
+			[ result nextPutAll: (stream upTo: aCharacter).
+			  stream peek ifNotNil: [result nextPut: stream next]].
+	^result contents
+]
+
+{ #category : #converting }
 String >> withBlanksCondensed [
 	"Return a copy of the receiver with leading/trailing blanks (separators) removed
 	 and consecutive white spaces (separators) condensed to the first one."
@@ -2687,13 +2692,6 @@ String >> withSeparatorsCompacted [
                         ifFalse: [ stream nextPut: eachChar ] ] ] ]
 ]
 
-{ #category : #formatting }
-String >> withSqueakLineEndings [
-	"Answer a new instance where all occurrences of CRLF and LF are substituted with CR."
-	
-	^ self withInternalLineEndings
-]
-
 { #category : #'platform conventions' }
 String >> withUnixLineEndings [
 	"Answer a new instance where all occurrences of CRLF and LF are substituted with LF."
@@ -2783,33 +2781,4 @@ String >> wordBefore: anIndex [
 				copyFrom: sep + 1
 				to: anIndex ]
 		ifFalse: [ String new ]
-]
-
-{ #category : #encoding }
-String >> writeLeadingCharRunsOn: stream [
-
-	| runLength runValues runStart leadingChar |
-	self isEmpty ifTrue: [^ self].
-
-	runLength := OrderedCollection new.
-	runValues := OrderedCollection new.
-	runStart := 1.
-	leadingChar := (self at: runStart) leadingChar.
-	2 to: self size do: [:index |
-		(self at: index) leadingChar = leadingChar ifFalse: [
-			runValues add: leadingChar.
-			runLength add: (index - runStart).
-			leadingChar := (self at: index) leadingChar.
-			runStart := index.
-		].
-	].
-	runValues add: (self last) leadingChar.
-	runLength add: self size + 1 -  runStart.
-
-	stream nextPut: $(.
-	runLength do: [:rr | rr printOn: stream. stream space].
-	stream skip: -1; nextPut: $).
-	runValues do: [:vv | vv printOn: stream. stream nextPut: $,].
-	stream skip: -1
-
 ]

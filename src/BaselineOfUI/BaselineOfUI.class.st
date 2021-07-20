@@ -34,27 +34,24 @@ BaselineOfUI >> baseline: spec [
        
 	spec for: #common do: [
 		spec postLoadDoIt: #'postload:package:'.
+		
+		"Loading the debugger model and infrastructure before the UI"		
+		spec package: 'Debugger-Model'.
+		spec package: 'Debugger-Oups'.
 
 		"Load morphic before Spec"
 		spec baseline: 'Morphic' with: [ spec repository: repository ].
-		spec baseline: 'ParametrizedTests' with: [ spec repository: repository ].
-		spec baseline: 'Spec2' with: [ 
-			spec 
-				repository: repository;
-				loads: #('Base') ].
+		spec baseline: 'Commander2' with: [ spec repository: repository ].
+		"old spec, to be removed"
 		spec baseline: 'Spec' with: [ spec repository: repository ].
+		"new spec (base), using external configuration"
+		self specBase: spec.		
 		
 		spec baseline: 'DrTests' with: [ spec repository: repository ].
 
-		spec package: 'StartupPreferences'.
-	
+		spec package: 'StartupPreferences'.		
+		
 		spec package: 'Debugger-Actions'.
-		spec package: 'Debugger-Filters'.
-		spec package: 'Debugger-Model'.
-		spec package: 'Debugging-Settings'.
-
-		spec baseline: 'Fuel' with: [
-			spec repository: repository; loads: 'Tools' ].
 
 		spec package: 'Fonts-Chooser'.
 
@@ -70,7 +67,7 @@ BaselineOfUI >> baseline: spec [
 
 		spec package: 'HelpSystem-Core'.
 
-		spec package: 'Spec2-Inspector'.
+		spec package: 'EyeInspector'.
 	].
 ]
 
@@ -89,4 +86,14 @@ BaselineOfUI >> postload: loader package: packageSpec [
 	PharoCommonTools initialize.
 
 	Initialized := true
+]
+
+{ #category : #baseline }
+BaselineOfUI >> specBase: spec [
+	
+	spec baseline: 'SpecBase' with: [
+		spec 
+			repository: (self class environment at: #BaselineOfPharo) specRepository;
+			className: 'BaselineOfSpec2';
+			loads: #('Base' 'Tests') ]
 ]

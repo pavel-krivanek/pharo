@@ -8,6 +8,11 @@ Class {
 	#category : #'Glamour-Morphic-Widgets'
 }
 
+{ #category : #testing }
+GLMTreeMorphNodeModel class >> isDeprecated [
+	^ true
+]
+
 { #category : #comparing }
 GLMTreeMorphNodeModel >> = anObject [
 	"This is needed to handle the update of the whole list while still preserving the selection"
@@ -177,7 +182,7 @@ GLMTreeMorphNodeModel >> pathIn: aCollection [
 { #category : #printing }
 GLMTreeMorphNodeModel >> printOn: aStream [
 	aStream nextPutAll: 'a NodeModel with '.
-	aStream nextPutAll: self item printString.
+	aStream print: self item .
 ]
 
 { #category : #actions }

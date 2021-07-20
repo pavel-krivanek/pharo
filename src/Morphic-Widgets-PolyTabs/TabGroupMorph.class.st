@@ -12,7 +12,7 @@ Class {
 	#category : #'Morphic-Widgets-PolyTabs'
 }
 
-{ #category : #example }
+{ #category : #examples }
 TabGroupMorph class >> example [
 	| builder window page1 page2 label1 label2 tabs content okButton cancelButton |
 	builder := self theme builder.
@@ -332,12 +332,15 @@ TabGroupMorph >> tabSelectorMorph: anObject [
 ]
 
 { #category : #updating }
-TabGroupMorph >> update: aSymbol [
+TabGroupMorph >> update: aSymbol with: anObject [
 	"Handle tab changes."
 
-	super update: aSymbol.
-	aSymbol == #selectedIndex
-		ifTrue: [self updatePageIndex: self selectedPageIndex]
+	super update: aSymbol with: anObject.
+	aSymbol == #selectedIndex ifTrue: [
+			anObject > 0 & (anObject <= self pages size) 
+				ifTrue: [ "the old selected page is available"					
+					self updatePageIndex: self selectedPageIndex oldIndex: anObject]
+				ifFalse: [ self updatePageIndex: self selectedPageIndex ]]
 ]
 
 { #category : #page }
@@ -348,4 +351,9 @@ TabGroupMorph >> updatePageIndex: index [
 	index > 0 ifTrue: [self contentMorph addMorph: (self pages at: index)].
 	self pageMorph ifNotNil: [:pm | pm layoutChanged].
 	self adoptPaneColor: self paneColor
+]
+
+{ #category : #page }
+TabGroupMorph >> updatePageIndex: index oldIndex: oldSelectedIndex [ 
+	self updatePageIndex: index
 ]

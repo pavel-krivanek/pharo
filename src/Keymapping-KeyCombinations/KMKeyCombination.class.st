@@ -27,7 +27,7 @@ KMKeyCombination class >> fromKeyboardEvent: evt [
 	shift := evt shiftPressed.
 	alt := evt altKeyPressed.
 	(shift | command | control | alt)
-		ifFalse: [^ KMSingleKeyCombination from: evt modifiedCharacter ].
+		ifFalse: [^ evt key asKeyCombination ].
 	modifier := KMNoShortcut new.
 	control
 		ifTrue: [ modifier := modifier + KMModifier ctrl ].
@@ -37,7 +37,13 @@ KMKeyCombination class >> fromKeyboardEvent: evt [
 		ifTrue: [ modifier := modifier + KMModifier shift ].
 	alt
 		ifTrue: [ modifier := modifier + KMModifier alt ].
-	^ modifier + evt modifiedCharacter
+	^ modifier + evt key asKeyCombination
+]
+
+{ #category : #testing }
+KMKeyCombination class >> isAbstract [ 
+
+	^ self == KMKeyCombination
 ]
 
 { #category : #combining }
@@ -48,6 +54,12 @@ KMKeyCombination >> , aShortcut [
 { #category : #comparing }
 KMKeyCombination >> = aShortcut [
 	^ aShortcut isKindOf: self species
+]
+
+{ #category : #printing }
+KMKeyCombination >> acceptVisitor: aKMShortcutPrinter [ 
+
+	^ aKMShortcutPrinter visitSingleShortcut: self
 ]
 
 { #category : #converting }
@@ -82,7 +94,9 @@ KMKeyCombination >> mac [
 
 { #category : #matching }
 KMKeyCombination >> matches: anEventBuffer [
-	^ self matchesCompletely: anEventBuffer first
+
+	^ anEventBuffer size = 1 and:
+		[self matchesCompletely: anEventBuffer first]
 ]
 
 { #category : #matching }
@@ -112,13 +126,13 @@ KMKeyCombination >> platform [
 	^#all
 ]
 
-{ #category : #'accessing platform' }
+{ #category : #'accessing - platform' }
 KMKeyCombination >> platformCharacter [
 
 	^ ''
 ]
 
-{ #category : #'accessing platform' }
+{ #category : #'accessing - platform' }
 KMKeyCombination >> platformModifier [
 
 	^ nil
@@ -128,7 +142,7 @@ KMKeyCombination >> platformModifier [
 KMKeyCombination >> prettyPrintOn: aStream [
 
 	aStream << self shortcut modifier symbol.
-	self shortcut character printOn: aStream
+	self shortcut character name printOn: aStream
 ]
 
 { #category : #printing }

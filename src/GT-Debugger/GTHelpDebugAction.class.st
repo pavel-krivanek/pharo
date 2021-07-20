@@ -14,6 +14,11 @@ GTHelpDebugAction class >> gtDebuggingAction [
 	"<gtDebuggingAction>"
 ]
 
+{ #category : #testing }
+GTHelpDebugAction class >> isDeprecated [
+	^ true
+]
+
 { #category : #accessing }
 GTHelpDebugAction >> defaultIcon [
 
@@ -35,10 +40,7 @@ GTHelpDebugAction >> defaultOrder [
 { #category : #actions }
 GTHelpDebugAction >> executeAction [
 
-	HelpBrowser open selectTopicSatisfying: [:each | 
-		each owner notNil and:  [
-			(each owner key = self debugger class helpClass key) and: [
-				each title = 'Overview' ] ] ]
+	self inform: 'no help available. Old GT gets removed'
 ]
 
 { #category : #accessing }

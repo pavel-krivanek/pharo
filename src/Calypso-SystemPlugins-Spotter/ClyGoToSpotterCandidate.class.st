@@ -50,6 +50,12 @@ ClyGoToSpotterCandidate >> activate [
 	actionBlock value
 ]
 
+{ #category : #evaluating }
+ClyGoToSpotterCandidate >> doEvaluate [
+
+	self activate
+]
+
 { #category : #accessing }
 ClyGoToSpotterCandidate >> icon [
 	^ icon
@@ -61,6 +67,18 @@ ClyGoToSpotterCandidate >> icon: anObject [
 ]
 
 { #category : #accessing }
+ClyGoToSpotterCandidate >> label [
+
+	^ self name
+]
+
+{ #category : #spotter }
+ClyGoToSpotterCandidate >> matchesText: aString [ 
+
+	^ self name = aString
+]
+
+{ #category : #accessing }
 ClyGoToSpotterCandidate >> name [
 	^ name
 ]
@@ -68,6 +86,12 @@ ClyGoToSpotterCandidate >> name [
 { #category : #accessing }
 ClyGoToSpotterCandidate >> name: anObject [
 	name := anObject
+]
+
+{ #category : #accessing }
+ClyGoToSpotterCandidate >> spotterPreview [
+
+	^ nil
 ]
 
 { #category : #spotter }

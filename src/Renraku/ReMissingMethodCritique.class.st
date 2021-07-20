@@ -12,7 +12,7 @@ Class {
 	#category : #'Renraku-Critiques'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 ReMissingMethodCritique class >> for: anEntity by: aRule class: aClass selector: aSymbol [
 
 	^ self basicNew 
@@ -38,8 +38,8 @@ ReMissingMethodCritique >> beSubclassResponsibility [
 ReMissingMethodCritique >> change [
 	"an 'add method' change that create the missing method"
 	
-	^ RBAddMethodChange 
-		compile: (self methodHeader), String cr, String tab, source
+	^ (RBRefactoryChangeFactory instance) 
+		addMethodSource: (self methodHeader), String cr, String tab, source
 		in: class
 ]
 

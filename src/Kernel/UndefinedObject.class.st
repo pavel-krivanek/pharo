@@ -89,26 +89,31 @@ UndefinedObject >> deepCopy [
 
 { #category : #'reflective operations' }
 UndefinedObject >> doesNotUnderstand: aMessage [
-	<debuggerCompleteToSender>
-	"Handle the fact that there was an attempt to send the given message to an Undeclared variable (nil), hence the receiver does not understand this message (typically #new)."
-	"Testing: (3 activeProcess)"
 
+	"Handle the fact that there was an attempt to send the given message to an Undeclared variable (nil), hence the receiver does not understand this message (typically #new)."
+
+	"Testing: (nil activeProcess)"
+
+	<debuggerCompleteToSender>
 	| exception resumeValue node |
-	
-	(node := self findUndeclaredVariableIn: thisContext sender sourceNodeExecuted) ifNil: [ 
-		 ^super doesNotUnderstand: aMessage ].
-				
+	[ 
+	node := self findUndeclaredVariableIn:
+		        thisContext outerContext sender sourceNodeExecuted ] onErrorDo: [ :ex | 
+				"This is ugly, but we have a dependency with Opal compiler and 
+				it should be extracted. If there is a failure during the bootstrap, this
+				dependency produces an infinite loop"
+		 ].
+	node ifNil: [ ^ super doesNotUnderstand: aMessage ].
+
 	(exception := VariableNotDeclared new)
-			message: aMessage;
-			variableNode: node;
-			receiver: self.
-			
+		message: aMessage;
+		variableNode: node;
+		receiver: self.
+
 	resumeValue := exception signal.
 	^ exception reachedDefaultHandler
-			ifTrue: [ aMessage sentTo: self ]
-			ifFalse: [ resumeValue ] .
-			
-	
+		  ifTrue: [ aMessage sentTo: self ]
+		  ifFalse: [ resumeValue ]
 ]
 
 { #category : #'class hierarchy' }
@@ -123,10 +128,7 @@ UndefinedObject >> findUndeclaredVariableIn: ast [
 	"Walk the ast of the current statment and find the undeclared variable node, or nil (if none).
 	Assumes there is only one such variable in an executing statement"
 	
-	ast nodesDo: [:node |
-		(node isVariable and: [ node isUndeclared]) ifTrue: [ ^node ]].
-
-	^nil
+	^ast variableNodes detect: [:node | node isUndeclaredVariable] ifNone: [ nil ]
 ]
 
 { #category : #testing }
@@ -145,13 +147,14 @@ UndefinedObject >> handleSignal: exception [
 { #category : #testing }
 UndefinedObject >> ifNil: aBlock [
 	"A convenient test, in conjunction with Object ifNil:"
-
+	"Might be compiled inline for speed, see RBMessageNode>>#isInlineIfNil"
 	^ aBlock value
 ]
 
 { #category : #testing }
 UndefinedObject >> ifNil: nilBlock ifNotNil: ifNotNilBlock [
-	"If the receiver is not nil, pass it as argument to the ifNotNilBlock block. else execute the nilBlock block "
+	"If the receiver is not nil, pass it as argument to the ifNotNilBlock block. else execute the nilBlock block"
+	"Might be compiled inline for speed, see RBMessageNode>>#isInlineIfNil"
 
 	"(nil ifNil: [42] ifNotNil: [:o | o +3 ] ) >>> 42"
 	"(3  ifNil: [42] ifNotNil: [:o | o +3 ]) >>> 6"
@@ -162,6 +165,7 @@ UndefinedObject >> ifNil: nilBlock ifNotNil: ifNotNilBlock [
 { #category : #testing }
 UndefinedObject >> ifNotNil: aBlock [
 	"If the receiver is not nil, pass it as argument to the block."
+	"Might be compiled inline for speed, see RBMessageNode>>#isInlineIfNil"
 
 	"(2 ifNotNil: [ :o | o + 3]) >>> 5"
 	"(nil ifNotNil: [:o | o +3 ]) >>> nil"
@@ -171,7 +175,8 @@ UndefinedObject >> ifNotNil: aBlock [
 
 { #category : #testing }
 UndefinedObject >> ifNotNil: ifNotNilBlock ifNil: nilBlock [ 
-	"If the receiver is not nil, pass it as argument to the ifNotNilBlock block. else execute the nilBlock block "
+	"If the receiver is not nil, pass it as argument to the ifNotNilBlock block. else execute the nilBlock block"
+	"Might be compiled inline for speed, see RBMessageNode>>#isInlineIfNil"
 
 	"(nil ifNotNil: [:o | o +3 ] ifNil: [42]) >>> 42"
 	"(3 ifNotNil: [:o | o +3 ] ifNil: [42]) >>> 6"

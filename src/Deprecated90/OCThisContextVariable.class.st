@@ -7,12 +7,6 @@ Class {
 	#category : #'Deprecated90-OpalCompiler-Core'
 }
 
-{ #category : #accessing }
-OCThisContextVariable class >> semanticNodeClass [
-
-	^RBThisContextNode 
-]
-
 { #category : #emitting }
 OCThisContextVariable >> emitValue: methodBuilder [
 
@@ -24,11 +18,6 @@ OCThisContextVariable >> initialize [
 	super initialize.
 	
 	name := 'thisContext'
-]
-
-{ #category : #testing }
-OCThisContextVariable >> isThisContext [
-	^true
 ]
 
 { #category : #debugging }

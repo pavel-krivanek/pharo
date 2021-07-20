@@ -20,12 +20,6 @@ OCSlotVariable class >> isDeprecated [
 	^true
 ]
 
-{ #category : #accessing }
-OCSlotVariable class >> semanticNodeClass [
-
-	^RBInstanceVariableNode
-]
-
 { #category : #emitting }
 OCSlotVariable >> emitStore: methodBuilder [
 
@@ -38,9 +32,13 @@ OCSlotVariable >> emitValue: methodBuilder [
 	slot emitValue: methodBuilder
 ]
 
-{ #category : #testing }
+{ #category : #generated }
 OCSlotVariable >> isInstance [
-	^ true
+
+	self
+		deprecated: 'Use #isInstanceVariable instead'
+		transformWith: '`@rec isInstance' -> '`@rec isInstanceVariable'.
+	^ self isInstanceVariable
 ]
 
 { #category : #accessing }

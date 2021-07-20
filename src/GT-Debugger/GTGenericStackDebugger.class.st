@@ -5,11 +5,12 @@ I am a browser that provides Smalltalk debugging functionality.
 Class {
 	#name : #GTGenericStackDebugger,
 	#superclass : #GTMoldableDebugger,
+	#traits : 'TDebugger',
+	#classTraits : 'TDebugger classTrait',
 	#instVars : [
 		'cache'
 	],
 	#classVars : [
-		'ErrorRecursion',
 		'FilterCommonMessageSends',
 		'LogDebuggerStackToFile',
 		'LogFileName'
@@ -23,6 +24,19 @@ GTGenericStackDebugger class >> closeAllDebuggers [
 
 	(SystemWindow allSubInstances select: [ :w | w model isKindOf: GTGenericStackDebugger ]) do: [ :w | w delete ].
 	GTSpecPreDebugPresenter allInstances do: #close
+]
+
+{ #category : #'instance creation' }
+GTGenericStackDebugger class >> debugSession: aDebugSession [
+	| debugger |
+   debugger := self on: (self spanNewSessionFrom: aDebugSession).
+   debugger openWithFullView
+]
+
+{ #category : #accessing }
+GTGenericStackDebugger class >> defaultDebuggerRank [
+
+	^ 3
 ]
 
 { #category : #'settings api' }
@@ -86,18 +100,6 @@ GTGenericStackDebugger class >> filterNilSelectors: aBoolean [
 	self flag: 'just for backward compatibility'
 ]
 
-{ #category : #testing }
-GTGenericStackDebugger class >> handlesContext: aContext [
-
-	^ true
-]
-
-{ #category : #accessing }
-GTGenericStackDebugger class >> helpClass [
-
-	^ GTDebuggerHelp
-]
-
 { #category : #'settings api' }
 GTGenericStackDebugger class >> logDebuggerStackToFile [
 	^ LogDebuggerStackToFile ifNil: [LogDebuggerStackToFile := true]
@@ -118,36 +120,10 @@ GTGenericStackDebugger class >> logFileName: newName [
 	LogFileName := newName
 ]
 
-{ #category : #'tools registry' }
-GTGenericStackDebugger class >> register [
-
-	self registerToolsOn: Smalltalk tools.
-	self registerExtraToolsOn: Smalltalk tools.
-
-]
-
-{ #category : #'tools registry' }
-GTGenericStackDebugger class >> registerExtraToolsOn: registry [
-	"This adds self in the list of tools that appears in the small debugger"
-	registry registerDebugger: self withRank: 3.
-]
-
-{ #category : #'tools registry' }
-GTGenericStackDebugger class >> registerToolsOn: registry [
-	registry register: self as: #debugger.
-
-]
-
 { #category : #accessing }
 GTGenericStackDebugger class >> sessionClass [
 
 	^ DebugSession 
-]
-
-{ #category : #'settings api' }
-GTGenericStackDebugger class >> stackWidgetClass [
-	self flag: 'horrible hack not to break the setting browser'.
-	^ self
 ]
 
 { #category : #accessing }
@@ -428,7 +404,7 @@ GTGenericStackDebugger >> selectTopContext [
 	((self browser paneNamed: #stack) port: #selection) value: self interruptedContext
 ]
 
-{ #category : #'accessing context' }
+{ #category : #'accessing - context' }
 GTGenericStackDebugger >> selectedContext [
 
 	^ ((self browser paneNamed: #stack) port: #selection) value

@@ -10,7 +10,7 @@ Class {
 	#category : #'Refactoring-Core-Refactorings'
 }
 
-{ #category : #'private-accessing' }
+{ #category : #'private - accessing' }
 RBProtectInstanceVariableRefactoring >> getterSetterMethods [
 	| matcher |
 	matcher := self parseTreeSearcher.
@@ -34,7 +34,7 @@ RBProtectInstanceVariableRefactoring >> getterSetterMethods [
 { #category : #transforming }
 RBProtectInstanceVariableRefactoring >> inline: aSelector [ 
 	self onError: 
-			[self performComponentRefactoring: (RBInlineAllSendersRefactoring 
+			[self performCompositeRefactoring: (RBInlineAllSendersRefactoring 
 						model: self model
 						sendersOf: aSelector
 						in: class)]

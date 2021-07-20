@@ -30,7 +30,7 @@ The startup and shutdown lists can be accessed through the messages:
 
 In general terms, the shutdown list is the startup list reversed.
 
-Upon a startup [shutdown], all elements in the startup list are sent the message #startup: [#shutdown:] with a boolean as argument that indicates wether the image is being saved [closed].
+Upon a startup [shutdown], all elements in the startup list are sent the message #startup: [#shutdown:] with a boolean as argument that indicates whether the image is being saved [closed].
 
 Internally, startup and shutdown lists are prioritised. Priorities are managed by startup categories. By default the session manager includes the following categories in decreasing priority order:
 
@@ -124,7 +124,7 @@ SessionManager class >> initializedSessionManager [
 	| manager |
 	manager := SessionManager new.
 	manager
-		registerSystemClassNamed: #SmallInteger atPriority: 10; "system - 10"
+		registerSystemClassNamed: #SmallInteger atPriority: 10; "System - 10"
 		registerSystemClassNamed: #Delay atPriority: 20; "System - 20"
 		registerSystemClassNamed: #ProcessorScheduler atPriority: 30; "System - 30"
 		registerSystemClassNamed: #InputEventFetcher atPriority: 40; "System - 40" "WARNING: should not be in the list if InputEventSensor is already there"
@@ -132,6 +132,7 @@ SessionManager class >> initializedSessionManager [
 
 		registerSystemClassNamed: #Alien atPriority: 60; "System - 60"
 		registerSystemClassNamed: #ExternalObject atPriority: 60; "System - 60"
+		registerSystemClassNamed: #FFIBackend atPriority: 60; "System - 60"
 		registerSystemClassNamed: #FFIMethodRegistry atPriority: 60; "System - 60"
 		registerSystemClassNamed: #FFICallbackThunk atPriority: 60; "System - 60"
 		registerSystemClassNamed: #FileLocator atPriority: 90; "System - 90"
@@ -148,7 +149,6 @@ SessionManager class >> initializedSessionManager [
 		registerSystemClassNamed: #Symbol; "System"
 		registerSystemClassNamed: #Locale; "System"
 		registerSystemClassNamed: #WeakArray; "System"
-		registerSystemClassNamed: #FileStream; "System"
 		registerSystemClassNamed: #BasicCommandLineHandler; "System"
 		registerSystemClassNamed: #NonInteractiveTranscript; "System"
 		registerSystemClassNamed: #ASTCache; "System"

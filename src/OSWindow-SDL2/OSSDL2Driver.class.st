@@ -6,8 +6,8 @@ Class {
 	#superclass : #OSWindowDriver,
 	#instVars : [
 		'inputSemaphore',
-		'eventQueue',
-		'globalListeners'
+		'globalListeners',
+		'eventFilter'
 	],
 	#classVars : [
 		'EventLoopProcess',
@@ -43,6 +43,14 @@ OSSDL2Driver class >> isVMDisplayUsingSDL2 [
 	^ false
 ]
 
+{ #category : #events }
+OSSDL2Driver >> afterSetWindowTitle: windowTitle onWindow: osWindow [
+	
+	OSPlatform current sdlPlatform 
+		afterSetWindowTitle: windowTitle onWindow: osWindow.	
+
+]
+
 { #category : #private }
 OSSDL2Driver >> closeRemovedController: index [
 	"TODO: What should I do here?"
@@ -56,22 +64,6 @@ OSSDL2Driver >> closeRemovedJoystick: index [
 	"TODO: What should I do here?"
 
 	self traceCr: ('Joystick <1s> removed' expandMacrosWith: index)
-]
-
-{ #category : #'events-processing' }
-OSSDL2Driver >> convertEvent: sdlEvent [
-	| mappedEvent window |
-	
-	mappedEvent := sdlEvent mapped ifNil: [ ^ nil ].
-	mappedEvent windowID ifNil: [ ^ self sendEventWithoutWindow: mappedEvent ].
-	
-	WindowMapMutex critical: [ 
-		window := WindowMap at: mappedEvent windowID ifAbsent: [ ^ nil ].
-	].
-
-	^ window handleNewSDLEvent: mappedEvent.
-	
-	
 ]
 
 { #category : #'window creation and deletion' }
@@ -126,15 +118,31 @@ OSSDL2Driver >> createWindowWithAttributes: attributes osWindow: osWindow [
 ]
 
 { #category : #'events-processing' }
+OSSDL2Driver >> dispatchEvent: mappedEvent [
+
+	| window |
+
+	mappedEvent windowID ifNil: [ ^ self sendEventWithoutWindow: mappedEvent ].
+	
+	WindowMapMutex critical: [ 
+		window := WindowMap at: mappedEvent windowID ifAbsent: [ ^ nil ] ].
+
+	^ window handleNewSDLEvent: mappedEvent.
+	
+	
+]
+
+{ #category : #'events-processing' }
 OSSDL2Driver >> evaluateUserInterrupt: anSDLEvent [
 
-	anSDLEvent ifNil: [ ^ self ].
-
-	((anSDLEvent isKindOf: SDL_KeyDownEvent)
-		and: [ ((anSDLEvent keysym mod bitAnd: 16r200) = 0) "ignore all if AltGr is pressed" 
-		and: [(anSDLEvent keysym mod anyMask: 1344) 
-		and: [ anSDLEvent keysym scancode = 55 ] ]])
+	anSDLEvent isUserInterrupt
 		ifTrue: [ UserInterruptHandler new handleUserInterrupt ]
+]
+
+{ #category : #accessing }
+OSSDL2Driver >> eventFilter [
+
+	^ eventFilter ifNil: [ eventFilter := OSSDLPasteEventFilter new next: self; yourself ]
 ]
 
 { #category : #'events-processing' }
@@ -189,7 +197,6 @@ OSSDL2Driver >> eventLoopProcessWithoutPlugin [
 { #category : #initialization }
 OSSDL2Driver >> initialize [
 	inputSemaphore := Semaphore new.
-	eventQueue := AtomicSharedQueue new.
 	globalListeners := WeakSet new.
 	self
 		initializeWindowMap;
@@ -260,12 +267,12 @@ OSSDL2Driver >> primitiveSetVMSDL2Input: semaIndex [
 
 { #category : #'events-processing' }
 OSSDL2Driver >> processEvent: sdlEvent [
-	| event |
+	| mappedEvent |
 			
-	[  
-		event := self convertEvent: sdlEvent.	
-		self evaluateUserInterrupt: sdlEvent mapped.
-		event ifNotNil: [ eventQueue nextPut: event ].
+	[ 
+		mappedEvent := sdlEvent mapped.
+		self evaluateUserInterrupt: mappedEvent.
+		self eventFilter dispatchEvent: mappedEvent
 	] on: Error do: [ :err | 
 		"It is critical, that event handling keep running despite errors.
 		Normally, any errors in event handling requires immediate attention and fixing"
@@ -302,11 +309,21 @@ OSSDL2Driver >> sendEventWithoutWindow: event [
 
 { #category : #'window creation and deletion' }
 OSSDL2Driver >> setGLAttributes: glAttributes [
-"	SDL2 glSetAttribute: SDL_GL_CONTEXT_MAJOR_VERSION value: glAttributes majorVersion.
-	SDL2 glSetAttribute: SDL_GL_CONTEXT_MINOR_VERSION value: glAttributes minorVersion.
-	SDL2 glSetAttribute: SDL_GL_CONTEXT_PROFILE_MASK value: glAttributes profileType.
-"
-
+	glAttributes majorVersion ifNotNil: [ 
+		SDL2 glSetAttribute: SDL_GL_CONTEXT_MAJOR_VERSION value: glAttributes majorVersion.
+	].
+	glAttributes minorVersion ifNotNil: [ 
+		SDL2 glSetAttribute: SDL_GL_CONTEXT_MINOR_VERSION value: glAttributes minorVersion.
+	].
+	glAttributes hasCompatibilityProfile ifTrue: [ 
+		SDL2 glSetAttribute: SDL_GL_CONTEXT_PROFILE_MASK value: SDL_GL_CONTEXT_PROFILE_COMPATIBILITY
+	].
+	glAttributes hasCoreProfile ifTrue: [ 
+		SDL2 glSetAttribute: SDL_GL_CONTEXT_PROFILE_MASK value: SDL_GL_CONTEXT_PROFILE_CORE
+	].
+	glAttributes hasESProfile ifTrue: [ 
+		SDL2 glSetAttribute: SDL_GL_CONTEXT_PROFILE_MASK value: SDL_GL_CONTEXT_PROFILE_ES
+	].
 
 	SDL2 glSetAttribute: SDL_GL_RED_SIZE value: glAttributes redSize.
 	SDL2 glSetAttribute: SDL_GL_BLUE_SIZE value: glAttributes blueSize.
@@ -315,8 +332,7 @@ OSSDL2Driver >> setGLAttributes: glAttributes [
 	SDL2 glSetAttribute: SDL_GL_DEPTH_SIZE value: glAttributes depthSize.
 	SDL2 glSetAttribute: SDL_GL_STENCIL_SIZE value: glAttributes stencilSize.
 	SDL2 glSetAttribute: SDL_GL_DOUBLEBUFFER value: glAttributes doubleBuffer.
-
-	
+	SDL2 glSetAttribute: SDL_GL_FRAMEBUFFER_SRGB_CAPABLE value: glAttributes srgbFramebuffer asBit.
 ]
 
 { #category : #'events-processing' }
@@ -437,9 +453,18 @@ OSSDL2Driver >> visitControllerDeviceRemovedEvent: controllerEvent [
 { #category : #'global events' }
 OSSDL2Driver >> visitDropEvent: dropEvent [
 
+	"The dragged file name comes as a C-string of utf8 encoded bytes.
+	Get the string, and decode it to a string using a utf8 decoder"
+	| fileName |
+	fileName := dropEvent file readString asByteArray utf8Decoded.
+	
+	"Free the file handle after it has been read, as specified by SDL2
+	https://wiki.libsdl.org/SDL_DropEvent"
+	dropEvent file free.
+	
 	^ OSWindowDropEvent new
 		timestamp: dropEvent timestamp;
-		filePath: dropEvent file readString
+		filePath: fileName
 ]
 
 { #category : #'events-processing' }

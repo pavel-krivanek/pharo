@@ -5,12 +5,20 @@ Class {
 }
 
 { #category : #tests }
+CoASTResultSetBuilderTest >> newCompletionContext [
+
+	^ CoCompletionContext new
+		engine: CoMockEngine new;
+		yourself
+]
+
+{ #category : #tests }
 CoASTResultSetBuilderTest >> testBuildArrayHeuristic [
 
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBArrayNode new;
 		buildCompletion.
 		
@@ -23,7 +31,7 @@ CoASTResultSetBuilderTest >> testBuildAssignmentHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBAssignmentNode new;
 		buildCompletion.
 		
@@ -36,7 +44,7 @@ CoASTResultSetBuilderTest >> testBuildBlockHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBBlockNode new;
 		buildCompletion.
 		
@@ -49,7 +57,7 @@ CoASTResultSetBuilderTest >> testBuildCascadeHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBCascadeNode new;
 		buildCompletion.
 		
@@ -62,7 +70,7 @@ CoASTResultSetBuilderTest >> testBuildLiteralArrayHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBLiteralArrayNode new;
 		buildCompletion.
 		
@@ -75,7 +83,7 @@ CoASTResultSetBuilderTest >> testBuildLiteralHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBLiteralValueNode new;
 		buildCompletion.
 		
@@ -88,7 +96,7 @@ CoASTResultSetBuilderTest >> testBuildMessageHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBMessageNode new;
 		buildCompletion.
 		
@@ -101,7 +109,7 @@ CoASTResultSetBuilderTest >> testBuildMethodHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBMethodNode new;
 		buildCompletion.
 		
@@ -114,7 +122,7 @@ CoASTResultSetBuilderTest >> testBuildParseErrorHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBParseErrorNode new;
 		buildCompletion.
 		
@@ -127,7 +135,7 @@ CoASTResultSetBuilderTest >> testBuildPragmaHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBPragmaNode new;
 		buildCompletion.
 		
@@ -140,7 +148,7 @@ CoASTResultSetBuilderTest >> testBuildReturnHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBReturnNode new;
 		buildCompletion.
 		
@@ -153,7 +161,7 @@ CoASTResultSetBuilderTest >> testBuildSequenceHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBSequenceNode new;
 		buildCompletion.
 		
@@ -166,11 +174,37 @@ CoASTResultSetBuilderTest >> testBuildThisContextHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
-		node: RBThisContextNode new;
+		completionContext: self newCompletionContext;
+		node: RBVariableNode thisContextNode;
 		buildCompletion.
 		
 	self assert: builder heuristic equals: #thisContext
+]
+
+{ #category : #tests }
+CoASTResultSetBuilderTest >> testBuildVariableClassVariableHeuristic [
+
+	| builder |
+	builder := CoMockASTResultSetBuilder new.
+	builder
+		completionContext: self newCompletionContext;
+		node: ((RBVariableNode named: 'ClassVar') variable: (ClassVariable named: 'ClassVar'));
+		buildCompletion.
+		
+	self assert: builder heuristic equals: #variable
+]
+
+{ #category : #tests }
+CoASTResultSetBuilderTest >> testBuildVariableGlobalHeuristic [
+
+	| builder |
+	builder := CoMockASTResultSetBuilder new.
+	builder
+		completionContext: self newCompletionContext;
+		node: ((RBVariableNode named: 'Object') variable: Object binding);
+		buildCompletion.
+		
+	self assert: builder heuristic equals: #variable
 ]
 
 { #category : #tests }
@@ -179,8 +213,47 @@ CoASTResultSetBuilderTest >> testBuildVariableHeuristic [
 	| builder |
 	builder := CoMockASTResultSetBuilder new.
 	builder
-		completionContext: CoCompletionContext new;
+		completionContext: self newCompletionContext;
 		node: RBVariableNode new;
+		buildCompletion.
+		
+	self assert: builder heuristic equals: #variable
+]
+
+{ #category : #tests }
+CoASTResultSetBuilderTest >> testBuildVariableInstanceVariableHeuristic [
+
+	| builder |
+	builder := CoMockASTResultSetBuilder new.
+	builder
+		completionContext: self newCompletionContext;
+		node: ((RBVariableNode named: 'ivar') variable: (Slot named: 'ivar'));
+		buildCompletion.
+		
+	self assert: builder heuristic equals: #variable
+]
+
+{ #category : #tests }
+CoASTResultSetBuilderTest >> testBuildVariableTempVariableHeuristic [
+
+	| builder |
+	builder := CoMockASTResultSetBuilder new.
+	builder
+		completionContext: self newCompletionContext;
+		node: ((RBVariableNode named: 'temp') variable: (TemporaryVariable named: 'temp'));
+		buildCompletion.
+		
+	self assert: builder heuristic equals: #variable
+]
+
+{ #category : #tests }
+CoASTResultSetBuilderTest >> testBuildVariableUndeclaredHeuristic [
+
+	| builder |
+	builder := CoMockASTResultSetBuilder new.
+	builder
+		completionContext: self newCompletionContext;
+		node: ((RBVariableNode named: 'ClassVar') variable: (UndeclaredVariable named: 'ClassVar'));
 		buildCompletion.
 		
 	self assert: builder heuristic equals: #variable

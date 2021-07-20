@@ -14,6 +14,11 @@ ByteLayout class >> extending: superLayout scope: aScope host: aClass [
 		yourself
 ]
 
+{ #category : #description }
+ByteLayout class >> kind [ 
+	^ #variableByte
+]
+
 { #category : #accessing }
 ByteLayout >> bytesPerSlot [
 	
@@ -33,4 +38,14 @@ ByteLayout >> instanceSpecification [
 { #category : #testing }
 ByteLayout >> isBytes [
 	^ true
+]
+
+{ #category : #accessing }
+ByteLayout >> kindOfSubclass [
+	^' variableByteSubclass: '
+]
+
+{ #category : #accessing }
+ByteLayout >> typeOfClass [
+	^#bytes
 ]

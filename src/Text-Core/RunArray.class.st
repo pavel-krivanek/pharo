@@ -188,6 +188,14 @@ RunArray >> = otherArray [
 ]
 
 { #category : #adding }
+RunArray >> add: newObject [ 
+	"Include newObject as one of the receiver's elements. Answer newObject. 
+	ArrayedCollections cannot respond to this message."
+
+	^ self addLast: newObject
+]
+
+{ #category : #adding }
 RunArray >> add: newObject withOccurrences: anInteger [
 	"Add value as the last element of the receiver, the given number of times"
 	anInteger <= 0 ifTrue: [ ^self ].
@@ -433,16 +441,6 @@ RunArray >> detectMin: aBlock [
 	"Only evaluate once per run"
 
 	^values detectMin: aBlock
-]
-
-{ #category : #enumerating }
-RunArray >> detectSum: aBlock [
-	"Only loop on runs"
-	| sum |
-	sum := 0.
-	self runsAndValuesDo: [:run :value | 
-		sum := (aBlock value: value) * run + sum].
-	^ sum
 ]
 
 { #category : #enumerating }
@@ -751,6 +749,16 @@ RunArray >> storeOn: aStream [
 	aStream nextPutAll: ' values: '.
 	values storeOn: aStream.
 	aStream nextPut: $)
+]
+
+{ #category : #enumerating }
+RunArray >> sum: aBlock [
+	"Only loop on runs"
+	| sum |
+	sum := 0.
+	self runsAndValuesDo: [:run :value | 
+		sum := (aBlock value: value) * run + sum].
+	^ sum
 ]
 
 { #category : #private }

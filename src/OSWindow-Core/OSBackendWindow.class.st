@@ -49,6 +49,11 @@ OSBackendWindow >> clipboardText: aString [
 ]
 
 { #category : #accessing }
+OSBackendWindow >> diagonalDPI [
+	^ self screenScaleFactorBaseDPI
+]
+
+{ #category : #accessing }
 OSBackendWindow >> extent [
 	^ self bounds extent
 ]
@@ -68,6 +73,11 @@ OSBackendWindow >> hide [
 ]
 
 { #category : #accessing }
+OSBackendWindow >> horizontalDPI [
+	^ self screenScaleFactorBaseDPI
+]
+
+{ #category : #accessing }
 OSBackendWindow >> icon: aForm [
 ]
 
@@ -82,22 +92,12 @@ OSBackendWindow >> isValid [
 ]
 
 { #category : #factory }
-OSBackendWindow >> newAthensRenderer [
-	self subclassResponsibility
-]
-
-{ #category : #factory }
 OSBackendWindow >> newFormRenderer: aForm [
 	self subclassResponsibility
 ]
 
 { #category : #factory }
 OSBackendWindow >> newGenericRenderer [
-	self subclassResponsibility
-]
-
-{ #category : #factory }
-OSBackendWindow >> newOpenGLRenderer [
 	self subclassResponsibility
 ]
 
@@ -160,13 +160,29 @@ OSBackendWindow >> resizable: aBoolean [
 	
 ]
 
+{ #category : #accessing }
+OSBackendWindow >> screenScaleFactor [
+	^ 1
+]
+
+{ #category : #accessing }
+OSBackendWindow >> screenScaleFactorBaseDPI [
+	^ OSPlatform current osWindowScreenScaleFactorBaseDPI
+]
+
 { #category : #cursor }
 OSBackendWindow >> setMouseCursor: cursorWithMask [
 	self setMouseCursor: cursorWithMask mask: cursorWithMask maskForm
 ]
 
-{ #category : #accessing }
+{ #category : #cursor }
 OSBackendWindow >> setMouseCursor: cursor mask: mask [
+
+	self setMouseCursor: cursor mask: mask andScale: 1
+]
+
+{ #category : #accessing }
+OSBackendWindow >> setMouseCursor: cursor mask: mask andScale: scale [
 ]
 
 { #category : #accessing }
@@ -192,6 +208,11 @@ OSBackendWindow >> title [
 { #category : #accessing }
 OSBackendWindow >> title: aTitle [
 	self subclassResponsibility 
+]
+
+{ #category : #accessing }
+OSBackendWindow >> verticalDPI [
+	^ self screenScaleFactorBaseDPI
 ]
 
 { #category : #accessing }

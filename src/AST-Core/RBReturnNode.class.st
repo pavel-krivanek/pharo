@@ -43,7 +43,7 @@ RBReturnNode >> acceptVisitor: aProgramNodeVisitor [
 
 { #category : #accessing }
 RBReturnNode >> children [
-	^ Array with: value
+	^ { value }
 ]
 
 { #category : #testing }
@@ -109,12 +109,12 @@ RBReturnNode >> replaceNode: aNode withNode: anotherNode [
 	value == aNode ifTrue: [ self value: anotherNode ]
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBReturnNode >> return [
 	^ return
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBReturnNode >> return: anInteger [
 	return := anInteger
 ]

@@ -86,7 +86,7 @@ Process class >> forContext: aContext priority: anInteger [
 
 	| newProcess |
 	newProcess := self new.
-	newProcess suspendedContext: aContext.
+	newProcess suspendedContext: aContext asContext.
 	newProcess priority: anInteger.
 	Processor activeProcess installEnvIntoForked: newProcess.
 	^newProcess
@@ -152,7 +152,7 @@ Process >> calleeOf: aContext [
 
 { #category : #'changing suspended state' }
 Process >> complete: aContext [
-	"Run self until aContext is popped or an unhandled error is raised.  Return self's new top context, unless an unhandled error was raised then return the signaler context (rather than open a debugger)."
+	"Run self until aContext is popped or an unhandled error is raised.  Return self's new top context, unless an unhandled error was raised then return the signal context (rather than open a debugger)."
 
 	| ctxt pair |
 	ctxt := suspendedContext.
@@ -199,31 +199,62 @@ Process >> debug [
 ]
 
 { #category : #debugging }
-Process >> debug: context title: title [
-	"Open debugger on self with context shown on top"
-
-	^ self debug: context title: title full: false.
-
-]
-
-{ #category : #debugging }
-Process >> debug: context title: title full: bool [
-	
-	^ UIManager default
-		debugProcess: self 
-		context: context 
-		label: title 
-		fullView: bool
-]
-
-{ #category : #debugging }
 Process >> debugWithTitle: title [
-	"Open debugger on self"
 
 	| context |
-	context := self isActiveProcess ifTrue: [thisContext] ifFalse: [self suspendedContext].
-	^ self debug: context title: title full: true.
+	context := self isActiveProcess
+		           ifTrue: [ thisContext ]
+		           ifFalse: [ self suspendedContext ].
+	UIManager default
+		requestDebuggerOpeningForProcess: self
+		named: title
+		inContext: context
+]
 
+{ #category : #private }
+Process >> doTerminationFromAnotherProcess [ 
+	"Stop this process forever from another process.  
+	Unwind to execute pending ensure:/ifCurtailed: blocks before terminating.
+	It assumes that self is not the active process
+	and the termination is requested from another process"
+	| ctxt oldList |
+	"Always suspend the process first so it doesn't accidentally get woken up"
+	oldList := self suspend.
+	suspendedContext ifNil: [^self].
+
+	"Figure out if we are terminating the process while waiting inside special object like
+	in Semaphore>>critical:. So if waiting object is interesting on this situation we will ask it to handle it. In case of Semaphore>>critical, Semaphore will pop the suspendedContext so that we leave the ensure: block inside	Semaphore>>critical: without signaling the semaphore.
+	This methods allow to not be restricted only on Semaphore case."
+	suspendedContext := oldList handleProcessTerminationOfWaitingContext: suspendedContext.
+	"If we are terminating a process halfways through an unwind, try to complete that unwind block first."
+	(suspendedContext findNextUnwindContextUpTo: nil) ifNotNil: [:outer |
+		(suspendedContext findContextSuchThat: [ :c | c closure == outer unwindBlock ]) ifNotNil: [ :inner |
+			"This is an unwind block currently under evaluation"
+			suspendedContext runUntilErrorOrReturnFrom: inner ] ].		
+	ctxt := self popTo: suspendedContext bottomContext.
+	[ ctxt == suspendedContext bottomContext ] whileFalse: [
+		"There was a problem during termination. Make the user aware of the problem
+		but ensure that the current process will be properly terminated."
+		| stackCopy |
+		stackCopy := ctxt copyStack.
+		[ UnwindError signalIn: stackCopy ] forkNamed: 'Unwind error during termination'.
+		ctxt terminateTo: ctxt sender.
+		ctxt := self popTo: suspendedContext bottomContext ].
+	"The suspendedContext of process that has never run will have 
+	a pc equal to the startpc. #isTerminate would thus answer false
+	even though the process is dead. To prevent that we set the pc
+	of the suspendedContext to nil (#isDead ---> true)."
+	(suspendedContext notNil and: [ suspendedContext isBottomContext ]) ifTrue: [
+		suspendedContext pc: nil ]
+]
+
+{ #category : #private }
+Process >> doTerminationFromYourself [ 
+	"Stop this process forever from the process itself. 
+	Unwind to execute pending ensure:/ifCurtailed: blocks before terminating.
+	It assumes that self is the active process. "		
+	thisContext unwindForTermination.
+	self suspend
 ]
 
 { #category : #accessing }
@@ -234,11 +265,6 @@ Process >> effectiveProcess [
 	 debugged process as the effectiveProcess of the process executing the code, preserving process
 	 identity."
 	^effectiveProcess ifNil: [self] 
-]
-
-{ #category : #private }
-Process >> environmentKeyNotFound [ 
-	self error: 'Environment key not found'
 ]
 
 { #category : #private }
@@ -621,11 +647,20 @@ Process >> stepToHome: aContext [
 				onBehalfOf: self.
 	suspendedContext := pair first.
 	error := pair second.
-	"error class = Halt ifTrue: [ 
-		aContext methodNode 
-			pragmaNamed: #debuggerCompleteToSender 
-			ifPresent: [ ^ self completeTo: aContext sender ] ]."
-	error ifNotNil: [^ suspendedContext := error signalerContext].
+
+	error ifNotNil: [
+		suspendedContext := error signalerContext.
+		"As we are activating a context that has been interrupted in the signal of the exception,
+		we need to push a receiver of the signal message.
+		A suspended context should always be a top context.
+		A top context has the return value of the message in the stack.
+		As this context has been suspended while sending a message the return value should be pushed. 
+		This is maybe not the expected return value (the #signal message returns the value with the 
+		one the exception is resumed).
+		But this allows the debugger to continue executing and does not crash the interpreter nor 
+		the VM
+		"
+		suspendedContext push: nil].
 	^ suspendedContext
 ]
 
@@ -678,51 +713,11 @@ Process >> suspendingList [
 { #category : #'changing process state' }
 Process >> terminate [ 
 	"Stop the process that the receiver represents forever.  Unwind to execute pending ensure:/ifCurtailed: blocks before terminating."
-
-	| ctxt unwindBlock oldList |
 	terminating := self isTerminating
-		ifTrue: [ ^ ProcessAlreadyTerminating signal ]
+		ifTrue: [ ProcessAlreadyTerminating signal. ^self ]
 		ifFalse: [ true ].
-	self isActiveProcess 
-		ifTrue: [
-			ctxt := thisContext.
-			[ ctxt := ctxt findNextUnwindContextUpTo: nil.
-			ctxt isNil ] whileFalse: 
-				[ (ctxt tempAt: 2) ifNil:
-					[ ctxt tempAt: 2 put: nil.
-					unwindBlock := ctxt tempAt: 1.
-					thisContext terminateTo: ctxt.
-					unwindBlock value ] ].
-			thisContext terminateTo: nil.
-			self suspend ]
-		ifFalse: [
-			"Always suspend the process first so it doesn't accidentally get woken up"
-			oldList := self suspend.
-			suspendedContext ifNotNil: [
-				"Figure out if we are terminating the process while waiting inside special object like
-				in Semaphore>>critical:. So if waiting object is interesting on this situation we will ask it to handle it. In case of Semaphore>>critical, Semaphore will pop the suspendedContext so that we leave the ensure: block inside	Semaphore>>critical: without signaling the semaphore.
-				This methods allow to not be restricted only on Semaphore case."
-				suspendedContext := oldList handleProcessTerminationOfWaitingContext: suspendedContext.
 
-				"If we are terminating a process halfways through an unwind, try to complete that unwind block first."
-				(suspendedContext findNextUnwindContextUpTo: nil) ifNotNil: [ :outer |
-					(suspendedContext findContextSuchThat: [ :c | c closure == (outer tempAt: 1) ]) ifNotNil: [ :inner |
-						"This is an unwind block currently under evaluation"
-						suspendedContext runUntilErrorOrReturnFrom: inner ] ].		
-			ctxt := self popTo: suspendedContext bottomContext.
-			[ ctxt == suspendedContext bottomContext ] whileFalse: [
-				"There was a problem during termination. Make the user aware of the problem
-				but ensure that the current process will be properly terminated."
-				| stackCopy |
-				stackCopy := ctxt copyStack.
-				[ UnwindError signalIn: stackCopy ] forkNamed: 'Unwind error during termination'.
-				ctxt terminateTo: ctxt sender.
-				ctxt := self popTo: suspendedContext bottomContext ].
-			"The suspendedContext of process that has never run will have 
-			a pc equal to the startpc. #isTerminate would thus answer false
-			even though the process is dead. To prevent that we set the pc
-			of the suspendedContext to nil (#isDead ---> true)."
-			(suspendedContext notNil and: [
-				suspendedContext isBottomContext ]) ifTrue: [
-					suspendedContext pc: nil ] ] ]
+	self isActiveProcess 
+		ifTrue: [ self doTerminationFromYourself ]
+		ifFalse: [ self doTerminationFromAnotherProcess]
 ]

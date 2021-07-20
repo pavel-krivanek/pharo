@@ -22,6 +22,11 @@ Class {
 	#category : #'Glamour-Core'
 }
 
+{ #category : #testing }
+GLMTransmission class >> isDeprecated [
+	^ true
+]
+
 { #category : #accessing }
 GLMTransmission >> activeOrigins [ 
 	 
@@ -160,6 +165,13 @@ GLMTransmission >> destination: aPort [
 	destination := aPort
 ]
 
+{ #category : #printing }
+GLMTransmission >> displayStringOn: stream [
+	self origins asArray displayStringOn: stream.
+	stream nextPutAll: '->'.
+	self destination displayStringOn: stream
+]
+
 { #category : #accessing }
 GLMTransmission >> ensurePresentIfNoneStrategy [
 	self transmissionStrategy class = GLMPresentIfNoneStrategy ifFalse: [
@@ -242,7 +254,7 @@ GLMTransmission >> meetsCondition [
 	^ self condition glamourValue: originValues
 ]
 
-{ #category : #'private accessing' }
+{ #category : #'private - accessing' }
 GLMTransmission >> originReferences [
 	"Returns the set of ports (instances of PortReference) the transmission receives its data from"
 	^ origins ifNil: [origins := OrderedCollection new]
@@ -299,9 +311,9 @@ GLMTransmission >> printOn: aStream [
 	aStream 
 		nextPutAll: self class name;
 		nextPutAll: ' (origins='; 
-		nextPutAll: self origins printString; 
+		print: self origins ; 
 		nextPutAll: ' destination='; 
-		nextPutAll: self destination printString; 
+		print: self destination; 
 		nextPut: $)
 	 
 	

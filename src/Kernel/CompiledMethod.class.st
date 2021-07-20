@@ -7,10 +7,8 @@ CompiledMethod instances can be in two forms:
 
 In addition the execution mechanics, a compiled method have two extra optional literals. The last literal, optional if there are no super sends, is the class in which the method is installed. The last but one literal is either the method's selector or an AdditionalMethodState instance. AdditionalMethodState instances are used to encode additional state to a method, as for example the pragmas.
 
-
-
-
-
+The bytecode encodes the trailer at the end, in most cases it has 4 bytes encoding the sourcer pointer (see CompiledMethodTrailer).
+Thus endPC of a compiled method is not the size of the bytecode, but the size minus the length of the trailer.
 
 "
 Class {
@@ -126,13 +124,7 @@ CompiledMethod class >> handleFailingNewMethod: numberOfBytes header: headerWord
 CompiledMethod class >> headerFlagForEncoder: anEncoderClass [
 	anEncoderClass == PrimaryBytecodeSetEncoderClass ifTrue: [ ^ 0 ].
 	anEncoderClass == SecondaryBytecodeSetEncoderClass ifTrue: [ ^ SmallInteger minVal ].
-	
-	"The following is a hack to support the old compiler... We can remove it once the old compiler is removed"
-	(PrimaryBytecodeSetEncoderClass name endsWith: (anEncoderClass name withoutPrefix: 'Legacy')) ifTrue: [ ^ 0 ].
-	(SecondaryBytecodeSetEncoderClass name endsWith: (anEncoderClass name withoutPrefix: 'Legacy')) ifTrue: [ ^ SmallInteger minVal ].
-	
-	self error: 'The encoder is not one of the two installed bytecode sets'.
-	^ 0
+	self error: 'The encoder is not one of the two installed bytecode sets'
 ]
 
 { #category : #'class initialization' }
@@ -166,7 +158,7 @@ CompiledMethod class >> installSecondaryBytecodeSet: aBytecodeEncoderSubclass [
 	SecondaryBytecodeSetEncoderClass := aBytecodeEncoderSubclass
 ]
 
-{ #category : #'accessing class hierarchy' }
+{ #category : #'accessing - class hierarchy' }
 CompiledMethod class >> methodPropertiesClass [
 	"Answer the class to use to create a method's properties, which can be a poor man's way
 	 to add instance variables to subclassses of CompiledMethod.  Subclasses of CompiledMethod
@@ -331,7 +323,13 @@ CompiledMethod >> argumentNames [
 	^ self propertyAt: #argumentNames ifAbsent: [ super argumentNames ]
 ]
 
-{ #category : #'accessing-backward compatible' }
+{ #category : #'accessing - pragmas & properties' }
+CompiledMethod >> cachePragmas [
+
+	self pragmas do: [ :pragma | pragma class addToCache: pragma ]
+]
+
+{ #category : #'accessing - backward compatible' }
 CompiledMethod >> category [
 	"Please favor protocol instead of category. We want to have method protocol and class package and tag = a category"
 	^ self methodClass organization categoryOfElement: self selector
@@ -356,6 +354,12 @@ CompiledMethod >> codeForNoSource [
 	Smalltalk hasCompiler ifFalse: [ ^ nil ].
 	
 	 ^(self compiler decompileMethod: self) formattedCode
+]
+
+{ #category : #testing }
+CompiledMethod >> containsHalt [
+
+	^ self hasProperty: #containsHalt
 ]
 
 { #category : #'source code management' }
@@ -390,6 +394,11 @@ CompiledMethod >> defaultSelector [
 	^ #DoIt numArgs: self numArgs
 ]
 
+{ #category : #printing }
+CompiledMethod >> displayStringOn: aStream [
+	aStream print: self methodClass; nextPutAll: '>>'; store: self selector.
+]
+
 { #category : #'source code management' }
 CompiledMethod >> embeddSourceInTrailer [
 	"When receiver is deinstalled from its class, its not managed anymore by development tools
@@ -400,6 +409,12 @@ CompiledMethod >> embeddSourceInTrailer [
 	self trailer hasSourcePointer ifTrue: [
 		^self becomeForward: (self copyWithSource: self sourceCode)]
 
+]
+
+{ #category : #accessing }
+CompiledMethod >> endPC [
+	"Answer the index of the last bytecode, as the trailer size varies we have to delegate"
+	^ self trailer endPC
 ]
 
 { #category : #accessing }
@@ -454,7 +469,12 @@ CompiledMethod >> hasComment [
 	^self comment isEmptyOrNil not
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #testing }
+CompiledMethod >> hasPragma [
+	^ self hasProperties and: [self pragmas isNotEmpty]
+]
+
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> hasPragmaNamed: aSymbol [
 	^ self pragmas anySatisfy: [ :pragma | pragma selector = aSymbol ]
 ]
@@ -464,10 +484,13 @@ CompiledMethod >> hasProperties [
 	^ self penultimateLiteral isMethodProperties
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> hasProperty: aKey [
-	self propertyAt: aKey ifAbsent: [ ^false ].
-	^true.
+
+	| extendedMethodState |
+	^ (extendedMethodState := self penultimateLiteral) isMethodProperties
+		  ifTrue: [  extendedMethodState includesProperty: aKey ]
+		  ifFalse: [ false ]
 ]
 
 { #category : #accessing }
@@ -564,6 +587,20 @@ CompiledMethod >> isExplicitlyRequired: marker [
 ]
 
 { #category : #testing }
+CompiledMethod >> isFaulty [
+ 	"check if this method was compiled from syntactically wrong code"
+	| ast |
+	"fast pre-check: all methods with syntax errors reference this symbol"
+  	(self refersToLiteral: #signalSyntaxError:) ifFalse: [ ^false].
+	"we have to parse the ast here as #ast does not know that this needs optionParseErrors"
+	ast := self methodClass compiler 
+				source: self sourceCode;
+				options: #(+ optionParseErrors);
+				parse.
+	^ ast isFaulty.
+]
+
+{ #category : #testing }
 CompiledMethod >> isFromTrait [
 	"Return true for methods that have been included from Traits"
 	^ self origin isTrait and: [ self origin ~= self methodClass ]
@@ -575,7 +612,7 @@ CompiledMethod >> isInstalled [
 		[:class|
 		self selector ifNotNil:
 			[:selector|
-			^self == (class compiledMethodAt: selector ifAbsent: [])]].
+			^self == (class compiledMethodAt: selector ifAbsent: nil)]].
 	^false
 ]
 
@@ -620,13 +657,6 @@ CompiledMethod >> isRequired: marker [
 CompiledMethod >> isReturnField [
 	"Answer whether the receiver is a quick return of an instance variable."
 	^ self primitive between: 264 and: 519
-]
-
-{ #category : #testing }
-CompiledMethod >> isReturnSelf [
-	"Answer whether the receiver is a quick return of self."
-
-	^ self primitive = 256
 ]
 
 { #category : #testing }
@@ -675,6 +705,17 @@ CompiledMethod >> literalsToSkip [
 	^ 2
 ]
 
+{ #category : #scanning }
+CompiledMethod >> localReadsSelf [
+	"methods that are compiled with FFI have a self in the source but not in the bytecode"
+	^self isFFIMethod or: [ super localReadsSelf ]
+]
+
+{ #category : #lookup }
+CompiledMethod >> lookupVar: aString [ 
+	^self ast scope lookupVar: aString
+]
+
 { #category : #private }
 CompiledMethod >> markerOrNil [
 	^ self encoderClass markerOrNilFor: self
@@ -703,12 +744,6 @@ CompiledMethod >> methodClass: aClass [
 { #category : #accessing }
 CompiledMethod >> name [
 	^ self printString
-]
-
-{ #category : #accessing }
-CompiledMethod >> numberOfReservedLiterals [
-
-	^ 2
 ]
 
 { #category : #private }
@@ -743,21 +778,32 @@ CompiledMethod >> postCopy [
 
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> pragmaAt: aKey [
-	"Answer the pragma with selector aKey, or nil if none."
-	| propertiesOrSelector |
-	^(propertiesOrSelector := self penultimateLiteral) isMethodProperties
-		ifTrue: [propertiesOrSelector at: aKey ifAbsent: [nil]]
-		ifFalse: [nil]
+	"Answer the first pragma with selector aKey, or nil if none."
+	^ self pragmas detect: [ :pragma | pragma selector == aKey ] ifNone: nil
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #literals }
+CompiledMethod >> pragmaRefersToLiteral: literal [
+
+	^ self penultimateLiteral isMethodProperties and: [ 
+		  self pragmas anySatisfy: [ :pragma | pragma refersToLiteral: literal ] ]
+]
+
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> pragmas [
 	| selectorOrProperties |
 	^(selectorOrProperties := self penultimateLiteral) isMethodProperties
 		ifTrue: [selectorOrProperties pragmas]
 		ifFalse: [#()]
+]
+
+{ #category : #'accessing - pragmas & properties' }
+CompiledMethod >> pragmasDo: aBlock [
+	| selectorOrProperties |
+	(selectorOrProperties := self penultimateLiteral) isMethodProperties
+		ifTrue: [selectorOrProperties pragmasDo: aBlock]
 ]
 
 { #category : #'debugger support' }
@@ -836,7 +882,7 @@ CompiledMethod >> properties: aMethodProperties [
 							yourself])
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> propertyAt: propName [
 	| propertiesOrSelector |
 	^(propertiesOrSelector := self penultimateLiteral) isMethodProperties
@@ -844,7 +890,7 @@ CompiledMethod >> propertyAt: propName [
 		ifFalse: [nil]
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> propertyAt: propName ifAbsent: aBlock [
 	| propertiesOrSelector |
 	^(propertiesOrSelector := self penultimateLiteral) isMethodProperties
@@ -852,14 +898,14 @@ CompiledMethod >> propertyAt: propName ifAbsent: aBlock [
 		ifFalse: [aBlock value]
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> propertyAt: aKey ifAbsentPut: aBlock [
 	"Answer the property associated with aKey or, if aKey isn't found store the result of evaluating aBlock as new value."
 	
 	^ self propertyAt: aKey ifAbsent: [ self propertyAt: aKey put: aBlock value ]
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> propertyAt: propName put: propValue [
 	"Set or add the property with key propName and value propValue.
 	 If the receiver does not yet have a method properties create one and replace
@@ -884,31 +930,13 @@ CompiledMethod >> propertyAt: propName put: propValue [
 	^propValue
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> propertyKeysAndValuesDo: aBlock [
 	"Enumerate the receiver with all the keys and values."
 
 	| propertiesOrSelector |
 	(propertiesOrSelector := self penultimateLiteral) isMethodProperties ifTrue:
 		[propertiesOrSelector propertyKeysAndValuesDo: aBlock]
-]
-
-{ #category : #'accessing-properties - compatibility' }
-CompiledMethod >> propertyValueAt: propName [
-	"use the version without ..Value, this methid is retained for compatibility"
-	^self propertyAt: propName
-]
-
-{ #category : #'accessing-properties - compatibility' }
-CompiledMethod >> propertyValueAt: propName ifAbsent: aBlock [
-	"use the version without ..Value, this method is retained for compatibility"
-	^self propertyAt: propName ifAbsent: aBlock
-]
-
-{ #category : #'accessing-properties - compatibility' }
-CompiledMethod >> propertyValueAt: propName put: propValue [
-	"use the version without ..Value, this method is retained for compatibility"
-	^self propertyAt: propName put: propValue
 ]
 
 { #category : #accessing }
@@ -930,12 +958,19 @@ CompiledMethod >> readsField: varIndex [
 	^ super readsField: varIndex 
 ]
 
+{ #category : #literals }
+CompiledMethod >> refersToLiteral: aLiteral [
+	"Answer true if any literal in this method is literal, even if embedded in array structure."
+	
+	^(self pragmaRefersToLiteral: aLiteral) or: [ super refersToLiteral: aLiteral]
+]
+
 { #category : #initialization }
 CompiledMethod >> removeFromSystem [
 	^ self methodClass removeSelector: self selector
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> removeProperty: propName [
 	"Remove the property propName if it exists.
 	 Do _not_ raise an error if the property is missing."
@@ -948,7 +983,7 @@ CompiledMethod >> removeProperty: propName [
 	^value
 ]
 
-{ #category : #'accessing-pragmas & properties' }
+{ #category : #'accessing - pragmas & properties' }
 CompiledMethod >> removeProperty: propName ifAbsent: aBlock [
 	"Remove the property propName if it exists.
 	 Answer the evaluation of aBlock if the property is missing."
@@ -1037,6 +1072,11 @@ CompiledMethod >> sourcePointer [
 
 ]
 
+{ #category : #'debugger support' }
+CompiledMethod >> stepIntoQuickMethods: aBoolean [
+	^self propertyAt: #stepIntoQuickMethod put: aBoolean
+]
+
 { #category : #printing }
 CompiledMethod >> storeOn: aStream [
 	| noneYet |
@@ -1061,7 +1101,7 @@ CompiledMethod >> storeOn: aStream [
 	aStream nextPut: $)
 ]
 
-{ #category : #'accessing-tags' }
+{ #category : #'accessing - tags' }
 CompiledMethod >> tagWith: aSymbol [
 	"Any method could be tagged with multiple symbols for user purpose. 
 	This method should apply new tag. All existing tags should not be changed. 
@@ -1072,7 +1112,7 @@ CompiledMethod >> tagWith: aSymbol [
 	self protocol: aSymbol
 ]
 
-{ #category : #'accessing-tags' }
+{ #category : #'accessing - tags' }
 CompiledMethod >> tags [
 	"Any method could be tagged with multiple symbols for user purpose. 
 	For now we only define API to manage them implemented on top of method protocols.
@@ -1090,7 +1130,13 @@ CompiledMethod >> tempNames [
 	^self ast argumentNames, self ast temporaryNames
 ]
 
-{ #category : #'accessing-tags' }
+{ #category : #accessing }
+CompiledMethod >> trailer [
+	"Answer the receiver's trailer"
+	^ CompiledMethodTrailer new method: self
+]
+
+{ #category : #'accessing - tags' }
 CompiledMethod >> untagFrom: aSymbol [
 	"Any method could be tagged with multiple symbols for user purpose. 
 	This method should remove given tag from it. All other tags should not be changed. 
@@ -1100,11 +1146,19 @@ CompiledMethod >> untagFrom: aSymbol [
 		self protocol: Protocol unclassified]
 ]
 
+{ #category : #testing }
+CompiledMethod >> usesUndeclareds [
+	"this is mixing Undeclareds and Obsoletes, maybe we should have two methods"	
+	self withAllNestedLiteralsDo: [ :literal | 
+		literal class == UndeclaredVariable ifTrue: [ ^ true ].
+		(literal isBlock not and: [ 
+			 literal value isBehavior and: [ literal value isObsolete ] ]) 
+			ifTrue: [ ^ true ] ].
+	^ false
+]
+
 { #category : #evaluating }
 CompiledMethod >> valueWithReceiver: aReceiver arguments: anArray [ 
-	"This should be changed when all the VM will support passign of extra arguments
-		^self receiver: aReceiver withArguments: anArray executeMethod: self"
-	
 	^ aReceiver withArgs: anArray executeMethod: self
 ]
 

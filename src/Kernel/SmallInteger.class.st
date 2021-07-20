@@ -106,10 +106,8 @@ SmallInteger >> / aNumber [
 	No Lookup. See Object documentation whatIsAPrimitive."
 
 	<primitive: 10>
-	aNumber isZero ifTrue: [^(ZeroDivide dividend: self) signal].
-	^(aNumber isMemberOf: SmallInteger)
-		ifTrue: [(Fraction numerator: self denominator: aNumber) reduced]
-		ifFalse: [super / aNumber]
+	aNumber = 0 ifTrue: [^(ZeroDivide dividend: self) signal].
+	^super / aNumber
 ]
 
 { #category : #arithmetic }
@@ -187,14 +185,6 @@ SmallInteger >> \\ aNumber [
 
 	<primitive: 11>
 	^ super \\ aNumber 	"will use // to compute it if primitive fails"
-]
-
-{ #category : #converting }
-SmallInteger >> as31BitSmallInt [
-	"Polymorphic with LargePositiveInteger (see comment there).
-	 Return self since all SmallIntegers are 31 bits"
-
-	^ self
 ]
 
 { #category : #converting }
@@ -399,7 +389,10 @@ SmallInteger >> gcd: anInteger [
 { #category : #comparing }
 SmallInteger >> hash [
 
-	^self
+    "Spread consecutive integers or integers related by some other pattern
+    throughout the hash table, reducing the length of scans required."
+    
+    ^ self hashMultiply
 ]
 
 { #category : #'bit manipulation' }
@@ -476,6 +469,12 @@ SmallInteger >> identityHash [
 	"Answer a SmallInteger whose value is related to the receiver's identity.
 	 Specific override here to decrease the number of conflicts"
 	^ self hashMultiply
+]
+
+{ #category : #testing }
+SmallInteger >> isImmediateObject [
+	"This is needed for the boostrap"
+	^ true
 ]
 
 { #category : #testing }

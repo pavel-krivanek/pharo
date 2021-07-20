@@ -1,11 +1,15 @@
 Extension { #name : #Variable }
 
 { #category : #'*OpalCompiler-Core' }
-Variable >> semanticNodeClass [
-	^self class semanticNodeClass
+Variable >> analyzeRead: aVariableNode by: aSemanticAnalyzer [
+
+	self isUninitialized ifTrue: [ aSemanticAnalyzer uninitializedVariable: aVariableNode ]
 ]
 
 { #category : #'*OpalCompiler-Core' }
-Variable class >> semanticNodeClass [
-	^RBVariableNode
+Variable >> analyzeWrite: aVariableNode by: aSemanticAnalyzer [ 
+
+	self isReservedVariable ifTrue: [ aSemanticAnalyzer storeIntoReservedVariable: aVariableNode ].
+	
+	self isWritable ifFalse: [ aSemanticAnalyzer storeIntoReadOnlyVariable: aVariableNode ]
 ]

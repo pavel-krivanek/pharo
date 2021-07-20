@@ -24,7 +24,7 @@ OCASTTranslatorForValue >> emitIfNotNil: aMessageNode [
 	| args |
 	self visitNode: aMessageNode receiver.
 	args := aMessageNode arguments.
-	args first arguments ifNotEmpty: [ args first arguments first binding emitStore: methodBuilder ].
+	args first arguments ifNotEmpty: [ args first arguments first variable emitStore: methodBuilder ].
 	methodBuilder pushDup.
 	methodBuilder pushLiteral: nil.
 	methodBuilder send: #==.
@@ -62,7 +62,7 @@ OCASTTranslatorForValue >> emitWhileTrue: aMessageNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForValue >> visitSequenceNode: aSequenceNode [ 
 	| statements |
 	statements := aSequenceNode statements.

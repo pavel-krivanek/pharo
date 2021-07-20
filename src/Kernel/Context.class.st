@@ -27,7 +27,6 @@ Class {
 	],
 	#classVars : [
 		'PrimitiveFailToken',
-		'QuickStep',
 		'SpecialPrimitiveSimulators',
 		'TryNamedPrimitiveTemplateMethod'
 	],
@@ -91,7 +90,15 @@ Context class >> contextEnsure: block [
 
 	| ctxt chain |
 	ctxt := thisContext.
-	[chain := thisContext sender cut: ctxt. ctxt jump] ensure: block.
+	[chain := thisContext sender cut: ctxt. 
+		
+		"As the jump will return to the current context inside the context ensure:
+		It is needed to emulate the return value of sending the message ensure:
+		If this is not done, the context will do an additional pop, affecting the temporary variables. 
+		This is required because we are breaking a condition on Context >> jump.
+		The receiver of jump should be a Top context, in this case it is not. "
+		ctxt push: nil. 
+		ctxt jump] ensure: block.
 	"jump above will resume here without unwinding chain"
 	^ chain
 ]
@@ -102,7 +109,15 @@ Context class >> contextOn: exceptionClass do: block [
 
 	| ctxt chain |
 	ctxt := thisContext.
-	[chain := thisContext sender cut: ctxt. ctxt jump] on: exceptionClass do: block.
+	[chain := thisContext sender cut: ctxt. 
+	
+		"As the jump will return to the current context inside the context on:do:
+		It is needed to emulate the return value of sending the message on:do:
+		If this is not done, the context will do an additional pop, affecting the temporary variables. 
+		This is required because we are breaking a condition on Context >> jump.
+		The receiver of jump should be a Top context, in this case it is not. "
+		ctxt push:nil. 
+		ctxt jump] on: exceptionClass do: block.
 	"jump above will resume here without unwinding chain"
 	^ chain
 ]
@@ -113,8 +128,7 @@ Context class >> initialize [
 	"A unique object to be returned when a primitive fails during simulation"
 	PrimitiveFailToken := Object new.
 	self initializeTryNamedPrimitiveTemplateMethod.
-	SpecialPrimitiveSimulators := nil.
-	QuickStep := nil.
+	SpecialPrimitiveSimulators := nil
 ]
 
 { #category : #simulation }
@@ -336,9 +350,7 @@ Context >> basicAt: index [
 	<primitive: 210>
 	index isInteger ifTrue:
 		[self errorSubscriptBounds: index].
-	index isNumber
-		ifTrue: [^self at: index asInteger]
-		ifFalse: [self errorNonIntegerIndex]
+	self errorNonIntegerIndex
 ]
 
 { #category : #accessing }
@@ -352,9 +364,7 @@ Context >> basicAt: index put: value [
 	<primitive: 211>
 	index isInteger ifTrue:
 		[self errorSubscriptBounds: index].
-	index isNumber
-		ifTrue: [^self at: index asInteger put: value]
-		ifFalse: [self errorNonIntegerIndex]
+	self errorNonIntegerIndex
 ]
 
 { #category : #accessing }
@@ -395,7 +405,7 @@ Context >> bottomContext [
 	^ self findContextSuchThat: [ :context | context sender isNil]
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> canHandleSignal: exception [
 	"Sent to handler (on:do:) contexts only.  If my exception class (first arg) handles exception then return true, otherwise forward this message to the next handler context.  If none left, return false (see nil>>canHandleSignal:)"
 
@@ -404,14 +414,14 @@ Context >> canHandleSignal: exception [
 
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> cannotReturn: result [
+
 	closureOrNil ifNotNil: [ 
-		^BlockCannotReturn result: result from: self home].
-	Processor activeProcess 
-		debug: thisContext 
-		title: 'computation has been terminated'
-	
+		^ BlockCannotReturn result: result from: self home ].
+	UIManager default
+		requestDebuggerOpeningNamed: 'computation has been terminated'
+		inContext: thisContext
 ]
 
 { #category : #private }
@@ -489,6 +499,7 @@ Context >> copyTo: aContext [
 
 	| copy |
 	self == aContext ifTrue: [^ nil].
+	self pc. "this is a workaround, see https://github.com/pharo-project/pharo/issues/2949"
 	copy := self copy.
 	self sender ifNotNil: [
 		copy privSender: (self sender copyTo: aContext)].
@@ -539,6 +550,22 @@ Context >> depthBelow: aContext [
 			context := context sender.
 			depth := depth + 1 ].
 	^ depth
+]
+
+{ #category : #'instruction decoding' }
+Context >> directedSuperSend: selector numArgs: numArgs [ 
+	
+	| lookupClass arguments currentReceiver |
+
+	lookupClass := self pop superclass.
+	
+	arguments := Array new: numArgs.
+	numArgs to: 1 by: -1 do: [ :i | 
+		arguments at: i put: self pop ].
+
+	currentReceiver := self pop.
+	
+	^ self send: selector to: currentReceiver with: arguments lookupIn: lookupClass
 ]
 
 { #category : #'instruction decoding' }
@@ -716,7 +743,7 @@ Context >> errorReportOn: stream [
 		aContext := aContext sender ].
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> evaluateSignal: exception [
 	"The following primitive is just a marker used to find the evaluation context. 
 	See MethodContext>>#isHandlerOrSignalingContext. "
@@ -751,6 +778,17 @@ Context >> exceptionHandlerBlock [
 
 ]
 
+{ #category : #'private - exceptions' }
+Context >> exceptionsToCaptureWhenStepping [
+
+	| exceptionsToCapture exceptionsSet |
+	exceptionsToCapture := Exception allSubclasses select: [ :c | 
+		                       c captureIfSignalledWhenStepping ].
+	exceptionsSet := ExceptionSet new.
+	exceptionsToCapture do: [ :e | exceptionsSet add: e ].
+	^ exceptionsSet
+]
+
 { #category : #'system simulation' }
 Context >> failPrimitiveWith: maybePrimFailToken [
 	"The receiver is a freshly-created context on a primitive method.  Skip the callPrimitive:
@@ -774,7 +812,7 @@ Context >> findContextSuchThat: testBlock [
 	^ nil
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> findNextHandlerContext [
 	"Return the next handler marked context, returning nil if there is none.  
 	Search starts with self and proceeds up to nil."
@@ -789,7 +827,7 @@ Context >> findNextHandlerContext [
 	^searchStartContext nextHandlerContext
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> findNextHandlerOrSignalingContext [
 	"Return the next handler/signaling marked context, answering nil if there is none. 
 	Search starts with self and proceeds up to nil."
@@ -804,7 +842,7 @@ Context >> findNextHandlerOrSignalingContext [
 	^ nil
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> findNextUnwindContextUpTo: aContext [
 	"Return the next unwind marked above the receiver, returning nil if there is none.  Search proceeds up to but not including aContext."
 
@@ -845,7 +883,7 @@ Context >> findSimilarSender [
 		context compiledCode == method ]
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> handleSignal: exception [
 	"Sent to handler (on:do:) contexts only.  If my exception class (first arg) handles exception then execute my handle block (second arg), otherwise forward this message to the next handler context.  If none left, execute exception's defaultAction (see nil>>handleSignal:)."
 	<debuggerCompleteToSender>
@@ -854,7 +892,7 @@ Context >> handleSignal: exception [
 	self evaluateSignal: exception
 ]
 
-{ #category : #query }
+{ #category : #testing }
 Context >> hasContext: aContext [ 
 	"Answer whether aContext is me or one of my senders"
 
@@ -868,12 +906,12 @@ Context >> hasInstVarRef [
 	^self compiledCode hasInstVarRef.
 ]
 
-{ #category : #accessing }
+{ #category : #testing }
 Context >> hasMethodReturn [
 	^closureOrNil hasMethodReturn
 ]
 
-{ #category : #controlling }
+{ #category : #testing }
 Context >> hasSender: context [ 
 	"Answer whether the receiver is strictly above context on the stack."
 
@@ -932,19 +970,19 @@ Context >> isBlockContext [
 	^closureOrNil isClosure
 ]
 
-{ #category : #query }
+{ #category : #testing }
 Context >> isBottomContext [
 	"Answer if this is the last context (the first context invoked) in my sender chain"
 
 	^sender isNil
 ]
 
-{ #category : #query }
+{ #category : #testing }
 Context >> isContext [
 	^true
 ]
 
-{ #category : #query }
+{ #category : #testing }
 Context >> isDead [
 	"Has self finished"
 
@@ -963,13 +1001,13 @@ Context >> isFailToken: anObject [
 			and: [ anObject size = 2 and: [(anObject at: 1) == PrimitiveFailToken]]
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> isHandlerContext [
 	"is this context for #on:do:?"
 	^self isHandlerOrSignalingContext and: [ self selector == #on:do: ]
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> isHandlerOrSignalingContext [
 	"Both BlockClosure>>on:do: (handler) and Context>>evaluateSignal: (signaling) 
 	are marked with primitive 199."
@@ -983,7 +1021,7 @@ Context >> isPrimFailToken: anObject [
 		  and: [anObject first == PrimitiveFailToken]]
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> isUnwindContext [
 	"is this context for  method that is marked?"
 	^method primitive = 198
@@ -992,7 +1030,9 @@ Context >> isUnwindContext [
 { #category : #controlling }
 Context >> jump [
 	"Abandon thisContext and resume self instead (using the same current process).  You may want to save thisContext's sender before calling this so you can jump back to it.
-	Self MUST BE a top context (ie. a suspended context or a abandoned context that was jumped out of).  A top context already has its return value on its stack (see Interpreter>>primitiveSuspend and other suspending primitives).
+	Self MUST BE a top context (ie. a suspended context or an abandoned context that was jumped out of).  A top context already has its return value on its stack (see Interpreter>>primitiveSuspend and other suspending primitives).
+	If self is not a top context is the responsibility of the caller to push something in the context. If this is not guarantee an error when accessing the values in the context is produced. Pay special attention to the implementation of Context class >> #contextOn: exceptionClass do: block and Context class >> #contextEnsure:. 
+	
 	thisContext's sender is converted to a top context (by pushing a nil return value on its stack) so it can be jump back to."
 
 	| top |
@@ -1089,7 +1129,7 @@ Context >> methodSelector [
 	^ self compiledCode selector
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> nextHandlerContext [
 
 	^ self sender findNextHandlerContext
@@ -1233,9 +1273,9 @@ Context >> objectSize: anObject [
 { #category : #accessing }
 Context >> outerContext [
 	"Answer the context within which the receiver is nested."
-
+	
 	^closureOrNil ifNotNil:
-		[closureOrNil outerContext]
+		[closureOrNil outerContext ifNil: ["if the outer is nil, this is a CleanBlock" self sender]]
 ]
 
 { #category : #accessing }
@@ -1322,36 +1362,63 @@ Context >> printDebugOn: aStream [
 
 { #category : #printing }
 Context >> printDetails: stream [
+
 	"Put my class>>selector and instance variables and arguments and temporaries on the stream.  Protect against errors during printing."
 
 	| errorMessage string |
 	self printOn: stream.
 	stream cr.
-	stream tab; nextPutAll: 'Receiver: '.
+	stream
+		tab;
+		nextPutAll: 'Receiver: '.
 	errorMessage := '<<error during printing>>'.
-	stream nextPutAll: ([receiver printStringLimitedTo: 90] onErrorDo: [errorMessage]).
+	stream nextPutAll:
+		([ receiver printStringLimitedTo: 90 ] on: Exception do: [ errorMessage ]).
 
-	stream cr; tab; nextPutAll: 'Arguments and temporary variables: '; cr.
-	string := [(self tempsAndValuesLimitedTo: 80 indent: 2) 
-				padRightTo:1 with: $x] onErrorDo: [errorMessage].
-	stream nextPutAll: (string allButLast).
+	stream
+		cr;
+		tab;
+		nextPutAll: 'Arguments and temporary variables: ';
+		cr.
+	string := [ 
+	          (self tempsAndValuesLimitedTo: 80 indent: 2)
+		          padRightTo: 1
+		          with: $x ] on: Exception do:  [ errorMessage ].
+	stream nextPutAll: string.
 
-	stream cr; tab; nextPutAll: 'Receiver''s instance variables: '; cr.
-	receiver class allInstVarNames isEmpty ifTrue: [ 
-		stream nextPutAll: ([receiver printStringLimitedTo: 90] onErrorDo: [ errorMessage ]).
-	] ifFalse: [
-		[receiver longPrintOn: stream limitedTo: 80 indent: 2] onErrorDo: [ stream nextPutAll: errorMessage ].
-	].
+	stream
+		cr;
+		tab;
+		nextPutAll: 'Receiver''s instance variables: ';
+		cr.
+	receiver class allInstVarNames isEmpty
+		ifTrue: [ 
+			stream nextPutAll:
+				([ receiver printStringLimitedTo: 90 ] on: Exception do:  [ errorMessage ]) ]
+		ifFalse: [ 
+			[ receiver longPrintOn: stream limitedTo: 80 indent: 2 ] 
+				on: Exception do:  [ stream nextPutAll: errorMessage ] ].
 	stream cr
 ]
 
 { #category : #printing }
 Context >> printOn: aStream [
+	(closureOrNil isNotNil and: [closureOrNil isClean]) ifTrue: 
+		[ | selector |
+			selector := self selector ifNil: [ self compiledCode defaultSelector ].
+			aStream 
+			 print: closureOrNil;
+			 nextPutAll: ' in ';
+			 nextPutAll: self methodClass name;
+			 nextPutAll: '>>';
+			 nextPutAll: selector.
+			 ^self].
+	
 	self outerContext
 		ifNil:
 			[ | selector class mclass |
-			self compiledCode == nil
-				ifTrue: [ ^ super printOn: aStream ].
+			self compiledCode
+				ifNil: [ ^ super printOn: aStream ].
 			class := self receiver class.
 			mclass := self methodClass.
 			selector := self selector ifNil: [ self compiledCode defaultSelector ].
@@ -1369,7 +1436,8 @@ Context >> printOn: aStream [
 					(self tempAt: 1) selector printOn: aStream ] ]
 		ifNotNil:
 			[ :outerContext | 
-			aStream nextPutAll: closureOrNil printString , ' in '.
+			closureOrNil printOn: aStream.
+			aStream nextPutAll: ' in '.
 			outerContext printOn: aStream ]
 ]
 
@@ -1552,13 +1620,21 @@ Context >> pushTemporaryVariable: offset [
 	self push: (self at: offset + 1)
 ]
 
+{ #category : #private }
+Context >> quickMethodPrimitiveBytecodeSize [
+
+	"A quick method starts with a 3 bytecodes primitive (264 or 256)"
+
+	^ 3
+]
+
 { #category : #accessing }
 Context >> receiver [ 
 
 	^receiver
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> receiver: anObject [
 
 	receiver := anObject
@@ -1709,7 +1785,7 @@ Context >> runUntilErrorOrReturnFrom: aSender [
 	"Insert ensure and exception handler contexts under aSender"
 	error := nil.
 	context := aSender insertSender: (Context
-		contextOn: Error, Halt do: [:ex |
+		contextOn: self exceptionsToCaptureWhenStepping do: [:ex |
 			error ifNil: [
 				error := ex.
 				topContext := thisContext.
@@ -1778,45 +1854,67 @@ Context >> send: selector to: rcvr with: arguments lookupIn: lookupClass [
 ]
 
 { #category : #controlling }
-Context >> send: selector to: aReceiver with: arguments super: superFlag [ 
+Context >> send: selector to: aReceiver with: arguments super: superFlag [
+
 	"Simulate the action of sending a message with selector, selector, and 
 	arguments, args, to receiver. The argument, superFlag, tells whether the 
 	receiver of the message was specified with 'super' in the source method."
 
 	| class aMethod value context |
 	class := superFlag
-			ifTrue: [(self compiledCode literalAt: self compiledCode numLiterals) value superclass]
-			ifFalse: [self objectClass: aReceiver].
+		         ifTrue: [ 
+			         (self compiledCode literalAt:
+				          self compiledCode numLiterals) value superclass ]
+		         ifFalse: [ self objectClass: aReceiver ].
 	aMethod := class lookupSelector: selector.
-	aMethod == nil
-		ifTrue: [ ^ self
-				send: #doesNotUnderstand:
-				to: aReceiver
-				with: (Array with: (Message selector: selector arguments: arguments))
-				super: superFlag ].
-	aMethod isCompiledMethod
-		ifFalse: [ ^ self
-				send: #run:with:in:
-				to: aMethod
-				with: (Array with: selector with: arguments with: aReceiver)
-				super: superFlag ].
-	
-	value := self tryPrimitiveFor: aMethod receiver: aReceiver args: arguments.
+	aMethod == nil ifTrue: [ 
+		^ self
+			  send: #doesNotUnderstand:
+			  to: aReceiver
+			  with:
+			  (Array with: (Message selector: selector arguments: arguments))
+			  super: superFlag ].
+	aMethod isCompiledMethod ifFalse: [ 
+		^ self
+			  send: #run:with:in:
+			  to: aMethod
+			  with: (Array with: selector with: arguments with: aReceiver)
+			  super: superFlag ].
 
-	"primitive runs without failure?"
-	(self isFailToken: value) ifFalse: [^ value].
-	
-	(selector == #doesNotUnderstand: and: [ (class canUnderstand: #doesNotUnderstand: ) not ]) 
-		ifTrue: [
-			^self error: 'Simulated message ', (arguments at: 1) selector, ' not understood'].
-	
+	(aMethod isRealPrimitive or:[self stepIntoQuickMethod not]) ifTrue: [ 
+		value := self
+			         tryPrimitiveFor: aMethod
+			         receiver: aReceiver
+			         args: arguments.
+		"primitive runs without failure?"
+		(self isFailToken: value) ifFalse: [ ^ value ] ].
+
+	(selector == #doesNotUnderstand: and: [ 
+		 (class canUnderstand: #doesNotUnderstand:) not ]) ifTrue: [ 
+		^ self error:
+			  'Simulated message ' , (arguments at: 1) selector
+			  , ' not understood' ].
+
 	"failure.. lets activate the method"
-	context := self activateMethod: aMethod withArgs: arguments receiver: aReceiver class: class.
+	context := self
+		           activateMethod: aMethod
+		           withArgs: arguments
+		           receiver: aReceiver
+		           class: class.
+		
+	"The quick method contains 3 bytecodes:
+	- primitive 264 or 256: a 3 bytecode primitive (initialPC)
+	- a push of a value (endPC - 1)
+	- the return top instruction (endPC)
+	When activating the quick method, we arrive on the PC corresponding to the primitive which is not suposed to be stepped.
+	We have to fix the PC so that the next executed bytecode is the push.
+	We do that by setting the PC to aMethod initialPC + 3 (the number of bytes of the primitive)."
+	(aMethod isQuick and:[self stepIntoQuickMethod]) ifTrue: [ context pc: aMethod initialPC + self quickMethodPrimitiveBytecodeSize].
 	
 	"check if activated method handles the error code (a first bytecode will be store into temp)"
-	"long store temp" 
-	 (context compiledCode at: context pc ) = 129 
-		ifTrue: [ context at: context stackPtr put: value last ].
+	"long store temp"
+	(context compiledCode at: context pc) = 129 ifTrue: [ 
+		context at: context stackPtr put: value last ].
 	^ context
 ]
 
@@ -1830,8 +1928,6 @@ Context >> sender [
 { #category : #private }
 Context >> setNamedPrimitiveInformationFrom: fromMethod toMethod: toMethod [
 	"For named primitives, the first literal contains a special object that has information of the primitive. In this method we cope such information from one to another one."
-	"((StandardFileStream >> #primOpen:writable:) literalAt: 1) >>> #(#FilePlugin #primitiveFileOpen 0 0)"
-
 	| spec |	
 	spec := toMethod literalAt: 1.	
 	spec replaceFrom: 1 to: spec size with: (fromMethod literalAt: 1) startingAt: 1.
@@ -1979,6 +2075,17 @@ Context >> step [
 	^self interpretNextInstructionFor: self
 ]
 
+{ #category : #'debugger access' }
+Context >> stepIntoQuickMethod [
+	^self compiledCode stepIntoQuickMethods
+]
+
+{ #category : #'debugger access' }
+Context >> stepIntoQuickMethod: aBoolean [
+
+	self compiledCode stepIntoQuickMethods: aBoolean
+]
+
 { #category : #controlling }
 Context >> stepToCallee [
 	"Step to callee or sender"
@@ -2036,7 +2143,7 @@ Context >> storeIntoTemporaryVariable: offset [
 	self at: offset + 1 put: self top
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
 Context >> swapReceiver: newReceiver [
 
 	receiver := newReceiver
@@ -2166,7 +2273,23 @@ Context >> unwindComplete: aBoolean [
 
 ]
 
-{ #category : #'private-exceptions' }
+{ #category : #'private - exceptions' }
+Context >> unwindForTermination [
+	"Unwind to execute pending ensure:/ifCurtailed: blocks before terminating active process.
+	It assumes that self belongs to the active process. "
+	| unwindContext unwindBlock |
+	unwindContext := self.
+	[ unwindContext := unwindContext findNextUnwindContextUpTo: nil.
+	unwindContext isNil ] whileFalse: [ 
+		unwindContext unwindComplete ifNil: [ 
+			"N.B. Unlike Context>>unwindTo: we do not set complete (tempAt: 2) to true."
+			unwindBlock := unwindContext unwindBlock.
+			self terminateTo: unwindContext.
+			unwindBlock value ]].
+	self terminateTo: nil
+]
+
+{ #category : #'private - exceptions' }
 Context >> unwindTo: aContext [
 
 	| context unwindBlock |

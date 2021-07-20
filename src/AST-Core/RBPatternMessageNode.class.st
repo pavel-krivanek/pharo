@@ -18,17 +18,17 @@ Class {
 { #category : #'instance creation' }
 RBPatternMessageNode class >> receiver: aValueNode selector: aSelector keywordsPositions: positionList arguments: valueNodes [
 
-	^aSelector isPatternVariable
+	^aSelector value asSymbol isPatternVariable
 		ifTrue: 
 			[super
 				receiver: aValueNode
-				selector: aSelector 
+				selector: aSelector
 				keywordsPositions: positionList asIntegerArray
 				arguments: valueNodes]
 		ifFalse: 
 			[RBMessageNode 
 				receiver: aValueNode
-				selector: aSelector 
+				selector: aSelector
 				keywordsPositions: positionList asIntegerArray
 				arguments: valueNodes]
 ]
@@ -47,17 +47,17 @@ RBPatternMessageNode >> copyInContext: aDictionary [
 		arguments: (self copyList: self arguments inContext: aDictionary)
 ]
 
-{ #category : #'testing-matching' }
+{ #category : #'testing - matching' }
 RBPatternMessageNode >> isList [
 	^isCascadeList and: [parent notNil and: [parent isCascade]]
 ]
 
-{ #category : #'testing-matching' }
+{ #category : #'testing - matching' }
 RBPatternMessageNode >> isPatternNode [
 	^true
 ]
 
-{ #category : #'testing-matching' }
+{ #category : #'testing - matching' }
 RBPatternMessageNode >> isSelectorList [
 	^isList
 ]

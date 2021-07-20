@@ -26,6 +26,7 @@ Class {
 	#name : #ClyMethodEditorToolMorph,
 	#superclass : #ClyTextEditorToolMorph,
 	#instVars : [
+		'ast',
 		'methodTags',
 		'extendingPackage',
 		'targetClasses'
@@ -58,8 +59,8 @@ ClyMethodEditorToolMorph >> belongsToRemovedBrowserContext [
 { #category : #building }
 ClyMethodEditorToolMorph >> buildTextMorph [
 	super buildTextMorph.
-	
-	self formatTextIfNeeded 
+	ast := self initializeAST.
+	self formatTextIfNeeded.
 ]
 
 { #category : #'events handling' }
@@ -80,9 +81,18 @@ ClyMethodEditorToolMorph >> chooseClassForNewMethodIfNone: aBlock [
 
 	^[self browser searchDialog 
 			requestSingleObject: 'Where install new method?'
-			from: (ClyAllClassesQuery as: ClyMethodVisibilityProvider defaultHierarchy asQueryResult) 
+			from: (ClyAllClassesQuery as: ClyMethodVisibilityProviderAnnotation defaultHierarchy asQueryResult) 
 			inScope: (ClyClassScope ofAll: targetClasses)]
 		on: CmdCommandAborted do: [:err | aBlock value ]
+]
+
+{ #category : #'events handling' }
+ClyMethodEditorToolMorph >> currentEditedAST [
+
+	^ self methodClass compiler
+		  source: self pendingText;
+		  options: #( + optionParseErrors + optionSkipSemanticWarnings );
+		  parse
 ]
 
 { #category : #accessing }
@@ -135,6 +145,12 @@ ClyMethodEditorToolMorph >> initialize [
 	super initialize.
 	
 	methodTags := #()
+]
+
+{ #category : #initialization }
+ClyMethodEditorToolMorph >> initializeAST [
+	"subclasses might get it from the method"
+	^ self currentEditedAST
 ]
 
 { #category : #testing }
@@ -228,6 +244,17 @@ ClyMethodEditorToolMorph >> tagEditingMethod: aMethod [
 { #category : #accessing }
 ClyMethodEditorToolMorph >> tagsAndPackageEditor [
 	^(statusBar findDeeplyA: ClyMethodTagsAndPackageEditorMorph) ifNil: [ CmdCommandAborted signal ]
+]
+
+{ #category : #'events handling' }
+ClyMethodEditorToolMorph >> textChanged: aTextChanged [
+	super textChanged: aTextChanged.
+	ast := self currentEditedAST.
+	textMorph segments copy do: #delete.
+	IconStyler new
+	   stylerClasses: {ErrorNodeStyler . SemanticMessageIconStyler . SemanticVariableIconStyler }; 
+		styleText: textModel withAst: ast.
+	^ ast
 ]
 
 { #category : #operations }

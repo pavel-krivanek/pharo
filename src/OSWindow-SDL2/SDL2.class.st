@@ -51,12 +51,23 @@ SDL2 class >> clipboardText: text [
 			toStream: stream.
 		stream nextPut: 0 ].
 	
+	encoded pinInMemory.
 	self primClipboardText: encoded
 ]
 
 { #category : #audio }
 SDL2 class >> closeAudioDevice: dev [
 	^ self ffiCall: #( void SDL_CloseAudioDevice(SDL_AudioDeviceID dev) )
+]
+
+{ #category : #video }
+SDL2 class >> composeCustomBlendMode_srcColorFactor: srcColorFactor dstColorFactor: dstColorFactor colorOperation: colorOperation srcAlphaFactor: srcAlphaFactor dstAlphaFactor: dstAlphaFactor alphaOperation: alphaOperation [
+	^ self ffiCall: #(SDL_BlendMode SDL_ComposeCustomBlendMode(SDL_BlendFactor srcColorFactor,
+                                                                 SDL_BlendFactor dstColorFactor,
+                                                                 SDL_BlendOperation colorOperation,
+                                                                 SDL_BlendFactor srcAlphaFactor,
+                                                                 SDL_BlendFactor dstAlphaFactor,
+                                                                 SDL_BlendOperation alphaOperation))
 ]
 
 { #category : #cursor }
@@ -76,6 +87,11 @@ SDL2 class >> createRGBSurfaceFromPixels: pixels width: width height: height dep
 	^ self ffiCall: #( SDL_Surface* SDL_CreateRGBSurfaceFrom 
 						( void* pixels , int width , int height , int depth , int pitch ,
 						  Uint32 rmask , Uint32 gmask , Uint32 bmask , Uint32 amask ) )
+]
+
+{ #category : #cursor }
+SDL2 class >> createSystemCursor: cursorId [
+	^ self ffiCall: #( SDL_Cursor SDL_CreateSystemCursor (SDL_SystemCursorType cursorId) )
 ]
 
 { #category : #video }
@@ -137,6 +153,11 @@ SDL2 class >> getAudioDeviceName: index isCapture: isCapture [
 	^ self ffiCall: #( char* SDL_GetAudioDeviceName(int index, int isCapture) ) options: #( optStringEncodingUtf8 ).
 ]
 
+{ #category : #video }
+SDL2 class >> getDisplay: displayIndex ddpi: ddpi hdpi: hdpi vdpi: vdpi [
+	^ self ffiCall: #( int SDL_GetDisplayDPI(int displayIndex, float* ddpi, float* hdpi, float* vdpi))
+]
+
 { #category : #'error handling' }
 SDL2 class >> getErrorMessage [
 	^ self ffiCall: #( String SDL_GetError ( void ) )
@@ -154,6 +175,11 @@ SDL2 class >> getQueuedAudioSize: dev [
 
 { #category : #common }
 SDL2 class >> getVersion: ver [
+	"Get the version of SDL.
+
+	See: https://wiki.libsdl.org/SDL_GetVersion
+	"
+
 	^ self ffiCall: #( void SDL_GetVersion(SDL_Version* ver) )
 ]
 
@@ -164,12 +190,10 @@ SDL2 class >> glCreateContext: window [
 
 { #category : #opengl }
 SDL2 class >> glGetAttribute: attr [
-	| value result |
-   value := ExternalAddress allocate: 4.
-	self glGetAttribute: attr into: value.
-	result := value nbUInt32AtOffset: 0.
-	value free.
-	^result
+
+	^ ExternalAddress allocate: 4 bytesDuring: [ :value | 
+		  self glGetAttribute: attr into: value.
+		  value nbUInt32AtOffset: 0 ]
 ]
 
 { #category : #opengl }
@@ -234,8 +258,10 @@ SDL2 class >> initLibrary [
 	
 	self initPlatformSpecific.
 	
-	self setHint: SDL_HINT_VIDEO_ALLOW_SCREENSAVER value: '1'.
-	self setHint: SDL_HINT_NO_SIGNAL_HANDLERS value: '1'.
+	self
+		setHint: SDL_HINT_VIDEO_ALLOW_SCREENSAVER value: '1';
+		setHint: SDL_HINT_NO_SIGNAL_HANDLERS value: '1'.
+		
 	self init: SDL_INIT_NOPARACHUTE.
 	Session := Smalltalk session.
 ]
@@ -243,9 +269,8 @@ SDL2 class >> initLibrary [
 { #category : #common }
 SDL2 class >> initPlatformSpecific [
 
-	Smalltalk os isMacOSX ifTrue: [  
-		SDLOSXPlatformInitializer new run.	
-	] 
+	OSPlatform current sdlPlatform initPlatformSpecific.
+
 ]
 
 { #category : #common }
@@ -326,7 +351,7 @@ SDL2 class >> pollEvent: event [
 
 { #category : #clipboard }
 SDL2 class >> primClipboardText [
-	^ self ffiCall: #( ExternalAddress SDL_GetClipboardText ( ) )
+	^ self ffiCall: #(void* SDL_GetClipboardText ( ) )
 ]
 
 { #category : #clipboard }
@@ -377,6 +402,17 @@ SDL2 class >> showCursor: toggle [
 SDL2 class >> ticks [
 	"Gets the number of milliseconds since the SDL library was initialized"
 	^ self ffiCall: #( Uint32 SDL_GetTicks ( ) )
+]
+
+{ #category : #common }
+SDL2 class >> version [
+	"Answer the SDL version. For example, a SDL_Version(2.0.7)."
+
+	| version |
+	version := SDL_Version new.
+	self getVersion: version.
+	version autoRelease.
+	^ version
 ]
 
 { #category : #common }

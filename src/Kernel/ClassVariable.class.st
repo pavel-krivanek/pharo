@@ -11,8 +11,28 @@ as pool variables.
 Class {
 	#name : #ClassVariable,
 	#superclass : #LiteralVariable,
+	#instVars : [
+		'owningClass',
+		'definingClass'
+	],
 	#category : #'Kernel-Variables'
 }
+
+{ #category : #visiting }
+ClassVariable >> acceptVisitor: aProgramNodeVisitor node: aNode [
+	^ aProgramNodeVisitor visitClassVariableNode: aNode
+]
+
+{ #category : #accessing }
+ClassVariable >> definingClass [
+	"if a Variable is from a Trait is installed in a class, we store the orginal class of the trait here"
+	^ definingClass ifNil: [ self owningClass ]
+]
+
+{ #category : #accessing }
+ClassVariable >> definingClass: anObject [
+	definingClass := anObject
+]
 
 { #category : #printing }
 ClassVariable >> definitionString [
@@ -34,7 +54,7 @@ ClassVariable >> emitStore: methodBuilder [
 { #category : #'code generation' }
 ClassVariable >> emitValue: methodBuilder [
 
-	methodBuilder pushLiteralVariable: self.
+	methodBuilder pushLiteralVariable: self
 ]
 
 { #category : #testing }
@@ -43,11 +63,39 @@ ClassVariable >> isClassVariable [
 ]
 
 { #category : #testing }
+ClassVariable >> isDefinedByOwningClass [
+
+	^ self owningClass = self definingClass
+]
+
+{ #category : #testing }
+ClassVariable >> isPoolVariable [
+	^ self definingClass isPool 
+]
+
+{ #category : #testing }
 ClassVariable >> isReferenced [
- 	"A class variable can only be accessed in the defintionClass and its subclasses (both class and instance side)"
- 	
-	^ self definingClass withAllSubclasses
- 		anySatisfy: [ :behavior | behavior hasSelectorReferringTo: self . behavior class hasSelectorReferringTo: self ]
+	"A class variable can only be accessed in the defintionClass and its subclasses (both class and instance side)"
+
+	^ self definingClass withAllSubclasses anySatisfy: [ :behavior | 
+		  (behavior class hasMethodAccessingVariable: self) or: [ behavior hasMethodAccessingVariable: self ] ]
+]
+
+{ #category : #testing }
+ClassVariable >> needsFullDefinition [
+	"only ClassVariable can use a simplified definition"
+
+	^ self class ~= ClassVariable
+]
+
+{ #category : #accessing }
+ClassVariable >> owningClass [
+	^ owningClass
+]
+
+{ #category : #accessing }
+ClassVariable >> owningClass: anObject [
+	owningClass := anObject
 ]
 
 { #category : #queries }

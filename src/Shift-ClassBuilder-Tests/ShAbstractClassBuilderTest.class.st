@@ -81,10 +81,13 @@ ShAbstractClassBuilderTest >> validateSharedPools: pools [
 
 { #category : #validation }
 ShAbstractClassBuilderTest >> validateSharedVariables: allVariables [
-	| resultVariables |
-	resultVariables  := result classPool keys.
+	| resultVariables classVar |
+	resultVariables  := result classVarNames.
 
-	self assertCollection: resultVariables equals: allVariables 
+	self assertCollection: resultVariables equals: allVariables.
+	allVariables do: [ :each | 
+		classVar := result classVariableNamed: each.
+		self assert: classVar definingClass equals: result  ]
 ]
 
 { #category : #validation }
@@ -103,7 +106,7 @@ ShAbstractClassBuilderTest >> validateSlots: allSlots [
 			self assert: a class equals: b class ]
 ]
 
-{ #category : #'private validating' }
+{ #category : #'private - validating' }
 ShAbstractClassBuilderTest >> validateSuperclass: aSuperclass [
 	self assert: result superclass identicalTo: aSuperclass
 ]

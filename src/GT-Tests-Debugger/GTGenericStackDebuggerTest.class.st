@@ -4,7 +4,12 @@ Class {
 	#category : #'GT-Tests-Debugger'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
+GTGenericStackDebuggerTest class >> isDeprecated [
+	^ true
+]
+
+{ #category : #tests }
 GTGenericStackDebuggerTest >> testBasic [
 	| context process debugger printedString |
 	context := [ 20 factorial ] asContext.

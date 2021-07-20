@@ -1,10 +1,11 @@
 "
 Subinstances of me are members in a ZipArchive.
+
 They represent different data sources:
-	* ZipDirectoryMember -- a directory to be added to a zip file
-	* ZipFileMember -- a file or directory that is already in a zip file
-	* ZipNewFilemember -- a file that is to be added to a zip file
-	* ZipStringMember -- a string that is to be added to a zip file
+* ZipDirectoryMember -- a directory to be added to a zip file
+* ZipFileMember -- a file or directory that is already in a zip file
+* ZipNewFilemember -- a file that is to be added to a zip file
+* ZipStringMember -- a string that is to be added to a zip file
 
 They can write their data to another stream either copying, compressing,
 or decompressing as desired.
@@ -141,7 +142,7 @@ ZipArchiveMember >> centralDirectoryHeaderSize [
 
 	| systemFileName systemFileComment systemCdExtraField |
 	systemFileName := fileName asVmPathName.
-	systemFileComment := fileComment convertToSystemString.
+	systemFileComment := fileComment utf8Encoded.
 	systemCdExtraField := cdExtraField.
 	^ 46 + systemFileName size + systemCdExtraField size + systemFileComment size
 
@@ -153,7 +154,7 @@ ZipArchiveMember >> clearExtraFields [
 	localExtraField := ''
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> compressDataTo: aStream [
 	"Copy my deflated data to the given stream."
 	| encoder startPos endPos |
@@ -226,7 +227,7 @@ ZipArchiveMember >> contentsFrom: start to: finish [
 	^s contents
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> copyDataTo: aStream [
 
 	compressionMethod = CompressionStored ifTrue: [ ^self copyDataWithCRCTo: aStream ].
@@ -234,7 +235,7 @@ ZipArchiveMember >> copyDataTo: aStream [
 	self copyRawDataTo: aStream
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> copyDataWithCRCTo: aStream [
 	"Copy my data to aStream. Also set the CRC-32.
 	Only used when compressionMethod = desiredCompressionMethod = CompressionStored"
@@ -254,7 +255,7 @@ ZipArchiveMember >> copyDataWithCRCTo: aStream [
 
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> copyRawDataTo: aStream [
 
 	[ readDataRemaining > 0 ] whileTrue: [ | data |
@@ -263,7 +264,7 @@ ZipArchiveMember >> copyRawDataTo: aStream [
 		readDataRemaining := readDataRemaining - data size ]
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> copyRawDataTo: aStream from: start to: finish [
 
 	readDataRemaining := readDataRemaining min: finish - start + 1.
@@ -419,7 +420,7 @@ ZipArchiveMember >> extractTo: aStream from: start to: finish [
 	self endRead
 ]
 
-{ #category : #'private-extraction' }
+{ #category : #'private - extraction' }
 ZipArchiveMember >> extractToFile: aFile informingOverwrite: shouldOverwrite onSuccess: successBlock onRetryWithOverwrite: retryWithOverwriteBlock onFailedOverwrite: failedBlock onAbortOverwrite: abortBlock [
 	"Extract this entry into the given file. Answer successBlock or call one of the other action blocks."
 
@@ -694,13 +695,13 @@ ZipArchiveMember >> versionNeededToExtract: anInteger [
 	versionNeededToExtract := anInteger
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> writeCentralDirectoryFileHeaderTo: aStream [
 	"C2 v3 V4 v5 V2"
 
 	| systemFileName systemFileComment systemCdExtraField endianStream |
 	systemFileName := fileName asVmPathName.
-	systemFileComment := fileComment convertToSystemString.
+	systemFileComment := fileComment utf8Encoded.
 	systemCdExtraField := cdExtraField.
 	aStream nextPutAll: CentralDirectoryFileHeaderSignature.
 	
@@ -732,10 +733,10 @@ ZipArchiveMember >> writeCentralDirectoryFileHeaderTo: aStream [
 
 	aStream nextPutAll: systemFileName asByteArray.
 	aStream nextPutAll: systemCdExtraField asByteArray.
-	aStream nextPutAll: systemFileComment asByteArray
+	aStream nextPutAll: systemFileComment
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> writeDataDescriptorTo: aStream [
 	"This writes a data descriptor to the given stream.
 	Assumes that crc32, writeOffset, and uncompressedSize are
@@ -748,7 +749,7 @@ ZipArchiveMember >> writeDataDescriptorTo: aStream [
 	aStream nextLittleEndianNumber: 4 put: uncompressedSize
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> writeDataTo: aStream [
 	"Copy my (possibly inflated or deflated) data to the given stream.
 	This might do compression, decompression, or straight copying, depending
@@ -767,7 +768,7 @@ ZipArchiveMember >> writeDataTo: aStream [
 	self copyDataTo: aStream.
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> writeDataTo: aStream from: start to: finish [
 	"Copy my (possibly inflated or deflated) data to the given stream.
 	But only the specified byte range.
@@ -787,7 +788,7 @@ ZipArchiveMember >> writeDataTo: aStream from: start to: finish [
 	self copyRawDataTo: aStream from: start to: finish.
 ]
 
-{ #category : #'private-writing' }
+{ #category : #'private - writing' }
 ZipArchiveMember >> writeLocalFileHeaderTo: aStream [
 	"Write my local header to a file handle.
 	Stores the offset to the start of the header in my

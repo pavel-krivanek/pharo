@@ -11,7 +11,12 @@ Class {
 	#category : #'Glamour-Announcements'
 }
 
-{ #category : #'accessing-convenience' }
+{ #category : #testing }
+GLMMatchingPresentationsChanged class >> isDeprecated [
+	^ true
+]
+
+{ #category : #'accessing - convenience' }
 GLMMatchingPresentationsChanged >> matchingPresentations [ 
 	"The presentations that match now."
 	^ self pane matchingPresentations
@@ -48,5 +53,5 @@ GLMMatchingPresentationsChanged >> pane: aPane [
 { #category : #printing }
 GLMMatchingPresentationsChanged >> printOn: aStream [
 	super printOn: aStream.
-	aStream nextPutAll: ' (pane = ', self pane printString , ')'
+	aStream nextPutAll: ' (pane = '; print: self pane  ; nextPut: $)
 ]

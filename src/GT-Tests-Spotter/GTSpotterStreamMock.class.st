@@ -7,7 +7,12 @@ Class {
 	#category : #'GT-Tests-Spotter'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
+GTSpotterStreamMock class >> isDeprecated [
+	^ true
+]
+
+{ #category : #adding }
 GTSpotterStreamMock >> addObject: anObject inProcessor: aProcessor [
 	objects add: anObject
 ]

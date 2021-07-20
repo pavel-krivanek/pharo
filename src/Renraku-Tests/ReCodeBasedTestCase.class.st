@@ -12,23 +12,29 @@ Class {
 	#category : #'Renraku-Tests'
 }
 
+{ #category : #testing }
+ReCodeBasedTestCase class >> isAbstract [
+
+	^ self = ReCodeBasedTestCase
+]
+
 { #category : #running }
 ReCodeBasedTestCase >> setUp [
 	super setUp.
-	testClass := Object
-		subclass: 'RenrakuProgrammaticallyCreatedClassTestClass'
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		package: testPackage name.
+
+	testClass := self class classInstaller make: [ :aClassBuilder | 
+		aClassBuilder 
+			name: #RenrakuProgrammaticallyCreatedClassTestClass;
+			package: testPackage name ].
+
+
 	testMethod := testClass
 		>> (testClass compile: 'testingMethod ^ self').
-	testClass2 := Object
-		subclass: 'RenrakuProgrammaticallyCreatedClassTestClass2'
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		package: testPackage name
+
+	testClass2 := self class classInstaller make: [ :aClassBuilder | 
+		aClassBuilder 
+			name: #RenrakuProgrammaticallyCreatedClassTestClass2;
+			package: testPackage name ]
 ]
 
 { #category : #running }

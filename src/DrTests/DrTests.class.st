@@ -18,17 +18,12 @@ Run and browse buttons behaviour are defined by the current plugin selected.
 "
 Class {
 	#name : #DrTests,
-	#superclass : #AbstractDrTestsUI,
+	#superclass : #AbstractDrTestsPresenter,
 	#instVars : [
 		'pluginsDropList',
-		'packagesList',
-		'resultsList',
 		'statusLabel',
 		'plugins',
-		'itemsList',
-		'resultViewsDropList',
-		'pluginResult',
-		'resultLabel'
+		'pluginPresenter'
 	],
 	#category : #'DrTests-Spec'
 }
@@ -36,62 +31,16 @@ Class {
 { #category : #'tools registry' }
 DrTests class >> beDefaultTestRunner [
 	<script>
+	
 	self registerToolsOn: Smalltalk tools
-]
-
-{ #category : #commands }
-DrTests class >> buildCommandsGroupWith: presenterInstance forRoot: rootCommandGroup [
-	rootCommandGroup
-		register: (self buildContextualPackageGroupWith: presenterInstance);
-		register: (self buildItemsListGroupWith: presenterInstance);
-		register: (self buildResultGroupWith: presenterInstance)
-]
-
-{ #category : #commands }
-DrTests class >> buildContextualPackageGroupWith: presenterInstance [
-	^ (CmCommandGroup named: 'Package menu') asSpecGroup
-		register: (self buildPackageGroupWith: presenterInstance);
-		yourself
-]
-
-{ #category : #commands }
-DrTests class >> buildItemsListGroupWith: presenterInstance [
-	^ (CmCommandGroup named: 'List items menu') asSpecGroup
-		register: (DTBrowseSelectedItem forSpec context: presenterInstance);
-		yourself
-]
-
-{ #category : #commands }
-DrTests class >> buildPackageGroupWith: presenterInstance [
-	^ (CmCommandGroup named: 'Package tools') asSpecGroup
-		description: 'Commands related to packages list.';
-		register: (DTPackagesSelectAllCommand forSpec context: presenterInstance);
-		beDisplayedAsGroup;
-		yourself
-]
-
-{ #category : #commands }
-DrTests class >> buildResultGroupWith: presenterInstance [
-	| commandGroup pluginCommands |
-	commandGroup := (CmCommandGroup named: 'Results tools') asSpecGroup
-		description: 'Commands related to result.';
-		register:
-			(DTResultBrowseCommand forSpec context: presenterInstance)
-				beHiddenWhenCantBeRun;
-		yourself.
-	pluginCommands := presenterInstance currentPlugin
-		buildContextualMenuGroupWith: presenterInstance.
-	pluginCommands entries ifEmpty: [ ^ commandGroup ].
-	^ commandGroup
-		register: pluginCommands beDisplayedAsGroup;
-		yourself
 ]
 
 { #category : #specs }
 DrTests class >> defaultSpec [
-	^ SpBoxLayout newVertical
+
+	^ SpBoxLayout newTopToBottom
 		add:
-			(SpBoxLayout newHorizontal
+			(SpBoxLayout newLeftToRight
 				add: #pluginsDropList;
 				add: #switchButton
 					withConstraints: [ :constraints | constraints width: self buttonWidth * 2 ];
@@ -100,48 +49,28 @@ DrTests class >> defaultSpec [
 				constraints
 					expand: false;
 					height: self toolbarHeight ];
-		add:
-			(SpPanedLayout newHorizontal
-				add:
-					(SpPanedLayout newHorizontal
-						add:
-							(SpBoxLayout newVertical
-								add: #packagesList;
-								yourself);
-						add:
-							(SpBoxLayout newVertical
-								add: #itemsList;
-								yourself);
-						yourself);
-				add:
-					(SpBoxLayout newVertical
-						add: #resultViewsDropList
-							withConstraints: [ :constraints | constraints expand: false ];
-						add: #resultLabel
-							withConstraints: [ :constraints | constraints height: self labelHeight ];
-						add: #resultsList;
-						yourself);
-				yourself);
-		add: #startButton
-			withConstraints: [ :constraints | constraints width: self buttonWidth ];
+		add: #pluginPresenter;
 		yourself
 ]
 
 { #category : #'world menu' }
 DrTests class >> menuCommandOn: aBuilder [
 	<worldMenu>
-	(aBuilder item: #'Dr Test (preview)')
-		parent: #Tools;
+	
+	(aBuilder item: #'Dr Test (Preview)')
+		parent: #Testing;
 		action: [ self open ];
-		order: 20;
-		"keyText: 'o, u';" "Note: Removed the shortcut to not clash with SUnitRunner keybinding. For now DrTests is only available as preview."
-		help: 'Let you run and debug SUnit tests.';
-		icon: self taskbarIcon.
-	aBuilder withSeparatorAfter	
+		order: 2;
+		"keyText: 'o, u';" "Note: Removed the shortcut to not clash with SUnitRunner keybinding."
+		help: '(Preview) Let you run and debug SUnit tests.';
+		icon: self taskbarIcon;
+		withSeparatorAfter	
 ]
 
 { #category : #api }
 DrTests class >> open [
+	<script>
+	
 	^ self new
 		openWithSpec;
 		yourself
@@ -155,8 +84,9 @@ DrTests class >> registerToolsOn: registry [
 	"registry register: self as: #testRunner"
 ]
 
-{ #category : #specs }
+{ #category : #'instance creation' }
 DrTests class >> reloadConfiguration: aDTPluginConfiguration withResults: aDTPluginResult andPlugin: aDTPlugin [
+
 	self open
 		updateStatus: 'Tests finished.';
 		currentPlugin: aDTPlugin;
@@ -164,76 +94,49 @@ DrTests class >> reloadConfiguration: aDTPluginConfiguration withResults: aDTPlu
 		updateWithPluginResult: aDTPluginResult
 ]
 
-{ #category : #actions }
-DrTests >> browseSelectedItem [
-	"Because of DTBrowseSelectedItem>>#canBeExecuted, we know there is a single item in the selection.
-	 Thus, we take the first one and browse it.
-	"
-	self selectedItems first drTestsBrowse
-]
+{ #category : #initialization }
+DrTests >> connectPresenters [
 
-{ #category : #actions }
-DrTests >> browseSelectedResult [
-	self resultSelected drTestsBrowse
-]
-
-{ #category : #private }
-DrTests >> buildLabelString: nameOfItems numberOfItemsSelected: aInt [
-	^ String
-		streamContents: [ :s | 
-			s
-				<< nameOfItems;
-				nextPut: $(;
-				<< aInt asString;
-				<< ' selected):' ]
+	super connectPresenters.
+	self pluginsDropList selectIndex: 1
 ]
 
 { #category : #accessing }
-DrTests >> currentPlugin: anObject [
-	pluginResult := nil.
-	super currentPlugin: anObject.
+DrTests >> currentPlugin: aPlugin [
+
+	super currentPlugin: aPlugin.
+	pluginPresenter := self instantiate: aPlugin pluginPresenterClass on: {aPlugin. self}.
+	
+	self rebuildLayout.
+	
+	self updateStatus: aPlugin pluginName , ' plugin is ready to work!' translated
 ]
 
 { #category : #private }
 DrTests >> dateAndTimeString [
+
 	^ DateAndTime now asStringYMDHM
 ]
 
-{ #category : #initialization }
+{ #category : #'private - initialization' }
 DrTests >> initializeButtons [
+
 	super initializeButtons.
+
 	switchButton
-		label: 'mini Dr';
+		label: 'Minimize';
 		disable.
 ]
 
-{ #category : #initialization }
-DrTests >> initializeItemsListAndLabel [
-	itemsList := self newFilterableListPresenter..
-	itemsList
-		help: 'Select the classes to analyze. Cmd+A or Ctrl+A to select all classes.';
-		sortingBlock: #name ascending;
-		displayBlock: [ :item | item name ];
-		whenSelectionChangedDo: [ self whenItemsSelectionChanged: self selectedItems ];
-		beMultipleSelection;
-		contextMenu: [ (self rootCommandsGroup / 'List items menu') beRoot asMenuPresenter ].
-	packagesList
-		whenSelectionChangedDo: [ self whenPackagesSelectionChanged: self packagesSelected ]
+{ #category : #'private - initialization' }
+DrTests >> initializePluginPresenter [
+
+	pluginPresenter := self instantiate: DTNullPluginPresenter
 ]
 
-{ #category : #initialization }
-DrTests >> initializePackagesListAndLabel [
-	packagesList := self newFilterableListPresenter.
-	packagesList
-		help: 'Select the packages to analyze. Cmd+A or Ctrl+A to select all packages.';
-		sortingBlock: #name ascending;
-		displayBlock: [ :package | package name ];
-		beMultipleSelection;
-		contextMenu: [ (self rootCommandsGroup / 'Package menu') beRoot asMenuPresenter ]
-]
-
-{ #category : #initialization }
+{ #category : #'private - initialization' }
 DrTests >> initializePluginsDropList [
+
 	pluginsDropList := self newDropList.
 	self pluginsDropList
 		help: 'Select the plugin used by Dr Tests UI.';
@@ -244,149 +147,88 @@ DrTests >> initializePluginsDropList [
 ]
 
 { #category : #initialization }
-DrTests >> initializePresenter [
-	super initializePresenter.
-	self resultViewsDropList
-		whenSelectedItemChangedDo: [ :resultTreeViewOrNil | 
-			resultTreeViewOrNil
-				ifNotNil: [ resultsList
-						roots: (resultTreeViewOrNil resultTreeFor: pluginResult) subResults ] ].
-	self pluginsDropList selectIndex: 1
-]
+DrTests >> initializePresenters [
 
-{ #category : #initialization }
-DrTests >> initializeResultViewsDropList [
-	resultViewsDropList := self newDropList.
-	self resultViewsDropList
-		help: 'Select the different views for results';
-		display: [ :resultTreeView | resultTreeView name ]
-]
-
-{ #category : #initialization }
-DrTests >> initializeResultsTreeAndLabel [
-	resultLabel := self newLabel label: 'Results:'.
-	resultsList := self newTreeTable.
-	resultsList
-		addColumn: (SpStringTableColumn evaluated: #drTestsName);
-		children: [ :node | node subResults ];
-		contextMenu: [ (self rootCommandsGroup / 'Results tools') beRoot asMenuPresenter ]
-]
-
-{ #category : #initialization }
-DrTests >> initializeWidgets [
-	statusLabel := self newLabel.
+	super initializePresenters.
+		
 	self
+		initializeStatusLabel;
 		initializePluginsDropList;
-		initializeButtons;
-		initializePackagesListAndLabel;
-		initializeItemsListAndLabel;
-		initializeResultsTreeAndLabel;
-		initializeResultViewsDropList
+		initializePluginPresenter
+]
+
+{ #category : #'private - initialization' }
+DrTests >> initializeStatusLabel [
+
+	statusLabel := self newLabel
 ]
 
 { #category : #initialization }
 DrTests >> initializeWindow: aWindowPresenter [
+
 	aWindowPresenter
 		title:  self title;
 		initialExtent: 700 @ 500;
 		statusBar: statusLabel
 ]
 
-{ #category : #'accessing - subwidgets' }
-DrTests >> itemsList [
-	^ itemsList
-]
-
 { #category : #private }
 DrTests >> menuForSelectedResult: menu [
+
 	self resultSelected ifNil: [ ^ self ].
 	self resultSelected content drTestsBuildContextMenu: menu
 ]
 
-{ #category : #widgets }
-DrTests >> newFilterableListPresenter [
-	^ self instantiate: DTFilterableListPresenter
-]
-
-{ #category : #'accessing - subwidgets' }
-DrTests >> packagesList [
-	^ packagesList
-]
-
-{ #category : #private }
+{ #category : #accessing }
 DrTests >> packagesSelected [
-	^ self packagesList ifNil: [ #() ] ifNotNil: #selectedItems
+	
+	^ pluginPresenter packagesSelected 
 ]
 
-{ #category : #'accessing - subwidgets' }
-DrTests >> pluginResult [
-	^ pluginResult
-]
-
-{ #category : #'api - subwidgets configuration' }
-DrTests >> pluginResult: anObject [
-	pluginResult := anObject
+{ #category : #accessing }
+DrTests >> pluginPresenter [
+	^ pluginPresenter
 ]
 
 { #category : #accessing }
 DrTests >> plugins [
+
 	^ plugins ifNil: [ DrTestsPlugin availablePlugins ]
 ]
 
 { #category : #'accessing - subwidgets' }
 DrTests >> pluginsDropList [
+
 	^ pluginsDropList
 ]
 
 { #category : #accessing }
-DrTests >> resultSelected [
-	^ self resultsList selectedItem
-]
-
-{ #category : #api }
-DrTests >> resultTree: aResultGroup [
-	aResultGroup
-		ifNotNil: [ self resultsList roots: aResultGroup subResults ]
-]
-
-{ #category : #'accessing - subwidgets' }
-DrTests >> resultViewsDropList [
-	^ resultViewsDropList
-]
-
-{ #category : #'accessing - subwidgets' }
-DrTests >> resultsList [
-	^ resultsList
-]
-
-{ #category : #api }
-DrTests >> selectAllPackageList [
-	packagesList selectAll
-]
-
-{ #category : #accessing }
 DrTests >> selectedItems [
-	^ self itemsList selectedItems
+	
+	^ pluginPresenter selectedItems 
 ]
 
-{ #category : #'accessing model' }
+{ #category : #'accessing - model' }
 DrTests >> setModelBeforeInitialization: aDomainObject [
+
 	plugins := aDomainObject
 ]
 
 { #category : #'accessing - subwidgets' }
 DrTests >> statusLabel [
+
 	^ statusLabel
 ]
 
 { #category : #'api - locking' }
 DrTests >> subwidgetsToLock [
-	^ { self packagesList. self itemsList. self resultsList. self startButton }
+
+	^ pluginPresenter subwidgetsToLock 
 ]
 
-{ #category : #actions }
-DrTests >> switchUI [
-	super switchUI.
+{ #category : #'private - actions' }
+DrTests >> switchToMiniDrTest [
+
 	(MiniDrTests new
 		testsConfiguration: self testsConfiguration;
 		currentPlugin: self currentPlugin;
@@ -394,73 +236,31 @@ DrTests >> switchUI [
 		yourself) openWithSpec
 ]
 
+{ #category : #actions }
+DrTests >> switchUI [
+
+	super switchUI.
+	self switchToMiniDrTest
+]
+
 { #category : #accessing }
 DrTests >> testsConfiguration [
+
 	testsConfiguration := self currentPlugin buildConfigurationFrom: self.
 	^ testsConfiguration
 ]
 
 { #category : #accessing }
 DrTests >> testsConfiguration: aDTTestsConfiguration [
-	self packagesList selectItems: aDTTestsConfiguration packagesSelected.
-	self itemsList selectItems: aDTTestsConfiguration items
+
+	self pluginPresenter packagesList selectItems: aDTTestsConfiguration packagesSelected.
+	self pluginPresenter itemsList selectItems: aDTTestsConfiguration items
 ]
 
 { #category : #accessing }
 DrTests >> title [
+
 	^ 'Dr Tests - ' , currentPlugin pluginName
-]
-
-{ #category : #private }
-DrTests >> updateItemsListLabel [
-	self itemsList
-		label:
-			(self
-				buildLabelString: self currentPlugin secondListLabel
-				numberOfItemsSelected: self selectedItems size)
-]
-
-{ #category : #private }
-DrTests >> updatePackagesList [
-	packagesList unselectAll.
-	itemsList beEmpty.
-	packagesList items: currentPlugin packagesAvailableForAnalysis.
-	packagesList label: currentPlugin firstListLabel.
-	itemsList label: currentPlugin secondListLabel.
-	currentPlugin setSelectionModeOfPackageList: packagesList.
-	currentPlugin setSelectionModeOfItemsList: itemsList
-]
-
-{ #category : #private }
-DrTests >> updatePackagesListLabel [
-	self packagesList
-		label:
-			(self
-				buildLabelString: self currentPlugin firstListLabel
-				numberOfItemsSelected: self packagesSelected size)
-]
-
-{ #category : #updating }
-DrTests >> updateResultLabel [
-	resultLabel
-		label: 'Results: ■';
-		color: pluginResult backgroundColor
-]
-
-{ #category : #updating }
-DrTests >> updateResultViewsDropList [
-	| newPragmas |
-	newPragmas := self currentPlugin resultTreeViews.
-	(self resultViewsDropList listItems = newPragmas
-		and: [ newPragmas isNotEmpty ])
-		ifTrue: [ self resultViewsDropList
-				selectedIndex: self resultViewsDropList selectedIndex.	"Trigger action attached to selection change."
-			^ self ].
-	self resultViewsDropList selectedItem
-		ifNotNil: [ self resultViewsDropList resetSelection ].
-	self resultViewsDropList items: newPragmas.
-	newPragmas isNotEmpty
-		ifTrue: [ self resultViewsDropList selectIndex: 1 ]
 ]
 
 { #category : #updating }
@@ -480,39 +280,14 @@ DrTests >> updateSwitchButton: itemsSelected [
 { #category : #updating }
 DrTests >> updateUI [
 	super updateUI.
-	self packagesList resetFilter.
-	self updatePackagesList.
-	self resultTree: DTTreeNode empty.
-	self packagesList resetFilter.
-	self itemsList resetFilter.
-	self updateResultViewsDropList
-]
+	
+	pluginPresenter updateUI.
 
-{ #category : #updating }
-DrTests >> updateWithPluginResult: aPluginResult [
-	aPluginResult ifNotNil: [ self updateWithResults: aPluginResult ]
 ]
 
 { #category : #updating }
 DrTests >> updateWithResults: results [
+
 	pluginResult := results.
-	self resultTree: pluginResult buildTreeForUI.
-	self updateResultViewsDropList.
-	self updateResultLabel.
-	resultsList
-		contextMenu: [ (self rootCommandsGroup / 'Results tools') beRoot asMenuPresenter ]
-]
-
-{ #category : #private }
-DrTests >> whenItemsSelectionChanged: itemsSelected [
-	self updateItemsListLabel.
-	self updateSwitchButton: itemsSelected
-]
-
-{ #category : #private }
-DrTests >> whenPackagesSelectionChanged: packagesSelected [
-	itemsList
-		items: (currentPlugin itemsToBeAnalysedFor: packagesSelected);
-		selectAll.
-	self updatePackagesListLabel
+	pluginPresenter updateWithResults: results
 ]

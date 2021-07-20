@@ -170,6 +170,18 @@ Interval >> anyOne [
 	^self at: 1
 ]
 
+{ #category : #converting }
+Interval >> asOpenInterval [
+	"Return a new interval representing the open version of the receiver.
+	In other words, the new inteval does not contain the upper and lower boundaries of the receiver
+	"
+	
+	"(1 to: 10) asOpenInterval >>> (2 to: 9)"
+	"(10 to: 1 by: -1) asOpenInterval >>> (9 to: 2)"
+
+	^ start + step to: stop - step
+]
+
 { #category : #accessing }
 Interval >> at: anInteger [
 	"Answer the anInteger'th element."
@@ -312,7 +324,11 @@ Interval >> printOn: aStream [
 
 { #category : #testing }
 Interval >> rangeIncludes: aNumber [
-	"Return true if the number lies in the interval between start and stop."
+	"Return true if aNumber lies anywhere between the interval bounds.
+	This is a fast O(1) bounds check.
+	
+	Beware: because #rangeIncludes: only considers the sign of the step, not its magnitude, it also returns true for values that are not actual elements of the interval.
+	For precise element inclusion with arbitrary step, use #includes:."
 
 	^ step >= 0
 		ifTrue: [ aNumber between: start and: stop ]

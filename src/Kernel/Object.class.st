@@ -1,9 +1,9 @@
 "
-Object is the root class for almost all of the other classes in the class hierarchy. The exceptions are ProtoObject (the superclass of Object) and its subclasses.
+`Object` is the root class for almost all of the other classes in the class hierarchy. The exceptions are ProtoObject (the superclass of Object) and its subclasses.
 
-Class Object provides default behavior common to all normal objects, such as access, copying, comparison, error handling, message sending, and reflection. Also utility messages that all objects should respond to are defined here.
+Class `Object` provides default behavior common to all normal objects, such as access, copying, comparison, error handling, message sending, and reflection. Also utility messages that all objects should respond to are defined here.
 
-Object has no instance variables, nor should any be added. This is due to several classes of objects that inherit from Object that have special implementations (SmallInteger and UndefinedObject for example) or the VM knows about and depends on the structure and layout of certain standard classes.
+`Object` has no instance variables, nor should any be added. This is due to several classes of objects that inherit from Object that have special implementations (SmallInteger and UndefinedObject for example) or the VM knows about and depends on the structure and layout of certain standard classes.
 
 Class Variables:
 	DependentsFields		an IdentityDictionary
@@ -12,34 +12,30 @@ Class Variables:
 		Note that class Model has a real slot for its dependents, and overrides
 		the associated protocol with more efficient implementations.
 
-Because Object is the root of the inheritance tree, methods are often defined in Object to give all objects special behaviors needed by certain subsystems or applications, or to respond to certain general test messages such as isMorph.
+Because `Object` is the root of the inheritance tree, methods are often defined in Object to give all objects special behaviors needed by certain subsystems or applications, or to respond to certain general test messages such as isMorph.
 
 
+###Miscellanous Discussions
 
-
-
-Miscellanous Discussions.
-
-About at: index accepting float and not only integers
+About `at:` index accepting float and not only integers
  
-This behavior is also free in the sense that the failure code is only invoked when the
-primitive fails and so adds nothing to the cost of successful accesses,
-which are the high dynamic frequency operation.  It will also show up under
+This behavior is also free in the sense that the failure code is only invoked when the primitive fails and so adds nothing to the cost of successful accesses, which are the high dynamic frequency operation.  It will also show up under
 profiling if one is concerned about efficiency, and so isn't a hidden cost.
 
-It is also in keeping with Smalltalk's mixed mode/arbitrary precision
+It is also in keeping with Pharo's mixed mode/arbitrary precision
 implicit coercion number system that one *can* use fractions or floats as
 indices.  Stripping out coercions like this will make the system more brittle.  So 
-please do *not* remove this ""hack"".  I think it's a feature and a useful  one.
+please do *not* remove this hack.  I think it's a feature and a useful one.
 
-Can you give me an example that demonstrates the usefulness of this
-feature?
+Can you give me an example that demonstrates the usefulness of this feature?
 
+```
 | a r |
 a := Array new: 10 withAll: 0.
 r := Random new.
 100 timesRepeat: [| v | v := r next * 10 + 1. a at: v put: (a at: v) + 1].
 a
+```
 
 i.e. I didn't have to provide an explicit rounding step.  That's useful.  But in general anywhere 
 where an index is derived by some calculation not having to provide the rounding step could be 
@@ -53,8 +49,6 @@ But I think you should justify getting rid of it rather than my having to justif
 rid of it risks breaking code.  If it is there but does not harm then why get rid of it?
 
 best Eliot Miranda 
-
-
 "
 Class {
 	#name : #Object,
@@ -385,9 +379,7 @@ Object >> at: index [
 		[self class isVariable
 			ifTrue: [self errorSubscriptBounds: index]
 			ifFalse: [self errorNotIndexable]].
-	index isNumber
-		ifTrue: [^self at: index asInteger]
-		ifFalse: [self errorNonIntegerIndex]
+	self errorNonIntegerIndex
 ]
 
 { #category : #accessing }
@@ -404,10 +396,7 @@ Object >> at: index put: value [
 			ifTrue: [(index between: 1 and: self size)
 				ifFalse: [ ^ self errorSubscriptBounds: index]]
 			ifFalse: [ ^ self errorNotIndexable ]]
-		ifFalse: [  
-			^ index isNumber
-				ifTrue: [ self at: index asInteger put: value]
-				ifFalse: [ self errorNonIntegerIndex] ].
+		ifFalse: [ ^ self errorNonIntegerIndex ].
 	self isReadOnlyObject 
 		ifTrue: [ ^ self modificationForbiddenFor: #at:put: index: index value: value ].
 	self errorImproperStore 
@@ -435,9 +424,7 @@ Object >> basicAt: index [
 
 	<primitive: 60>
 	index isInteger ifTrue: [self errorSubscriptBounds: index].
-	index isNumber
-		ifTrue: [^self basicAt: index asInteger]
-		ifFalse: [self errorNonIntegerIndex]
+	self errorNonIntegerIndex
 ]
 
 { #category : #accessing }
@@ -455,10 +442,7 @@ Object >> basicAt: index put: value [
 			ifTrue: [(index between: 1 and: self size)
 				ifFalse: [ ^ self errorSubscriptBounds: index ]]
 			ifFalse: [ ^ self errorNotIndexable ]]
-		ifFalse: [  
-			^ index isNumber
-				ifTrue: [ self basicAt: index asInteger put: value ]
-				ifFalse: [ self errorNonIntegerIndex ] ].
+		ifFalse: [ ^ self errorNonIntegerIndex ].
 	self isReadOnlyObject 
 		ifTrue: [ ^ self modificationForbiddenFor: #basicAt:put: index: index value: value ].
 	self errorImproperStore 
@@ -484,6 +468,16 @@ Object >> beReadOnlyObject [
 	 primitive to fail with a #'no modification' error code.
 	 Set the read-only flag of the receiver to true and answer the previous vaue of the flag."
 	^self setIsReadOnlyObject: true
+]
+
+{ #category : #'write barrier' }
+Object >> beRecursivelyReadOnlyObject [
+	^self recursivelySetIsReadOnlyObject: true
+]
+
+{ #category : #'write barrier' }
+Object >> beRecursivelyWritableObject [
+	^self recursivelySetIsReadOnlyObject: false
 ]
 
 { #category : #'write barrier' }
@@ -769,11 +763,9 @@ Object >> deprecated: anExplanationString transformWith: aRule when: conditionBl
 
 { #category : #displaying }
 Object >> displayString [
-	"While printString is about to give a detailled information about an object, displayString is a message that should return a short string-based representation to be used by list and related UI frameworks. By default, simply return printString.
-	Subclasses should not override this method 
-	but instead stream based method #displayStringOn:"
+	"While printString is about to give a detailled information about an object, displayString is a message that should return a short string-based representation to be used by list and related UI frameworks. By default, simply return printString. Subclasses should not override this method but instead stream based method #displayStringOn:"
 	
-	^ self displayStringLimitedTo: 50000
+	^ self displayStringLimitedTo: 1000
 ]
 
 { #category : #displaying }
@@ -821,15 +813,15 @@ Object >> enclosedElement [
 { #category : #'error handling' }
 Object >> error [
 	"Throw a generic Error exception."
-
-	^self error: 'Error!'.
+	<debuggerCompleteToSender>
+	^ self error: 'Error!'
 ]
 
 { #category : #'error handling' }
-Object >> error: aString [ 
+Object >> error: aString [
 	"Throw a generic Error exception."
-
-	^Error new signal: aString
+	<debuggerCompleteToSender>
+	^ Error new signal: aString
 ]
 
 { #category : #private }
@@ -869,7 +861,7 @@ Object >> executor [
 { #category : #'error handling' }
 Object >> explicitRequirement [
 	"If one of the superclasses can perform the selector, we execute the method of that class, otherwise, the explicit requirement error is thrown"
-
+	<debuggerCompleteToSender>
 	| originalMethod originalArguments errorBlock originalReceiver callingContext originalSelector |
 	errorBlock := [ ^ self error: 'Explicitly required method' ].
 	callingContext := thisContext sender.
@@ -902,6 +894,11 @@ Object >> finalizationRegistry [
 { #category : #finalization }
 Object >> finalize [
 	"Finalize the resource associated with the receiver. This message should only be sent during the finalization process. There is NO garantuee that the resource associated with the receiver hasn't been free'd before so take care that you don't run into trouble - this all may happen with interrupt priority."
+]
+
+{ #category : #enumerating }
+Object >> flattenOn: aStream [
+		aStream nextPut: self
 ]
 
 { #category : #displaying }
@@ -1077,6 +1074,11 @@ Object >> isArray [
 ]
 
 { #category : #testing }
+Object >> isAssociation [
+	^ false
+]
+
+{ #category : #testing }
 Object >> isBehavior [
 	"Return true if the receiver is a behavior.
 	Note: Do not override in any class except behavior."
@@ -1150,6 +1152,12 @@ Object >> isContext [
 { #category : #testing }
 Object >> isDictionary [
 	^false
+]
+
+{ #category : #testing }
+Object >> isEmbeddedBlock [
+	"returns true for CleanBlockBlockClosure and CompiledBlock"
+	^ false
 ]
 
 { #category : #testing }
@@ -1282,7 +1290,7 @@ Object >> isReadOnlyObject [
 	 An attempt to modify a read-only object in a primitive will cause the
 	 primitive to fail with a #'no modification' error code."
 	<primitive: 163 error: ec>
-	^self class isImmediateClass 
+	^self isImmediateObject
 ]
 
 { #category : #testing }
@@ -1444,7 +1452,7 @@ Object >> notNil [
 { #category : #'error handling' }
 Object >> notYetImplemented [
 	"Announce that this message is not yet implemented"
-
+	<debuggerCompleteToSender>
 	NotYetImplemented signalFor: thisContext sender selector
 ]
 
@@ -1452,7 +1460,7 @@ Object >> notYetImplemented [
 Object >> notify: aString [ 
 	"Create and schedule a Notifier with the argument as the message in 
 	order to request confirmation before a process can proceed."
-
+	<debuggerCompleteToSender>
 	Warning signal: aString
 ]
 
@@ -1468,9 +1476,8 @@ Object >> perform: aSymbol [
 	Fail if the number of arguments expected by the selector is not zero.
 	Primitive. Optional. See Object documentation whatIsAPrimitive."
 	
-	<reflective: #object:performMessageWith:>
 	<primitive: 83>
-	^ self perform: aSymbol withArguments: (Array new: 0)
+	^ self perform: aSymbol withArguments: #()
 ]
 
 { #category : #'message performing' }
@@ -1485,9 +1492,8 @@ Object >> perform: aSymbol with: anObject [
 	Fail if the number of arguments expected by the selector is not one.
 	Primitive. Optional. See Object documentation whatIsAPrimitive."
 	
-	<reflective: #object:performMessageWith:>
 	<primitive: 83>
-	^ self perform: aSymbol withArguments: (Array with: anObject)
+	^ self perform: aSymbol withArguments: {anObject}
 ]
 
 { #category : #'message performing' }
@@ -1496,9 +1502,8 @@ Object >> perform: aSymbol with: firstObject with: secondObject [
 	Fail if the number of arguments expected by the selector is not two.
 	Primitive. Optional. See Object documentation whatIsAPrimitive."
 
-	<reflective: #object:performMessageWith:>
 	<primitive: 83>
-	^ self perform: aSymbol withArguments: (Array with: firstObject with: secondObject)
+	^ self perform: aSymbol withArguments: {firstObject . secondObject}
 ]
 
 { #category : #'message performing' }
@@ -1507,7 +1512,6 @@ Object >> perform: aSymbol with: firstObject with: secondObject with: thirdObjec
 	Fail if the number of arguments expected by the selector is not three.
 	Primitive. Optional. See Object documentation whatIsAPrimitive."
 	
-	<reflective: #object:performMessageWith:>
 	<primitive: 83>
 	^ self perform: aSymbol
 		withArguments: {firstObject . secondObject . thirdObject}
@@ -1519,10 +1523,9 @@ Object >> perform: aSymbol with: firstObject with: secondObject with: thirdObjec
 	Fail if the number of arguments expected by the selector is not four.
 	Primitive. Optional. See Object documentation whatIsAPrimitive."
 
-	<reflective: #object:performMessageWith:>
 	<primitive: 83>
 	^ self perform: aSymbol
-		withArguments: (Array with: firstObject with: secondObject with: thirdObject with: fourthObject)
+		withArguments: {firstObject . secondObject . thirdObject . fourthObject}
 ]
 
 { #category : #'message performing' }
@@ -1532,7 +1535,6 @@ Object >> perform: selector withArguments: argArray [
 	does not match the size of argArray.
 	Primitive. Optional. See Object documentation whatIsAPrimitive."
 	
-	<reflective: #object:performMessageWithArgs:>
 	<primitive: 84>
 	^ self perform: selector withArguments: argArray inSuperclass: self class
 ]
@@ -1545,7 +1547,6 @@ Object >> perform: selector withArguments: argArray inSuperclass: lookupClass [
 	cannot be found among the receiver's superclasses.
 	Primitive. Essential. See Object documentation whatIsAPrimitive."
 
-	<reflective: #object:performMessageInSuperclass:>
 	<primitive: 100>
 	selector isSymbol
 		ifFalse: [ ^ self error: 'selector argument must be a Symbol' ].
@@ -1684,6 +1685,34 @@ Object >> readSlotNamed: aName [
 	^(self class slotNamed: aName) read: self
 ]
 
+{ #category : #'write barrier' }
+Object >> recursivelySetIsReadOnlyObject: aBoolean [
+	^self recursivelySetIsReadOnlyObject: aBoolean exceptObjectsIn: IdentitySet new
+]
+
+{ #category : #'write barrier' }
+Object >> recursivelySetIsReadOnlyObject: aBoolean exceptObjectsIn: alreadyDone [
+
+	"Handle self if not already done, and note it as done."
+
+	(alreadyDone includes: self) ifFalse:
+		[	self setIsReadOnlyObject: aBoolean.
+			alreadyDone add: self ].
+
+	"Handle all instance vars of self."
+	self class allSlots do: [ :ivar | 
+		(ivar read: self)
+			recursivelySetIsReadOnlyObject: aBoolean
+			exceptObjectsIn: alreadyDone ].
+	
+	"Handle all indexed elements of self."
+	1 to: self basicSize do: [ :i | 
+		(self basicAt: i)
+			recursivelySetIsReadOnlyObject: aBoolean
+			exceptObjectsIn: alreadyDone ]
+
+]
+
 { #category : #testing }
 Object >> refersToLiteral: aLitteral [
 	^ self literalEqual: aLitteral
@@ -1716,6 +1745,15 @@ Object >> respondsTo: aSymbol [
 	^self class canUnderstand: aSymbol
 ]
 
+{ #category : #private }
+Object >> retrySetPinnedInMemory: aBoolean [
+	"Never use me directly use #setPinnedInMemory: instead"
+	
+	<primitive: 184 error: ec>
+	
+	^ self primitiveFailed
+]
+
 { #category : #finalization }
 Object >> retryWithGC: execBlock until: testBlock [
 	"Retry execBlock as long as testBlock returns false. Do an incremental GC after the first try, a full GC after the second try."
@@ -1741,6 +1779,7 @@ Object >> setIsReadOnlyObject: aBoolean [
 	 Note: Some objects can't be read-only, currently contexts and objects related
 	 to process scheduling (Processor, Process instances, Semaphore instances, ...)"
 	<primitive: 164 error: ec>
+	self isImmediateObject ifTrue: [ ^true ].
 	^self primitiveFailed
 	
 ]
@@ -1760,9 +1799,23 @@ Object >> setPinnedInMemory: aBoolean [
 	 memory. But it can also pin an object so that it will not be moved around in memory,
     while still being reclamable by the garbage collector. This can make
 	 it easier to pass objects out through the FFI. Objects are unpinnned when created.
-	 This primitive either pins or unpins an object, and answers if it was already pinned."
+	 This primitive either pins or unpins an object, and answers if it was already pinned.
+	
+	If there is not enough memory, I will try to find more memory and retry once."
 	<primitive: 184 error: ec>
-	^self primitiveFailed
+	
+	| requiredSize |
+	
+	ec = #'insufficient object memory'
+		ifFalse: [ ^ self primitiveFailed ].
+	
+	"Require at least the double of my size in Memory"
+	requiredSize := self sizeInMemory * 2.
+	
+	Smalltalk garbageCollect < requiredSize ifTrue:
+		[Smalltalk growMemoryByAtLeast: requiredSize].
+
+	^ self retrySetPinnedInMemory: aBoolean
 ]
 
 { #category : #copying }
@@ -1792,7 +1845,7 @@ Object >> shallowCopy [
 { #category : #'error handling' }
 Object >> shouldBeImplemented [
 	"Announce that this message should be implemented"
-
+	<debuggerCompleteToSender>
 	ShouldBeImplemented signalFor: thisContext sender selector
 ]
 
@@ -1806,7 +1859,7 @@ Object >> shouldBePrintedAsLiteral [
 Object >> shouldNotImplement [
 	"Announce that, although the receiver inherits this message, 
 	it should not implement it."
-
+	<debuggerCompleteToSender>
 	ShouldNotImplement signalFor: thisContext sender selector
 ]
 
@@ -1923,7 +1976,7 @@ Object >> storeString [
 Object >> subclassResponsibility [
 	"This message sets up a framework for the behavior of the class' subclasses.
 	Announce that the subclass should have implemented this message."
-
+	<debuggerCompleteToSender>
 	SubclassResponsibility signalFor: thisContext sender selector
 ]
 
@@ -2140,17 +2193,11 @@ Object >> ~~> aValueLinkOrNil [
 
 	"Code of ValueLink>>#nextLink: and ValueLink>>#value: are inline here for speed."
 
-	"
-	1 ~~> nil
-	>>> ValueLink new value: 1; yourself
+	"(1 ~~> nil) = ValueLink new value: 1"
+	"(1 ~~> 'one') value >>> 1"
+	"(1 ~~> nil) nextLink >>> nil"
 
-	(1 ~~> 'one') value
-	>>> 1
-
-	(1 ~~> nil) nextLink
-	>>> nil
-	
-	Note that `value` can be ANY object; on the other hand, `nextLink` should be either another 
+	"Note that `value` can be ANY object; on the other hand, `nextLink` should be either another 
 	ValueLink object or nil."
 
 	^ ValueLink basicNew

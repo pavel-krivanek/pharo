@@ -7,8 +7,7 @@ CompiledMethod.
 I know my method class (a RBClass or RBMetaclass). 
 You should not directly create instances of me but query or create a method from a RBClass.
 
-I only implement a small part of  CompiledMethod interface, that is used for refactoring operations, like
-querying symbols, literals or the whole method source.
+I only implement a small part of  CompiledMethod interface, that is used for refactoring operations, like querying symbols, literals or the whole method source.
 
 "
 Class {
@@ -18,7 +17,8 @@ Class {
 		'compiledMethod',
 		'class',
 		'selector',
-		'source'
+		'source',
+		'isFromTrait'
 	],
 	#category : #'Refactoring-Core-Model'
 }
@@ -62,6 +62,16 @@ RBMethod >> compileTree: aBRMethodNode [
 	^ change
 ]
 
+{ #category : #accessing }
+RBMethod >> isFromTrait [
+	^ isFromTrait ifNil: [ isFromTrait := false ]
+]
+
+{ #category : #accessing }
+RBMethod >> isFromTrait: anObject [
+	isFromTrait := anObject
+]
+
 { #category : #private }
 RBMethod >> literal: anObject containsReferenceTo: aSymbol [
 	anObject = aSymbol
@@ -78,7 +88,8 @@ RBMethod >> method [
 
 { #category : #accessing }
 RBMethod >> method: aCompiledMethod [ 
-	compiledMethod := aCompiledMethod
+	compiledMethod := aCompiledMethod.
+	self isFromTrait: compiledMethod isFromTrait.
 ]
 
 { #category : #accessing }
@@ -95,6 +106,12 @@ RBMethod >> modelClass [
 { #category : #accessing }
 RBMethod >> modelClass: aRBClass [
 	class := aRBClass
+]
+
+{ #category : #accessing }
+RBMethod >> package [
+	compiledMethod ifNotNil: [ ^ compiledMethod package name ].
+	^ class category
 ]
 
 { #category : #accessing }

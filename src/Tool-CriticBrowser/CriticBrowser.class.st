@@ -34,8 +34,8 @@ CriticBrowser class >> criticsBrowserMenuOn: aBuilder [
 	
 	(aBuilder item: 'Critic Browser')
 		action: [ self openOnCurrentWorkingConfiguration];
-		order: 310;
-		parent: #Tools;
+		order: 2;
+		parent: #Browsing;
 		help: 'To manage rule checks.';
 		icon: self icon
 ]
@@ -75,7 +75,8 @@ CriticBrowser class >> icon [
 
 { #category : #'instance creation' }
 CriticBrowser class >> open [
-
+	<script>
+	
 	| env rules |
 	rules :=  RBCompositeLintRule allGoodRules rules.
 	env := RBBrowserEnvironment default.
@@ -84,7 +85,8 @@ CriticBrowser class >> open [
 
 { #category : #menu }
 CriticBrowser class >> openOnCurrentWorkingConfiguration [
-
+	<script>
+	
 	CriticWorkingConfiguration exists
 		ifTrue: [ ResetWindow new openWithSpec ]
 		ifFalse: [ SelectPackageBrowser open]

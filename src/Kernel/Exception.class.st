@@ -50,6 +50,11 @@ Exception class >> - anotherException [
 		yourself
 ]
 
+{ #category : #testing }
+Exception class >> captureIfSignalledWhenStepping [
+	^false
+]
+
 { #category : #exceptionselector }
 Exception class >> handles: exception [
 	"Determine whether an exception handler will accept a signaled exception."
@@ -101,17 +106,18 @@ Exception class >> signalIn: context [
 Exception >> completeProcess: aProcess with: aContext [
 	"I am a hook during process completion in case one of my subclass wants to plug a special behavior.
 	
-	By default I return my signaler context"
+	By default I return my signal context"
 
-	^ self signalerContext
+	^ self signalContext
 ]
 
 { #category : #handling }
 Exception >> debug [
-	"open a debugger on myself"
-	
-	Processor activeProcess 
-		debug: self signalerContext title: self description
+
+	"requests a debugger on myself"
+
+	<debuggerCompleteToSender>
+	UIManager default requestDebuggerOpeningFor: self
 ]
 
 { #category : #handling }
@@ -122,7 +128,17 @@ Exception >> defaultAction [
 	Note about naming here: 
 	Even if not all exceptions are errors the absence of a handler for signaled exception is considered as an error by default. Therefore #defaultAction for Exception raises an error, an UnhandledError"
 
-	self raiseUnhandledError
+	^ self raiseUnhandledError
+]
+
+{ #category : #default }
+Exception >> defaultDescription [
+	"Return a textual description of the exception."
+
+	^ String streamContents: [ :stream | | mt |
+		stream << self class name.
+		(mt := self messageText) isEmptyOrNil
+			ifFalse: [ stream << ': ' << mt ] ]
 ]
 
 { #category : #private }
@@ -141,12 +157,12 @@ Exception >> defaultReturnValue [
 
 { #category : #accessing }
 Exception >> description [
-	"Return a textual description of the exception."
 
-	^ String streamContents: [ :stream | | mt |
-		stream << self class name.
-		(mt := self messageText) isEmptyOrNil
-			ifFalse: [ stream << ': ' << mt ] ]
+	"Returns a textual description of the exception."
+
+	"Must be overriden to return a specialized description "
+
+	^ self defaultDescription
 ]
 
 { #category : #handling }
@@ -161,6 +177,16 @@ Exception >> freezeUpTo:  aContext [
 	"Freeze the signal context up to the given context so the exception is usable outside the catch block"
 	
 	signalContext := signalContext copyTo: aContext
+]
+
+{ #category : #testing }
+Exception >> isDebuggerFailure [
+	^false
+]
+
+{ #category : #testing }
+Exception >> isHandleableBy: aDebugger [
+	^ true
 ]
 
 { #category : #testing }
@@ -189,6 +215,11 @@ Exception >> messageText: signalerText [
 	"Set an exception's message text."
 
 	messageText := signalerText
+]
+
+{ #category : #accessing }
+Exception >> originException [
+	^ self
 ]
 
 { #category : #handling }
@@ -235,7 +266,7 @@ Exception >> privHandlerContext: aContextTag [
 Exception >> raiseUnhandledError [
 	"No one has handled this error, but now give them a chance to decide how to debug it.  If none handle this either then open debugger (see UnhandedError>>#defaultAction)"
 
-	UnhandledError signalForException: self
+	^ UnhandledError signalForException: self
 ]
 
 { #category : #accessing }
@@ -376,6 +407,5 @@ Exception >> unhandledErrorAction [
 	"No one has handled this error, then I gave them a chance to decide how to debug it and I raise an UnhandledError. But it was not handled by anybody so that we are here (see nhandedError-defaultAction).
 	It is the final action an exception can do which is normally a debugger in interactive image"
 
-	<reflective: #unhandledErrorDefaultAction:message:>
  	^ UIManager default unhandledErrorDefaultAction: self
 ]

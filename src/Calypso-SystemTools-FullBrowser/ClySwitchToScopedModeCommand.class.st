@@ -11,7 +11,7 @@ Class {
 ClySwitchToScopedModeCommand class >> fullBrowserMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation byRootGroupItemFor: ClyPackageContextOfFullBrowser 
+	^CmdContextMenuActivation byRootGroupItemFor: ClyFullBrowserPackageContext 
 ]
 
 { #category : #accessing }
@@ -37,10 +37,12 @@ ClySwitchToScopedModeCommand >> packages: anObject [
 
 { #category : #execution }
 ClySwitchToScopedModeCommand >> prepareFullExecutionInContext: aBrowserContext [
+	|items|
 	super prepareFullExecutionInContext: aBrowserContext.
-	
+	items := aBrowserContext selectedPackageItems collect: [:e | e actualObject ].
 	packages := browser searchDialog 
 		requestMultipleObjects: 'Select package scope' 
-		from: ClyAllPackagesQuery sorted.
+		from: ClyAllPackagesQuery sorted
+		selecting: items.
 	packages ifEmpty: [ CmdCommandAborted signal ]
 ]

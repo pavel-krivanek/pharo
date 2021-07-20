@@ -132,7 +132,7 @@ SlotErrorsTest >> testDangerousClassesEnabling [
 
 { #category : #tests }
 SlotErrorsTest >> testDirectCircularHierarchyError [
-	"Tests an error is raised when trying to create a heirarchy A<-A"
+	"Tests an error is raised when trying to create a hierarchy A<-A"
 	
 	| classA |
 	classA := self make: [ :builder |
@@ -150,7 +150,7 @@ SlotErrorsTest >> testDirectCircularHierarchyError [
 
 { #category : #tests }
 SlotErrorsTest >> testIndirectCircularHierarchyError [
-	"Tests an error is raised when trying to create a heirarchy A<-B<-A"
+	"Tests an error is raised when trying to create a hierarchy A<-B<-A"
 	
 	| classA classB |
 	classA := self make: [ :builder |
@@ -194,6 +194,63 @@ SlotErrorsTest >> testSlotWithReservedName [
 			self make: [ :builder | 
 				builder slots: { reservedName } ] ]
 			raise: InvalidSlotName ]
+]
+
+{ #category : #tests }
+SlotErrorsTest >> testUndeclareSlot [
+	| slot instance |
+
+	aClass := self make: [ :builder | 
+		builder slots: { UndefinedSlot named: #a ast: ((RBParser parseExpression: '#a => MySlot') doSemanticAnalysis;yourself) } ].
+
+	slot := aClass slotNamed: #a.
+
+	self assert: slot class equals: UndefinedSlot.
+	self assert: slot name equals: #a.
+	self assert: slot slotClassName equals: #MySlot.
+	
+	instance := aClass new.
+	
+	self assert: (slot read: instance) equals: nil.
+	slot write: 1 to: instance.
+	self assert: (slot read: instance) equals: nil.
+
+]
+
+{ #category : #tests }
+SlotErrorsTest >> testUndeclareSlotFixWhenSlotIsLoaded [
+	| slot instance mySlot |
+
+	aClass := self make: [ :builder | 
+		builder slots: { UndefinedSlot named: #a ast: ((RBParser parseExpression: '#a => ', self anotherClassName) doSemanticAnalysis;yourself) } ].
+
+	slot := aClass slotNamed: #a.
+
+	self assert: slot class equals: UndefinedSlot.
+	self assert: slot name equals: #a.
+	self assert: slot slotClassName equals: self anotherClassName.
+	
+	instance := aClass new.
+	
+	self assert: (slot read: instance) equals: nil.
+	slot write: 1 to: instance.
+	self assert: (slot read: instance) equals: nil.
+
+	self class classInstaller make: [ :aClassBuilder | 
+		aClassBuilder 
+			name: self anotherClassName;
+			superclass: PropertySlot;
+			package: self aCategory ].
+	
+	self assert: (slot read: instance) equals: nil.
+	
+	mySlot := aClass slotNamed: #a.
+	
+	self assert: mySlot name equals: #a.
+	
+	self assert: (mySlot read: instance) equals: nil.
+	mySlot write: 1 to: instance.
+	self assert: (mySlot read: instance) equals: 1.
 ]
 
 { #category : #tests }

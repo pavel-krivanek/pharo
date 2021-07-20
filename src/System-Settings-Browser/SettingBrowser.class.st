@@ -57,7 +57,7 @@ CodeHolderSystemSettings class>>caseSensitiveFindsSettingsOn: aBuilder
 		target: TextEditor;
 		parent: #codeEditing.
 
-For this setting to be declared, we make the asumption that we have TextEditor class>>caseSensitiveFinds and TextEditor class>>caseSensitiveFinds: methods in order to change the preference value. 
+For this setting to be declared, we make the assumption that we have TextEditor class>>caseSensitiveFinds and TextEditor class>>caseSensitiveFinds: methods in order to change the preference value. 
 To declare a setting, just send #setting: to the builder with its identifier, a Symbol passed as argument. It creates a setting node. Then you can set the label, the description with #label: and #description sent to the newly created setting node. You also have to set the selectors for setting and getting the preference value as well as the target to which these accessors are sent  (often a class). This is done by sending respectively, #setSelector:, #getSelector: and #target: to the setting node.
 Because all settings are organized in trees we need a way to indicate what is the position of the setting node in the overall setting trees list. In fact it can be done two ways. The first way is to use the #parent: message (A second possibility is to declare a subtree in one method, it is explained later in this documentation).The #parent: message is send for non root settings. #parent takes the identifier of the parent setting as argument.
 
@@ -131,7 +131,7 @@ windowPositionStrategySettingsOn: aBuilder
 			'Standard' translated -> #standardFor:initialExtent:world:};
 
 !!Launcher
-A launcher is a particular setting. It allows to launch a script directly from the setting browser. Imagine that you have changed some settings and that you need to evaluate a script in order to update some other objets. It can be used also to configurate globally a package of the entire image.
+A launcher is a particular setting. It allows to launch a script directly from the setting browser. Imagine that you have changed some settings and that you need to evaluate a script in order to update some other objects. It can be used also to configurate globally a package of the entire image.
 As an example, in order to use True Type Fonts, the system must be updated by collecting all the available TT fonts. This can be done by evaluating the following expression:
 -------------
 FreeTypeFontProvider current updateFromSystem
@@ -285,7 +285,7 @@ SettingBrowser class >> searchedTextList [
 
 { #category : #accessing }
 SettingBrowser class >> settingsKeywords [ 
-	^ ((PragmaCollector new filter: [:prg | prg selector = #settingPragmaProcessor]) reset) collect: [:p | p method selector].
+	^ (Pragma allNamed: #settingPragmaProcessor) collect: [:p | p method selector]
 
 ]
 
@@ -521,7 +521,7 @@ SettingBrowser >> isRendered [
 ]
 
 { #category : #menu }
-SettingBrowser >> keyStroke: anEvent from: aTreeMorph [
+SettingBrowser >> keyDown: anEvent from: aTreeMorph [
 	| c |
 	c := anEvent keyCharacter.
 	c = $a
@@ -529,7 +529,7 @@ SettingBrowser >> keyStroke: anEvent from: aTreeMorph [
 	c = $A
 		ifTrue: [^ self collapseAll]. 
 	self selectedNode
-		ifNotNil: [:current | current keyStroke: anEvent from: aTreeMorph.
+		ifNotNil: [:current | current keyDown: anEvent from: aTreeMorph.
 			current settingDeclaration hasDefault
 				ifTrue: [c = $d
 						ifTrue: [^ self menuSetToDefault: current]].
@@ -812,7 +812,7 @@ SettingBrowser >> toolBarIn: aMorph [
 				arguments: {aMorph}
 				getEnabled: nil
 				label: 'Choose packages' translated 
-				help: 'Per default, SettingBrowser shows all the setting of the system. You can restrict what is displayed to some packages that contains setting defintions.' translated).
+				help: 'Per default, SettingBrowser shows all the setting of the system. You can restrict what is displayed to some packages that contains setting definitions.' translated).
 	(aMorph
 				newButtonFor: self
 				getState: nil
@@ -851,7 +851,7 @@ SettingBrowser >> treeMorphIn: aMorph [
 	| treeMorph |
 	treeMorph := (self treeMorphClass on: self)
 		getMenuSelector: #menu:shifted:;
-		keystrokeActionSelector: #keyStroke:from:;
+		keyDownActionSelector: #keyDown:from:;
 		columns: {
 			MorphTreeColumn new startWidth: 300; rowMorphGetSelector: #labelMorphFor:; yourself.
 			MorphTreeColumn new rowMorphGetSelector: #inputMorphFor:;yourself

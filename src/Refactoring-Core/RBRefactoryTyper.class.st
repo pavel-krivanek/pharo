@@ -169,6 +169,7 @@ RBRefactoryTyper >> executeSearch: searcher [
 					| parseTree |
 					methodName := sel.
 					parseTree := each parseTreeFor: sel.
+					parseTree doSemanticAnalysis.
 					parseTree notNil ifTrue: [searcher executeTree: parseTree]]]
 ]
 
@@ -378,7 +379,7 @@ RBRefactoryTyper >> processCollectionMessagesFor: variableName in: aParseTree [
 			ifAbsentPut: [Set new])
 				add: parent selector.
 		self processCollectionMessagesFor: (self collectionNameFor: variableName) in: parent ].
-	(#(allSatisfy: anySatisfy: collect: collect:as: detect: detect:ifNone: detectMax: detectMin: detectSum: do: do:displayingProgress: do:separatedBy: #flatCollect: noneSatisfy: reject: select:) includes: aParseTree selector) ifTrue: [
+	(#(allSatisfy: anySatisfy: collect: collect:as: detect: detect:ifNone: detectMax: detectMin: detectSum: do: do:displayingProgress: do:separatedBy: #flatCollect: noneSatisfy: reject: select: sum:) includes: aParseTree selector) ifTrue: [
 		block := aParseTree arguments first.
 		block isBlock ifFalse: [ ^ self ].
 		self 
@@ -407,7 +408,7 @@ RBRefactoryTyper >> processNode: aNode [
 	(aNode isVariable and: [class instanceVariableNames includes: aNode name]) 
 		ifTrue: [^self merge: aNode name].
 	(aNode isMessage 
-		and: [aNode receiver isSelf]) 
+		and: [aNode receiver isSelfVariable]) 
 			ifTrue: [^self merge: aNode selector].
 	aNode isAssignment 
 		ifTrue: 

@@ -12,7 +12,7 @@ Class {
 		'leftColumn',
 		'rightColumn'
 	],
-	#category : #'Morphic-Widgets-FastTable'
+	#category : #'Morphic-Widgets-FastTable-Base'
 }
 
 { #category : #'instance creation' }
@@ -40,7 +40,7 @@ FTColumnResizerMorph >> canResizeColumn [
 
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #'submorphs - add/remove' }
 FTColumnResizerMorph >> delete [
 	super delete.
 	self release.
@@ -128,7 +128,7 @@ FTColumnResizerMorph >> pressedFillStyle [
 	^ self theme morphTreeSplitterPressedFillStyleFor: self
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #'submorphs - add/remove' }
 FTColumnResizerMorph >> release [
 	traceMorph := nil.
 	oldColor := nil.

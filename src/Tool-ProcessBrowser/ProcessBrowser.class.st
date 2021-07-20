@@ -154,8 +154,8 @@ ProcessBrowser class >> isUIProcess: aProcess [
 ProcessBrowser class >> menuCommandOn: aBuilder [ 
 	<worldMenu> 
 	(aBuilder item: #'Process Browser')
-		parent: #Tools;
-		order: 705;
+		parent: #SystemTools;
+		order: 3;
 		action:[ self open ];
 		help: 'Provides a view of all of the processes (threads) executing in Smalltalk.';
 		icon: self taskbarIcon
@@ -181,6 +181,28 @@ ProcessBrowser class >> open [
 	
 	Smalltalk garbageCollect.
 	^ self new build
+]
+
+{ #category : #settings }
+ProcessBrowser class >> processBrowserSettingsOn: aBuilder [
+
+	<systemsettings>
+	(aBuilder group: #processBrowser)
+		label: 'Process browser';
+		parent: #tools;
+		description: 'Process browser settings';
+		with: [ 
+			(aBuilder setting: #cpuWatcherEnabled)
+				label: 'Process browser monitors CPU usage';
+				target: CPUWatcher;
+				default: false;
+				description: 'If true, Pharo processes will be monitored for CPU usage. If they take too much CPU, you will get a notification menu that will allow you to debug, resume, or terminate the process' .
+				
+			(aBuilder setting: #pigFinding)
+				label: 'Find the most CPU demanding processes';
+				target: CPUWatcher;
+				default: false;
+				description: 'Try to identify CPU demanding processes during CPU monitoring and offer their termination'  ]
 ]
 
 { #category : #'tools registry' }
@@ -906,12 +928,6 @@ ProcessBrowser >> processNameList [
 				ifNotNil: [ (((tally occurrencesOf: each) * 100.0 / tally size roundTo: 1) asString padLeftTo: 2) , '% ' ]
 				ifNil: [ '' ].
 			percent , (self prettyNameForProcess: each) ]
-]
-
-{ #category : #views }
-ProcessBrowser >> refactor [
-
-	^ NautilusRefactoring model: self
 ]
 
 { #category : #'process actions' }

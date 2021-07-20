@@ -7,12 +7,6 @@ Class {
 	#category : #'Deprecated90-OpalCompiler-Core'
 }
 
-{ #category : #accessing }
-OCSelfVariable class >> semanticNodeClass [
-
-	^RBSelfNode 
-]
-
 { #category : #emitting }
 OCSelfVariable >> emitValue: methodBuilder [
 
@@ -26,14 +20,13 @@ OCSelfVariable >> initialize [
 	name := 'self'
 ]
 
-{ #category : #testing }
+{ #category : #generated }
 OCSelfVariable >> isSelf [
-	^true
-]
 
-{ #category : #testing }
-OCSelfVariable >> isSelfOrSuper [
-	^true
+	self
+		deprecated: 'Use #isSelfVariable instead'
+		transformWith: '`@rec isSelf' -> '`@rec isSelfVariable'.
+	^ self isSelfVariable
 ]
 
 { #category : #debugging }

@@ -8,7 +8,8 @@ Class {
 		'options',
 		'callingConvention',
 		'senderContext',
-		'uFFIEntryPointContext'
+		'uFFIEntryPointContext',
+		'fixedArgumentCount'
 	],
 	#classVars : [
 		'CalloutAPIClass'
@@ -18,7 +19,7 @@ Class {
 
 { #category : #accessing }
 FFICalloutAPI class >> calloutAPIClass [
-	^ CalloutAPIClass ifNil: [ CalloutAPIClass := self defaultCalloutAPIClass ]
+	^ CalloutAPIClass ifNil: [ self defaultCalloutAPIClass ]
 	
 ]
 
@@ -29,7 +30,8 @@ FFICalloutAPI class >> calloutAPIClass: aClass [
 
 { #category : #accessing }
 FFICalloutAPI class >> defaultCalloutAPIClass [
-	^ FFICalloutAPI	
+	
+	^ FFIBackend current calloutAPIClass 
 ]
 
 { #category : #'instance creation' }
@@ -95,6 +97,18 @@ FFICalloutAPI >> findUffiEnterContext [
 	^ uffiEnterContext
 ]
 
+{ #category : #accessing }
+FFICalloutAPI >> fixedArgumentCount [
+
+	^ fixedArgumentCount
+]
+
+{ #category : #accessing }
+FFICalloutAPI >> fixedArgumentCount: anObject [
+
+	fixedArgumentCount := anObject
+]
+
 { #category : #action }
 FFICalloutAPI >> function: functionSignature library: moduleNameOrLibrary [
 	| sender ffiMethod ffiMethodSelector |
@@ -105,14 +119,15 @@ FFICalloutAPI >> function: functionSignature library: moduleNameOrLibrary [
 			builder
 				signature: functionSignature;
 				sender: sender;
+				fixedArgumentCount: fixedArgumentCount;
 				library: moduleNameOrLibrary ].
 	ffiMethod
 		selector: sender selector;
 		methodClass: sender methodClass.	"Replace with generated ffi method, but save old one for future use"
 	ffiMethod
-		propertyValueAt: #ffiNonCompiledMethod
+		propertyAt: #ffiNonCompiledMethod
 		put: (sender methodClass methodDict at: sender selector).	"For senders search, one need to keep the selector in the properties"
-	ffiMethod propertyValueAt: #ffiMethodSelector put: ffiMethodSelector.
+	ffiMethod propertyAt: #ffiMethodSelector put: ffiMethodSelector.
 	sender methodClass methodDict at: sender selector put: ffiMethod.	"Register current method as compiled for ffi"
 	FFIMethodRegistry uniqueInstance registerMethod: ffiMethod.	"Resend"
 	sender
@@ -128,8 +143,11 @@ FFICalloutAPI >> function: aCollection module: aClass [
 
 { #category : #initialization }
 FFICalloutAPI >> initialize [
+
 	callingConvention := #cdecl.
 	options := #().
+	fixedArgumentCount := 0.
+
 	super initialize
 ]
 
@@ -150,7 +168,7 @@ FFICalloutAPI >> newBuilder [
 	^ FFICalloutMethodBuilder calloutAPI: self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #action }
 FFICalloutAPI >> newCallbackWithSignature: signature block: aBlock library: aLibrary [
 
 	^ (FFICallback signature: signature block: aBlock)

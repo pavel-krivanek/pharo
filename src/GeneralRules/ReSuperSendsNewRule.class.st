@@ -17,15 +17,7 @@ ReSuperSendsNewRule class >> uniqueIdentifierName [
 
 { #category : #hooks }
 ReSuperSendsNewRule >> afterCheck: aNode mappings: mappingDict [
-	^ aNode methodNode
-		ifNil: [ false ]
-		ifNotNil: [ :methodNode |
-			methodNode method
-				ifNil: [ false ]
-				ifNotNil: [ :method |
-					method methodClass
-						ifNil: [ false ]
-						ifNotNil: #isMeta ] ]
+	^ aNode methodNode methodClass isMeta
 ]
 
 { #category : #accessing }
@@ -45,5 +37,5 @@ ReSuperSendsNewRule >> initialize [
 
 { #category : #accessing }
 ReSuperSendsNewRule >> name [
-	^ 'Sends super new initialize'
+	^ 'Sends super new initialize or self new initialize'
 ]

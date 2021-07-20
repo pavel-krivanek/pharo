@@ -19,10 +19,6 @@ LayoutEmptyScope class >> instance [
 LayoutEmptyScope >> allSlotsDo: aBlock [
 ]
 
-{ #category : #enumerating }
-LayoutEmptyScope >> allSlotsReverseDo: aBlock [
-]
-
 { #category : #accessing }
 LayoutEmptyScope >> allVisibleSlots [
 	^ OrderedCollection new
@@ -36,6 +32,11 @@ LayoutEmptyScope >> fieldSize [
 { #category : #flattening }
 LayoutEmptyScope >> flatten [
 	^ OrderedCollection new
+]
+
+{ #category : #testing }
+LayoutEmptyScope >> hasBindingThatBeginsWith: aString [
+	^false
 ]
 
 { #category : #testing }
@@ -61,9 +62,4 @@ LayoutEmptyScope >> ownFieldSize [
 { #category : #accessing }
 LayoutEmptyScope >> visibleSlots [
 	^ #()
-]
-
-{ #category : #enumerating }
-LayoutEmptyScope >> withParentScopesDo: aBlock [
-	aBlock value: self.
 ]

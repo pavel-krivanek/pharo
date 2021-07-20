@@ -11,13 +11,24 @@ Class {
 { #category : #preconditions }
 RBRealizeClassRefactoring >> preconditions [
 	^ RBCondition
-		withBlock: [
+		withBlock: [ 
 			(self theClass withAllSubclasses
 				detect: [ :each | 
 					(each whichSelectorsReferToSymbol: #subclassResponsibility) notEmpty 
 						or: [ (each classSide whichSelectorsReferToSymbol: #subclassResponsibility) notEmpty ] ]
-				ifNone: [ nil ]) isNil ]
-		errorString: self theClass printString , ' is abstract or has abstract subclasses.'
+				ifNone: [ nil ]) ifNotNil: 
+				[ self refactoringWarning: 
+				self theClass printString ,
+					' is abstract or has abstract subclasses. Do you want to proceed?']. true ]
+]
+
+{ #category : #printing }
+RBRealizeClassRefactoring >> storeOn: aStream [ 
+	aStream nextPut: $(.
+	self class storeOn: aStream.
+	aStream nextPutAll: ' className: '.
+	className storeOn: aStream.
+	aStream nextPut: $)
 ]
 
 { #category : #accessing }
@@ -34,17 +45,15 @@ RBRealizeClassRefactoring >> transform [
 { #category : #transforming }
 RBRealizeClassRefactoring >> transform: aClass [
 	| class method parseTree |
-	aClass allSelectors do: [ :selector |
+	aClass allSelectors do: [ :selector | 
 		class := aClass whoDefinesMethod: selector.
-		(class notNil and: [ class ~= aClass ]) ifTrue: [
+		(class notNil and: [ class ~= aClass ]) ifTrue: [ 
 			method := class methodFor: selector.
-			(method notNil and: [ method refersToSymbol: #subclassResponsibility ]) ifTrue: [
+			(method notNil and: [ method refersToSymbol: #subclassResponsibility ]) ifTrue: [ 
 				parseTree := method parseTree.
-				parseTree body 
-					temporaries: OrderedCollection new; 
+				parseTree body
+					temporaries: OrderedCollection new;
 					statements: OrderedCollection new;
-					addNode: (RBMessageNode 
-						receiver: (RBVariableNode named: 'self')
-						selector: #shouldBeImplemented).
+					addNode: (RBMessageNode receiver: RBVariableNode selfNode selector: #shouldBeImplemented).
 				aClass compile: parseTree newSource withAttributesFrom: method ] ] ]
 ]

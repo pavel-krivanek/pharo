@@ -12,8 +12,7 @@ Class {
 	#name : #ClyIcebergShowMethodVersionCommand,
 	#superclass : #CmdCommand,
 	#instVars : [
-		'method',
-		'repository'
+		'method'
 	],
 	#category : #'Calypso-SystemPlugins-Monticello-Browser'
 }
@@ -52,20 +51,34 @@ ClyIcebergShowMethodVersionCommand >> defaultMenuItemName [
 
 { #category : #execution }
 ClyIcebergShowMethodVersionCommand >> execute [
-	| browserClass |
-	browserClass := #IceTipExtendedVersionBrowser 
-		asClassInEnvironment: self class environment
-		ifAbsent: [ #IceExtendedVersionBrowser asClass ].
+	| browserClass packageName repositoriesWithPackage repository |
+	
+	packageName := method package name.
+	repositoriesWithPackage := 	IceRepository registry 
+		select: [ :each | each includesPackageNamed: packageName ].
+	repositoriesWithPackage ifEmpty: [ 
+		UIManager default inform: 'No repositories include package ', packageName.
+		^ self ].
+	repository := repositoriesWithPackage size > 1 
+		ifTrue: [ 
+			UIManager default 
+				chooseFrom: (repositoriesWithPackage collect: [ :each | each name ])
+				values: repositoriesWithPackage
+				title: 'Repository' ]
+		ifFalse: [ repositoriesWithPackage anyOne ].
+	repository ifNil: [ ^ self ].
+	
+	self flag: #pharoTodo.
+	"This is a way to hide a dependency to Iceberg-IceTip package."
+	browserClass := #IceTipVersionHistoryBrowser
+		asClassInEnvironment: self class environment.
 		
-	(browserClass repository: repository method: method) open
+	(browserClass onRepository: repository method: method) openWithSpec
 ]
 
 { #category : #execution }
 ClyIcebergShowMethodVersionCommand >> prepareFullExecutionInContext: aToolContext [
-	| packageName |
-	super prepareFullExecutionInContext: aToolContext.
 	
-	method := aToolContext lastSelectedMethod.
-	packageName := method package name.
-	repository := IceRepository registry detect: [ :each | each includesPackageNamed: packageName ]
+	super prepareFullExecutionInContext: aToolContext.
+	method := aToolContext lastSelectedMethod
 ]

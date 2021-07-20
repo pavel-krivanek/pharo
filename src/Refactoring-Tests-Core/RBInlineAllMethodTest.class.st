@@ -1,14 +1,60 @@
 Class {
 	#name : #RBInlineAllMethodTest,
 	#superclass : #RBRefactoringTest,
-	#category : #'Refactoring-Tests-Core'
+	#category : #'Refactoring-Tests-Core-Refactorings'
 }
 
 { #category : #tests }
-RBInlineAllMethodTest >> testInlineMethodWithMultipleSendersInMethod [
+RBInlineAllMethodTest >> testInlineMethodCalledAsSuper [
+	| class superclass |
+	model := RBClassModelFactory rbNamespace new.
+	superclass := model classNamed: self class superclass name.
+	superclass compile: 'foo: arg1 bar: arg2 ^ arg1 + arg2' classified: #(#accessing).
+	class := model classNamed: self class name.
+	class compile: 'foo: arg1 bar: arg2 ^ (super foo: arg1 bar: arg2) - arg1' classified: #(#accessing).
+	self executeRefactoring: (RBInlineAllSendersRefactoring 
+				model: model
+				sendersOf: #foo:bar:
+				in: superclass).
+	self assert: (class parseTreeFor: #foo:bar:) 
+			equals: (self parseMethod: 'foo: arg1 bar: arg2 ^ (arg1 + arg2) - arg1')
+]
+
+{ #category : #'failure tests' }
+RBInlineAllMethodTest >> testInlineMethodCanNotUnderstandSelectorInClass [
 	| refactoring |
 	refactoring := RBInlineAllSendersRefactoring 
-		sendersOf: #caller2
+		sendersOf: #caller3
+		in: RBRefactoryTestDataApp.
+	self shouldFail: refactoring.
+]
+
+{ #category : #tests }
+RBInlineAllMethodTest >> testInlineMethodWithMultipleArgs [
+	| class |
+	model := RBClassModelFactory rbNamespace new.
+	class := model classNamed: self class name.
+	class
+		compile: 'foo: arg1 bar: arg2 ^ arg1 + arg2' classified: #(#accessing);
+		compile: 'exampleInline | x | x := 3 + (self foo: a bar: b). ^ (self foo: 5 bar: 7)' 
+		classified: #(#accessing).
+	self executeRefactoring: (RBInlineAllSendersRefactoring 
+				model: model
+				sendersOf: #foo:bar:
+				in: class).
+	self assert: (class parseTreeFor: #exampleInline) 
+			equals: (self parseMethod: 'exampleInline
+	| x |
+	x := 3 + (a + b).
+	^ 5 + 7').
+]
+
+{ #category : #tests }
+RBInlineAllMethodTest >> testInlineMethodWithMultipleSendersInMethod [
+	| refactoring methodName |
+	methodName := ('caller', '2') asSymbol.
+	refactoring := RBInlineAllSendersRefactoring 
+		sendersOf: methodName
 		in: RBRefactoryTestDataApp.
 	self executeRefactoring: refactoring.
 	self assert: ((refactoring model classNamed: #RBRefactoryTestDataApp) parseTreeFor: #inlineLast) equals: (self parseMethod: 'inlineLast

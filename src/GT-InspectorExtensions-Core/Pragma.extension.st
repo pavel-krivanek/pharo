@@ -2,7 +2,7 @@ Extension { #name : #Pragma }
 
 { #category : #'*GT-InspectorExtensions-Core' }
 Pragma >> gtDisplayOn: stream [
-	self method gtDisplayOn: stream.
+	self method displayStringOn: stream.
 	stream space.
 	self printOn: stream
 ]
@@ -18,7 +18,7 @@ Pragma class >> gtInspectorAnnotatedMethodsIn: composite [
 			| pragmas |
 			pragmas := OrderedCollection new.
 			Object withAllSubclassesDo: [:each |
-				Pragma withPragmasIn: each do: [:p |
+				 each pragmasDo: [:p |
 					pragmas add: p]].
 			(pragmas groupedBy: #selector) associations sorted: [ :a :b | 
 				a key < b key ]

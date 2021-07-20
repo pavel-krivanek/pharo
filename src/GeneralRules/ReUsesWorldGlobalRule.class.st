@@ -17,7 +17,7 @@ ReUsesWorldGlobalRule class >> uniqueIdentifierName [
 
 { #category : #running }
 ReUsesWorldGlobalRule >> basicCheck: aNode [
-	^ aNode isVariable and: [ aNode isGlobal and: [ #(#World #ActiveWorld) includes: aNode name ] ]
+	^ aNode isGlobalVariable and: [ #(#World #ActiveWorld) includes: aNode name ]
 ]
 
 { #category : #accessing }
@@ -27,7 +27,7 @@ ReUsesWorldGlobalRule >> group [
 
 { #category : #accessing }
 ReUsesWorldGlobalRule >> name [
-	^ 'Uses World/ActiveWorld directly'
+	^ 'Uses World or ActiveWorld directly'
 ]
 
 { #category : #accessing }

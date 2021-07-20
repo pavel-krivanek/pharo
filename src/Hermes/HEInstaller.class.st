@@ -84,9 +84,9 @@ HEInstaller >> buildTrait: aTraitDefinition [
 	
 	(self existingTrait: aTraitDefinition) ifNotNil: [:x | ^ x ].
 	
-	traitComposition := (aTraitDefinition traitComposition asLiteralIn: environment) asTraitComposition.
-	
 	traitClass := Smalltalk globals at: #Trait ifAbsent: [ self error: 'Trait support is not installed' ].
+	
+	traitComposition := self buildTraitCompositionFor: aTraitDefinition traitComposition.	
 	
 	newTrait := traitClass
 		named: aTraitDefinition traitName
@@ -94,9 +94,15 @@ HEInstaller >> buildTrait: aTraitDefinition [
 		package: aTraitDefinition category
 		env: environment.
 
-	newTrait classTrait traitComposition: (aTraitDefinition classTraitComposition asLiteralIn: environment) asTraitComposition.
+	newTrait classTrait traitComposition: (self buildTraitCompositionFor: aTraitDefinition classTraitComposition).
 
 	^ newTrait
+]
+
+{ #category : #'creating traits' }
+HEInstaller >> buildTraitCompositionFor: traitComposition [
+
+	^ (traitComposition asLiteralIn: environment) asTraitComposition
 ]
 
 { #category : #accessing }
@@ -148,7 +154,7 @@ HEInstaller >> environment: anObject [
 	environment := anObject
 ]
 
-{ #category : #'validating existance' }
+{ #category : #'validating existence' }
 HEInstaller >> existingClass: aHEClass [
 	(environment hasClassNamed: aHEClass className) ifTrue:[
 		self error: (self messageExistingClass: aHEClass)
@@ -156,7 +162,7 @@ HEInstaller >> existingClass: aHEClass [
 	^ nil
 ]
 
-{ #category : #'validating existance' }
+{ #category : #'validating existence' }
 HEInstaller >> existingTrait: aHETrait [
 	(environment includesKey: aHETrait traitName) ifTrue:[ 
 		self error: (self messageExistingTrait: aHETrait)
@@ -220,8 +226,8 @@ HEInstaller >> processTraitsFrom: aHEClass in: newClass [
 
 	hasTraits ifFalse: [ ^ self ].
 
-	newClass setTraitComposition: (aHEClass traitComposition asLiteralIn: environment) asTraitComposition.
-	newClass class setTraitComposition: (aHEClass classTraitComposition asLiteralIn: environment) asTraitComposition.
+	newClass setTraitComposition: (self buildTraitCompositionFor: aHEClass traitComposition).
+	newClass class setTraitComposition: (self buildTraitCompositionFor: aHEClass classTraitComposition).
 
 ]
 
@@ -260,7 +266,7 @@ HEInstaller >> reportNewUndeclareds: newUndeclareds [
 	newUndeclareds ifNotEmpty: [ self error: 'New Undeclared created... check dependencies: ' , newUndeclareds keys printString ]
 ]
 
-{ #category : #'validating existance' }
+{ #category : #'validating existence' }
 HEInstaller >> shouldBuildMethod: aHEMethod in: aClass [
 	aClass
 		compiledMethodAt: aHEMethod name

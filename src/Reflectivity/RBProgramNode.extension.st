@@ -1,6 +1,11 @@
 Extension { #name : #RBProgramNode }
 
 { #category : #'*Reflectivity' }
+RBProgramNode >> addBreakpoint: aBreakpoint [
+	self breakpoints add: aBreakpoint 
+]
+
+{ #category : #'*Reflectivity' }
 RBProgramNode >> afterHooks [
 	^self propertyAt: #afterHooks ifAbsent: #()
 ]
@@ -36,6 +41,11 @@ RBProgramNode >> beforeLinks [
 ]
 
 { #category : #'*Reflectivity' }
+RBProgramNode >> breakpoints [
+	^ self propertyAt: #breakpoints ifAbsentPut: [ Set new ]
+]
+
+{ #category : #'*Reflectivity' }
 RBProgramNode >> clearReflectivityAnnotations [
 	self removeProperty: #preambles ifAbsent: [ ].
 	self removeProperty: #beforeHooks ifAbsent: [ ].
@@ -57,9 +67,7 @@ RBProgramNode >> hasBeenExecuted [
 
 { #category : #'*Reflectivity' }
 RBProgramNode >> hasBreakpoint [
-	
-	self hasMetalinkBefore ifFalse: [ ^false ].
-	^self beforeLinks anySatisfy: [ :link | link metaObject = Break ]
+	^ (self hasProperty: #breakpoints) and: [ self breakpoints notEmpty ]
 ]
 
 { #category : #'*Reflectivity' }
@@ -139,7 +147,8 @@ RBProgramNode >> link: aMetaLink [
 	aMetaLink installOn: self.
 	self clearReflectivityAnnotations.
 	self methodNode method installLink: aMetaLink.
-	SystemAnnouncer uniqueInstance announce: (MetalinkChanged linkAdded: aMetaLink toNode: self)
+	aMetaLink linkInstaller propagateLinkAddition: aMetaLink forNode: self.
+	aMetaLink announceInstall: self
 ]
 
 { #category : #'*Reflectivity' }
@@ -178,6 +187,11 @@ RBProgramNode >> preambles [
 ]
 
 { #category : #'*Reflectivity' }
+RBProgramNode >> removeBreakpoint: aBreakpoint [
+	self breakpoints remove: aBreakpoint ifAbsent: []
+]
+
+{ #category : #'*Reflectivity' }
 RBProgramNode >> removeLink: aMetaLink [
 	self hasMetalink
 		ifFalse: [ ^ self ].
@@ -187,7 +201,8 @@ RBProgramNode >> removeLink: aMetaLink [
 	(self methodNode methodClass methodDict includesKey: self methodNode selector)
 		ifFalse: [ ^ self ].
 	self methodNode method removeLink: aMetaLink.
-	SystemAnnouncer uniqueInstance announce: (MetalinkChanged linkRemoved: aMetaLink fromNode: self)
+	aMetaLink linkInstaller propagateLinkRemoval: aMetaLink forNode: self.
+	aMetaLink announceRemove: self
 ]
 
 { #category : #'*Reflectivity' }
@@ -198,6 +213,11 @@ RBProgramNode >> removeLink: aMetaLink forObject: anObject [
 { #category : #'*Reflectivity' }
 RBProgramNode >> tagExecuted [
 	^self propertyAt: #tagExecuted put: true 
+]
+
+{ #category : #'*Reflectivity' }
+RBProgramNode >> variableValueInContext: aContext [
+	^nil
 ]
 
 { #category : #'*Reflectivity' }

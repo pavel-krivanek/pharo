@@ -7,7 +7,7 @@ Class {
 { #category : #running }
 ClyAsyncQueryResultTest >> createQuery [
 
-	^ClyLongQueryExample from: ClyScopeExample of: String in: environment 
+	^ClyLongExampleQuery from: ClyExampleScope of: String in: environment 
 ]
 
 { #category : #running }
@@ -17,15 +17,14 @@ ClyAsyncQueryResultTest >> createQueryResult [
 
 { #category : #tests }
 ClyAsyncQueryResultTest >> testBuildCompletionShouldNotifyItemObservers [
-
-	| observer cursor |
+	| observer |
 	observer := ClyItemObserverExample new.
-	cursor := queryResult openBrowserCursorFor: observer.
+	queryResult openBrowserCursorFor: observer.
 
 	queryResult rebuild.
 	query passExecution.
 	self waitBuildComplete.
-	
+
 	self assert: observer wasNotified
 ]
 

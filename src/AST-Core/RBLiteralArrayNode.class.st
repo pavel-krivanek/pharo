@@ -54,7 +54,7 @@ RBLiteralArrayNode >> acceptVisitor: aProgramNodeVisitor [
 
 { #category : #accessing }
 RBLiteralArrayNode >> children [
-	^contents
+	^ contents
 ]
 
 { #category : #accessing }
@@ -90,7 +90,7 @@ RBLiteralArrayNode >> equalTo: anObject withMapping: aDictionary [
 
 { #category : #testing }
 RBLiteralArrayNode >> isFaulty [
-	^self contents anySatisfy: #isFaulty
+	^self contents anySatisfy: [:each | each isFaulty]
 ]
 
 { #category : #testing }
@@ -125,7 +125,7 @@ RBLiteralArrayNode >> replaceNode: aNode withNode: anotherNode [
 				collect: [:each | each == aNode ifTrue: [anotherNode] ifFalse: [each]])
 ]
 
-{ #category : #'private-replacing' }
+{ #category : #'private - replacing' }
 RBLiteralArrayNode >> replaceSourceWith: aNode [ 
 	(self class = aNode class and: 
 			[self isForByteArray = aNode isForByteArray 

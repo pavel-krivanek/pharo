@@ -18,6 +18,35 @@ SlotAnnouncementsTest >> collectedAnnouncements [
 	^ collectedAnnouncements
 ]
 
+{ #category : #'tests - integration' }
+SlotAnnouncementsTest >> createClass [
+		
+	^ self createClassWithLayout: FixedLayout
+]
+
+{ #category : #'tests - integration' }
+SlotAnnouncementsTest >> createClassWithLayout: aLayoutClass [
+		
+	^ self createClassWithLayout: aLayoutClass traitComposition: #()
+]
+
+{ #category : #'tests - integration' }
+SlotAnnouncementsTest >> createClassWithLayout: aLayoutClass traitComposition: aTraitComposition [
+		
+	^ self class classInstaller make: [ :aClassBuilder | 
+		aClassBuilder 
+			name: self aClassName;
+			layoutClass: aLayoutClass;
+			traitComposition: aTraitComposition asTraitComposition;
+			package: self aCategory ].
+]
+
+{ #category : #'tests - integration' }
+SlotAnnouncementsTest >> createClassWithTraitComposition: aTraitComposition [
+		
+	^ self createClassWithLayout: FixedLayout traitComposition: aTraitComposition
+]
+
 { #category : #running }
 SlotAnnouncementsTest >> setUp [
 	super setUp.
@@ -137,19 +166,14 @@ SlotAnnouncementsTest >> testChangeInSuperclassShouldNotAnnounceSubclassModified
 	self assert: self collectedAnnouncements first newClassDefinition equals: anotherClass.	
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testClassAddedToNewCategoryShouldAnnounceCategoryAdded [
 
 	self subscribeOn: CategoryAdded.	
 
 	self deny: (self class environment organization includesCategory: self aCategory).
-	
-	Object 
-		subclass: self aClassName
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+
+	self createClass.
 
 	self assert: (self class environment organization includesCategory: self aCategory).
 
@@ -182,7 +206,7 @@ SlotAnnouncementsTest >> testClassRecategorizationShouldAnnounceClassModified [
 	self assert: announcement classRecategorized identicalTo: anotherClass
 ]
 
-{ #category : #'tests-comments' }
+{ #category : #'tests - comments' }
 SlotAnnouncementsTest >> testCreateAndChangeWithCommentDoesAnnounceBoth [
 
 	| classCommented |
@@ -204,7 +228,7 @@ SlotAnnouncementsTest >> testCreateAndChangeWithCommentDoesAnnounceBoth [
 	self assert: classCommented classCommented equals: aClass.
 	self assert: classCommented oldComment equals: ''.
 	self assert: classCommented newComment equals: 'A class Comment'.
-	self assert: classCommented oldStamp equals: nil. "why nil?" 
+	self assert: classCommented oldStamp equals: ''.
 	self assert: classCommented newStamp equals: nil. "why nil?"
 	
 	classCommented := self collectedAnnouncements second.
@@ -215,7 +239,7 @@ SlotAnnouncementsTest >> testCreateAndChangeWithCommentDoesAnnounceBoth [
 	self assert: classCommented newStamp equals: nil "why nil?"
 ]
 
-{ #category : #'tests-comments' }
+{ #category : #'tests - comments' }
 SlotAnnouncementsTest >> testCreateAndChangeWithoutCommentDoesNotAnnounce [
 	self subscribeOn: ClassCommented.
 
@@ -230,7 +254,7 @@ SlotAnnouncementsTest >> testCreateAndChangeWithoutCommentDoesNotAnnounce [
 	self assertEmpty: self collectedAnnouncements
 ]
 
-{ #category : #'tests-comments' }
+{ #category : #'tests - comments' }
 SlotAnnouncementsTest >> testCreateWithCommentDoesAnnounce [
 
 	| classCommented |
@@ -248,11 +272,11 @@ SlotAnnouncementsTest >> testCreateWithCommentDoesAnnounce [
 	self assert: classCommented classCommented equals: aClass.
 	self assert: classCommented oldComment equals: ''.
 	self assert: classCommented newComment equals: 'A class Comment'.
-	self assert: classCommented oldStamp equals: nil. "why nil?" 
+	self assert: classCommented oldStamp equals: ''.
 	self assert: classCommented newStamp equals: nil  "why nil?"
 ]
 
-{ #category : #'tests-comments' }
+{ #category : #'tests - comments' }
 SlotAnnouncementsTest >> testEmptyCommentDoesNotAnnounce [
 	self subscribeOn: ClassCommented.
 
@@ -272,50 +296,30 @@ SlotAnnouncementsTest >> testEmptyCommentDoesNotAnnounce [
 	self assertEmpty: self collectedAnnouncements
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testFixedClassWhenTraitCompositionChangedShouldAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
-	"Create a class without trait composition"
-	Object 
-		subclass: self aClassName
-		uses: { } 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	self createClassWithTraitComposition: {}.
 
 	self assertEmpty: self collectedAnnouncements.
-	
-	"Set a new trait composition"
-	Object 
-		subclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
-	
+
+	self createClassWithTraitComposition: TOne.
+		
 	self assert: self collectedAnnouncements size equals: 1.
 	announcement := self collectedAnnouncements first.
 	self assert: (announcement oldClassDefinition traitComposition syntacticallyEquals: {} asTraitComposition).	
 	self assert: (announcement newClassDefinition traitComposition syntacticallyEquals: TOne asTraitComposition).
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testFixedClassWithTraitCreatedShouldntAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
 	"Create a class with a trait composition"
-	aClass := Object 
-		subclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	aClass := self createClassWithTraitComposition: TOne.
 
 	self assertEmpty: self collectedAnnouncements.
 	self deny: aClass classLayout isVariable.
@@ -342,7 +346,7 @@ SlotAnnouncementsTest >> testLayoutChangeShouldAnnounceClassModified [
 	self assert: announcement newClassDefinition format equals: classModified format
 ]
 
-{ #category : #'tests-comments' }
+{ #category : #'tests - comments' }
 SlotAnnouncementsTest >> testSameCommentDoesNotAnnounce [
 
 	self subscribeOn: ClassCommented.
@@ -379,30 +383,16 @@ SlotAnnouncementsTest >> testSlotAdditionShouldAnnounceClassModified [
 	self assert: announcement oldClassDefinition allInstVarNames equals: addedInstanceNames
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testVariableByteClassWhenTraitCompositionChangedShouldAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
-	"Create a class without trait composition"
-	Object 
-		variableByteSubclass: self aClassName
-		uses: { } 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	self createClassWithLayout: ByteLayout.
 
 	self assertEmpty: self collectedAnnouncements.
 	
-	"Set a new trait composition"
-	Object 
-		variableByteSubclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	self createClassWithLayout: ByteLayout traitComposition: TOne.
 	
 	self assert: self collectedAnnouncements size equals: 1.
 	announcement := self collectedAnnouncements first.
@@ -410,19 +400,13 @@ SlotAnnouncementsTest >> testVariableByteClassWhenTraitCompositionChangedShouldA
 	self assert: (announcement newClassDefinition traitComposition syntacticallyEquals: TOne asTraitComposition)
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testVariableByteClassWithTraitCreatedShouldntAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
 	"Create a class with a trait composition"
-	aClass := Object 
-		variableByteSubclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	aClass := self createClassWithLayout: ByteLayout traitComposition: TOne.
 
 	self assertEmpty: self collectedAnnouncements.
 	self assert: aClass classLayout isVariable.
@@ -431,30 +415,18 @@ SlotAnnouncementsTest >> testVariableByteClassWithTraitCreatedShouldntAnnounceCl
 	self assert: (aClass traitComposition syntacticallyEquals: TOne asTraitComposition)
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testVariableClassWhenTraitCompositionChangedShouldAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
 	"Create a class without trait composition"
-	Object 
-		variableSubclass: self aClassName
-		uses: { } 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	self createClassWithLayout: VariableLayout.
 
 	self assertEmpty: self collectedAnnouncements.
 	
 	"Set a new trait composition"
-	Object 
-		variableSubclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	self createClassWithLayout: VariableLayout traitComposition: TOne.
 	
 	self assert: self collectedAnnouncements size equals: 1.
 	announcement := self collectedAnnouncements first.
@@ -462,19 +434,13 @@ SlotAnnouncementsTest >> testVariableClassWhenTraitCompositionChangedShouldAnnou
 	self assert: (announcement newClassDefinition traitComposition syntacticallyEquals: TOne asTraitComposition)
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testVariableClassWithTraitCreatedShouldntAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
 	"Create a class with a trait composition"
-	aClass := Object 
-		variableSubclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	aClass := self createClassWithLayout: VariableLayout traitComposition: TOne.
 
 	self assertEmpty: self collectedAnnouncements.
 	self assert: aClass classLayout isVariable.
@@ -482,30 +448,18 @@ SlotAnnouncementsTest >> testVariableClassWithTraitCreatedShouldntAnnounceClassM
 	self assert: (aClass traitComposition syntacticallyEquals: TOne asTraitComposition)
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testVariableWordClassWhenTraitCompositionChangedShouldAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
 	"Create a class without trait composition"
-	Object 
-		variableWordSubclass: self aClassName
-		uses: { } 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		package: self aCategory.
+	self createClassWithLayout: WordLayout.
 
 	self assertEmpty: self collectedAnnouncements.
 	
 	"Set a new trait composition"
-	Object 
-		variableWordSubclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		package: self aCategory.
+	self createClassWithLayout: WordLayout traitComposition: TOne.
 	
 	self assert: self collectedAnnouncements size equals: 1.
 	announcement := self collectedAnnouncements first.
@@ -513,19 +467,13 @@ SlotAnnouncementsTest >> testVariableWordClassWhenTraitCompositionChangedShouldA
 	self assert: (announcement newClassDefinition traitComposition syntacticallyEquals: TOne asTraitComposition)
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testVariableWordClassWithTraitCreatedShouldntAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
 	"Create a class with a trait composition"
-	aClass := Object 
-		variableWordSubclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		package: self aCategory.
+	aClass := self createClassWithLayout: WordLayout traitComposition: TOne.
 
 	self assertEmpty: self collectedAnnouncements.
 	self assert: aClass classLayout isVariable.
@@ -534,30 +482,17 @@ SlotAnnouncementsTest >> testVariableWordClassWithTraitCreatedShouldntAnnounceCl
 	self assert: (aClass traitComposition syntacticallyEquals: TOne asTraitComposition)
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testWeakClassWhenTraitCompositionChangedShouldAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
 	"Create a class without trait composition"
-	Object 
-		weakSubclass: self aClassName
-		uses: { } 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	self createClassWithLayout: WeakLayout.
 
 	self assertEmpty: self collectedAnnouncements.
 	
-	"Set a new trait composition"
-	Object 
-		weakSubclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	self createClassWithLayout: WeakLayout traitComposition: TOne.
 	
 	self assert: self collectedAnnouncements size equals: 1.
 	announcement := self collectedAnnouncements first.
@@ -565,19 +500,13 @@ SlotAnnouncementsTest >> testWeakClassWhenTraitCompositionChangedShouldAnnounceC
 	self assert: (announcement newClassDefinition traitComposition syntacticallyEquals: TOne asTraitComposition)
 ]
 
-{ #category : #'tests-integration' }
+{ #category : #'tests - integration' }
 SlotAnnouncementsTest >> testWeakClassWithTraitCreatedShouldntAnnounceClassModified [
 
 	self subscribeOn: ClassModifiedClassDefinition.	
 
 	"Create a class with a trait composition"
-	aClass := Object 
-		weakSubclass: self aClassName
-		uses: TOne 
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self aCategory.
+	aClass := self createClassWithLayout: WeakLayout traitComposition: TOne.
 
 	self assertEmpty: self collectedAnnouncements.
 	self assert: aClass classLayout isVariable.

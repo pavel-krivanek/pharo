@@ -23,10 +23,10 @@ Class {
 
 { #category : #specs }
 EpLogNodeGraphPresenter class >> defaultSpec [
-	^ SpBoxLayout newVertical
+	^ SpBoxLayout newTopToBottom
 		add: #logNodesTable;
 		add:
-			(SpBoxLayout newHorizontal
+			(SpBoxLayout newLeftToRight
 					add: #hiedraCheckBox;
 					add: #refreshButton;
 					add: #selectDirectoryButton;
@@ -79,9 +79,10 @@ EpLogNodeGraphPresenter >> initializeHiedraController [
 	hiedraColumnController renderer
 		rowHeight: self rowHeight;
 		cellWidth: self rowHeight // 3;
-		arrowSize: 2.0;
-		nodeConnectionOffset: 2.5
+		arrowSize: 1.0;
+		nodeConnectionOffset: 2.5.
 
+	hiedraColumnController renderer rowHeight: FTTableMorph defaultRowHeight floor.
 ]
 
 { #category : #initialization }
@@ -201,7 +202,7 @@ EpLogNodeGraphPresenter >> selectedLogNodes [
 	^ logNodesTable selection selectedItems
 ]
 
-{ #category : #'api-events' }
+{ #category : #'api - events' }
 EpLogNodeGraphPresenter >> whenSelectionChangedDo: aBlock [
 	logNodesTable whenSelectionChangedDo: aBlock
 ]

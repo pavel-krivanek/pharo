@@ -24,7 +24,7 @@ CDTraitCompositionBuilder >> visitArrayNode: aRBArrayNode [
 	parent := aRBArrayNode parent.
 	parent isMessage ifTrue: [ 
 		argumentName := parent keywords at: (parent arguments indexOf: aRBArrayNode).
-		argumentName = #uses: ifTrue: [ 
+		(argumentName = #uses:) | (argumentName = #trait:) ifTrue: [ 
 			aRBArrayNode statements ifEmpty: [ 
 				^CDTraitCompositionSequenceNode new 
 					sequence: #();
@@ -45,9 +45,28 @@ CDTraitCompositionBuilder >> visitGlobalNode: aRBGlobalNode [
 ]
 
 { #category : #visiting }
+CDTraitCompositionBuilder >> visitGlobalVariableNode: aRBGlobalNode [ 
+	
+	^self visitVariableNode: aRBGlobalNode
+]
+
+{ #category : #visiting }
 CDTraitCompositionBuilder >> visitLiteralNode: aRBLiteralValueNode [ 
 	
 	^ aRBLiteralValueNode value
+]
+
+{ #category : #visiting }
+CDTraitCompositionBuilder >> visitLiteralValueNode: aRBLiteralValueNode [
+	"Redirect the message by default to #visitLiteralNode: for retrocompatibility (pharo 8)"
+
+	^ self visitLiteralNode: aRBLiteralValueNode
+]
+
+{ #category : #visiting }
+CDTraitCompositionBuilder >> visitLiteralVariableNode: aRBGlobalNode [ 
+	
+	^self visitVariableNode: aRBGlobalNode
 ]
 
 { #category : #visiting }

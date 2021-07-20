@@ -13,6 +13,23 @@ FloatTest >> classToBeTested [
 	^ Float
 ]
 
+{ #category : #tests }
+FloatTest >> testAsScaledDecimal [
+
+	self
+		assert: 0.00000000000006 asScaledDecimal asString
+		equals: '0.00000000000006s14'.
+	self
+		assert: 9.99999999999999 asScaledDecimal asString
+		equals: '9.99999999999999s14'.
+	self
+		assert:
+		(ScaledDecimal newFromNumber: 9.999999999999999 scale: 15) asString
+		equals: '9.999999999999998s15'.
+		self assert: (ScaledDecimal  newFromNumber: 9.999999999999994 scale: 15) asString 
+		equals: '9.999999999999995s15'
+]
+
 { #category : #'tests - conversion' }
 FloatTest >> testCeiling [
 
@@ -252,8 +269,7 @@ FloatTest >> testNaN2 [
 	On a big-endian machine (PowerPC), Float nan is 16r7FF80000 16r00000000. Changing
 	the bit pattern of the first word of a NaN produces another value that is still
 	considered equal to NaN. This test should work on both little endian and big
-	endian machines. However, it is not guaranteed to work on future 64 bit versions
-	of Squeak, for which Float may have different internal representations."
+	endian machines. However, it is not guaranteed to work on future 64 bit versions, for which Float may have different internal representations."
 
 	| nan1 nan2 |
 	nan1 := Float nan copy.

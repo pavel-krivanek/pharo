@@ -7,12 +7,6 @@ Class {
 	#category : #'Deprecated90-OpalCompiler-Core'
 }
 
-{ #category : #accessing }
-OCSuperVariable class >> semanticNodeClass [
-
-	^RBSuperNode 
-]
-
 { #category : #emitting }
 OCSuperVariable >> emitValue: methodBuilder [
 	"super references the receiver, send that follows is a super send (the message lookup starts in the superclass)"
@@ -26,15 +20,13 @@ OCSuperVariable >> initialize [
 	name := 'super'
 ]
 
-{ #category : #testing }
-OCSuperVariable >> isSelfOrSuper [
-	
-	^ true
-]
-
-{ #category : #testing }
+{ #category : #generated }
 OCSuperVariable >> isSuper [
-	^true
+
+	self
+		deprecated: 'Use #isSuperVariable instead'
+		transformWith: '`@rec isSuper' -> '`@rec isSuperVariable'.
+	^ self isSuperVariable
 ]
 
 { #category : #debugging }

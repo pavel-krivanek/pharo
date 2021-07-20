@@ -9,7 +9,6 @@ Load type:
 
 Installs:
 - SUnit UI
-- BlueInk
 - Nautilus
 - NECompletion
 - ProcessBrowsers
@@ -55,9 +54,6 @@ BaselineOfBasicTools >> baseline: spec [
 				loads: #( 'UI' 'Help' 'JenkinsSupport' );
 				repository: repository ].
 		spec package: 'Tool-ExternalBrowser'.
-		spec package: 'BlueInk-Core'.
-		spec package: 'BlueInk-Extras'.
-
 		spec 
 			baseline: 'EnlumineurFormatter' with: [ 
 				spec
@@ -66,14 +62,12 @@ BaselineOfBasicTools >> baseline: spec [
 		
 		spec package: 'Tool-ProcessBrowser'.
 		spec package: 'Tool-Profilers'.
-		spec package: 'Tool-SystemReporter'.
 		spec package: 'NECompletion'.
 		spec package: 'NECompletion-Morphic'.
 		spec package: 'NECompletion-Preferences'.
 		spec package: 'Announcements-Help'.
 		spec package: 'Metacello-FileTree'.
 		spec package: 'Metacello-Cypress'.
-		spec package: 'Metacello-ProfStef'.
 		spec package: 'Metacello-Reference'.
 		spec package: 'Metacello-Tutorial'.
 		spec package: 'MonticelloGUI'.
@@ -86,14 +80,16 @@ BaselineOfBasicTools >> baseline: spec [
 		spec package: 'Pharo-Help'.
 		spec package: 'ProfStef-Core'.
 		spec package: 'ProfStef-Help'.
-		spec package: 'RecentSubmissions'.
 		spec package: 'Refactoring-Changes'.
 		spec package: 'Refactoring-Core'.
 		spec package: 'Refactoring-Environment'.
 		spec package: 'Regex-Help'.
 		spec package: 'Monticello-OldDataStreamCompatibility'.
 		spec package: 'MonticelloFileServices'.
-		spec package: 'Spec2-Help'.
+		
+		self specHelp: spec.
+		
+		spec package: 'Tools-CodeNavigation'.
 		spec package: 'Tool-Diff'.
 		spec package: 'Tool-FileList'.
 		spec package: 'Tool-Finder'.
@@ -131,4 +127,14 @@ BaselineOfBasicTools >> project [
 	aProject loadType: #atomic.
 	^ aProject.
 	
+]
+
+{ #category : #baseline }
+BaselineOfBasicTools >> specHelp: spec [
+	
+	spec baseline: 'SpecHelp' with: [
+		spec 
+			repository: (self class environment at: #BaselineOfPharo) specRepository;
+			className: 'BaselineOfSpec2';
+			loads: #('Spec2-Help') ]
 ]

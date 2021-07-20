@@ -59,19 +59,17 @@ TraitFileOutTest >> tearDown [
 	super tearDown
 ]
 
-{ #category : #testing }
+{ #category : #tests }
 TraitFileOutTest >> testFileOutCategory [
 	"File out whole system category, delete all classes and traits and then
 	file them in again."
 
-	| file |
 	self timeLimit: 30 seconds.
 	self class environment organization fileOutCategory: self categoryName.
 	self class environment organization removeSystemCategory: self categoryName.
 	self deny: (testingEnvironment keys asSet includesAnyOf: #(#CA #CB #TA #TB #TC #TD)).
-	[ 
-	file := FileStream readOnlyFileNamed: self categoryName , '.st'.
-	file fileIn ] ensure: [ file close ].
+	
+	CodeImporter evaluateFileNamed: (self categoryName , '.st').
 	self assertCollection: testingEnvironment keys asSet includesAll: #(#CA #CB #TA #TB #TC #TD).
 	ta := testingEnvironment at: #TA.
 	self assert: ta traitComposition asString equals:  '((TB + TC) @ {#cc->#c}) - {#c}'.
@@ -83,20 +81,19 @@ TraitFileOutTest >> testFileOutCategory [
 	self assertCollection: cb classSide selectors asSet includesAll: #(#d #c)
 ]
 
-{ #category : #testing }
+{ #category : #tests }
 TraitFileOutTest >> testFileOutTrait [
 	"fileOut trait T6, remove it from system and then file it in again"
 
-	| fileName file |
+	| fileName |
 	self t6 compile: 'localMethod: argument ^argument'.
 	self t6 classSide compile: 'localClassSideMethod: argument ^argument'.
 	self t6 fileOut.
 	fileName := self t6 asString , '.st'.
 	self resourceClassesAndTraits remove: self t6.
 	self t6 removeFromSystem.
-	[ 
-	file := FileStream readOnlyFileNamed: fileName.
-	file fileIn ] ensure: [ file close ].
+	
+	CodeImporter evaluateFileNamed: fileName.
 	self assert: (testingEnvironment includesKey: #T6).
 	TraitsResource current t6: (testingEnvironment at: #T6).
 	self resourceClassesAndTraits add: self t6.
@@ -106,7 +103,7 @@ TraitFileOutTest >> testFileOutTrait [
 	self assertCollection: self t6 classSide selectors asSet includesAll: #(#localClassSideMethod: #m2ClassSide:)
 ]
 
-{ #category : #testing }
+{ #category : #tests }
 TraitFileOutTest >> testRecompiling [
 
 	| traitSrcPtr methodSrcPtr |
@@ -123,7 +120,7 @@ TraitFileOutTest >> testRecompiling [
 	
 ]
 
-{ #category : #testing }
+{ #category : #tests }
 TraitFileOutTest >> testRemovingMethods [
 	"When removing a local method, assure that the method
 	from the trait is installed instead and that the users are 

@@ -44,7 +44,7 @@ RBCascadeNode >> acceptVisitor: aProgramNodeVisitor [
 { #category : #querying }
 RBCascadeNode >> bestNodeFor: anInterval [ 
 	| selectedChildren |
-	(self intersectsInterval: anInterval) ifFalse: [^nil].
+	(self intersectsInterval: anInterval) ifFalse: [ ^nil ] .
 	(self containedBy: anInterval) ifTrue: [^self].
 	messages 
 		reverseDo: [:each | (each containedBy: anInterval) ifTrue: [^each]].
@@ -56,7 +56,7 @@ RBCascadeNode >> bestNodeFor: anInterval [
 
 { #category : #accessing }
 RBCascadeNode >> children [
-	^self messages
+	^ messages
 ]
 
 { #category : #matching }
@@ -93,7 +93,7 @@ RBCascadeNode >> isCascade [
 
 { #category : #testing }
 RBCascadeNode >> isFaulty [
-	^self messages anySatisfy: #isFaulty
+	^self messages anySatisfy: [:each | each isFaulty]
 ]
 
 { #category : #accessing }
@@ -165,12 +165,12 @@ RBCascadeNode >> replaceNode: aNode withNode: anotherNode [
 				collect: [:each | each == aNode ifTrue: [anotherNode] ifFalse: [each]])
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBCascadeNode >> semicolons [
 	^ semicolons
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBCascadeNode >> semicolons: anArray [
 	semicolons := anArray
 ]

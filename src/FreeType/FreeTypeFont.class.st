@@ -96,6 +96,17 @@ FreeTypeFont >> characterFormAt: aCharacter [
 				subpixelPosition: 0]
 ]
 
+{ #category : #'glyph lookup' }
+FreeTypeFont >> characterRenderingOptimizedFormAt: aCharacter [
+	FreeTypeSettings current useSubPixelAntiAliasing ifFalse: [ ^ super characterRenderingOptimizedFormAt: aCharacter ].
+	
+	^ (self 
+		glyphOf: aCharacter 
+		destDepth: 32 
+		colorValue: (Color white pixelValueForDepth: 32)
+		subpixelPosition: 0) withAlphaExtractedFromSubpixelRendering
+]
+
 { #category : #accessing }
 FreeTypeFont >> clearCachedMetrics [
 	widthAndKernedWidthCache := cachedHeight := cachedAscent := cachedDescent := subPixelPositioned := nil
@@ -285,6 +296,11 @@ FreeTypeFont >> displayUnderlineOn: aDisplayContext from: baselineStartPoint to:
 	self displayLineGlyphOn: aDisplayContext from: s to: e
 ]
 
+{ #category : #emphasis }
+FreeTypeFont >> emphasized: code [
+	"empty stub, see https://github.com/pharo-project/pharo/issues/7550"
+]
+
 { #category : #accessing }
 FreeTypeFont >> face [
 	"Validate, and answer, the receiver's face"
@@ -453,6 +469,11 @@ FreeTypeFont >> hasGlyphsForAll: asciiString [
 	^true
 ]
 
+{ #category : #testing }
+FreeTypeFont >> hasSubPixelAntiAliasing [
+	^ FreeTypeSettings current useSubPixelAntiAliasing
+]
+
 { #category : #comparing }
 FreeTypeFont >> hash [
 	^pointSize hash
@@ -523,9 +544,13 @@ FreeTypeFont >> isRegular [
 		or: [self isSimulatedRegular]
 ]
 
-{ #category : #testing }
+{ #category : #generated }
 FreeTypeFont >> isSimulated [
-	^simulatedEmphasis notNil
+
+	self
+		deprecated: 'Use #isSimulatedStyle instead'
+		transformWith: '`@rec isSimulated' -> '`@rec isSimulatedStyle'.
+	^ self isSimulatedStyle
 ]
 
 { #category : #testing }
@@ -541,6 +566,11 @@ FreeTypeFont >> isSimulatedItalic [
 { #category : #testing }
 FreeTypeFont >> isSimulatedRegular [
 	^simulatedEmphasis = 0
+]
+
+{ #category : #testing }
+FreeTypeFont >> isSimulatedStyle [
+	^simulatedEmphasis notNil
 ]
 
 { #category : #testing }
@@ -724,7 +754,7 @@ FreeTypeFont >> simulatedBoldStrength [
 	according to the receiver's simulated emphasis and the face's real emphasis"
 	| bold faceBold |
 	
-	self isSimulated ifFalse:[^0].
+	self isSimulatedStyle ifFalse:[^0].
 	bold := self isSimulatedBold.
 	faceBold := face isBold.
 	(bold and: [faceBold not])
@@ -762,12 +792,22 @@ FreeTypeFont >> simulatedItalicSlant [
 	real emphasis"
 	| italic faceItalic |
 	
-	self isSimulated ifFalse:[^0].
+	self isSimulatedStyle ifFalse:[^0].
 	italic := self isSimulatedItalic.
 	faceItalic := face isItalic.
 	(italic and: [faceItalic not])
 		ifTrue:[^self defaultSimulatedItalicSlant].
 	^0
+]
+
+{ #category : #metrics }
+FreeTypeFont >> strikeoutThickness [
+	^ self underlineThickness
+]
+
+{ #category : #metrics }
+FreeTypeFont >> strikeoutTop [
+	^ (((self face ascender / 4) * self pixelSize / self face unitsPerEm) negated - (self strikeoutThickness/2)) rounded.
 ]
 
 { #category : #'glyph lookup' }
@@ -798,6 +838,16 @@ FreeTypeFont >> subPixelPositioned [
 		ifNil:[
 			settings := FreeTypeSettings current.
 			subPixelPositioned := settings hinting not or:[settings lightHinting]]
+]
+
+{ #category : #metrics }
+FreeTypeFont >> underlineThickness [
+	^ self face underlineThickness * self pixelSize / self face unitsPerEm.
+]
+
+{ #category : #metrics }
+FreeTypeFont >> underlineTop [
+	^ ((self face underlinePosition * self pixelSize / self face unitsPerEm) negated - (self underlineThickness/2)) rounded + 1 "needs the +1 , possibly because glyph origins are moved down by 1 so that their baselines line up with strike fonts"
 ]
 
 { #category : #validation }

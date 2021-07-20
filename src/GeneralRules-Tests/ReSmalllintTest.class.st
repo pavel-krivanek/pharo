@@ -220,6 +220,11 @@ ReSmalllintTest >> testAddRemoveDependents [
 ]
 
 { #category : #tests }
+ReSmalllintTest >> testAnySatisfy [
+	self ruleFor: self currentSelector
+]
+
+{ #category : #tests }
 ReSmalllintTest >> testAsOrderedCollectionNotNeeded [
 	self ruleFor: self currentSelector
 ]
@@ -270,17 +275,17 @@ ReSmalllintTest >> testCollectSelectNotUsed [
 ]
 
 { #category : #tests }
+ReSmalllintTest >> testCollectionAtCollectionSize [
+	self ruleFor: self currentSelector
+]
+
+{ #category : #tests }
 ReSmalllintTest >> testCollectionMessagesToExternalObject [
 	self ruleFor: self currentSelector
 ]
 
 { #category : #tests }
 ReSmalllintTest >> testCollectionProtocol [
-	self ruleFor: self currentSelector
-]
-
-{ #category : #tests }
-ReSmalllintTest >> testContains [
 	self ruleFor: self currentSelector
 ]
 
@@ -337,14 +342,6 @@ ReSmalllintTest >> testFloatEqualityComparison [
 ]
 
 { #category : #tests }
-ReSmalllintTest >> testFullBlocks [
-	"skip this test in squeak"
-
-"	self blockRuleFor: self currentSelector
-		plusSelectors: #(#caller1 #fullBlocks #detectContains #fileBlocks #moveDefinition #caller #assignmentInBlock #equalNotUsed #stringConcatenation #noMoveDefinition #referencesConditionFor: #returnInEnsure)"
-]
-
-{ #category : #tests }
 ReSmalllintTest >> testGuardingClause [
 	self ruleFor: self currentSelector
 ]
@@ -361,6 +358,11 @@ ReSmalllintTest >> testLiteralArrayCharacters [
 
 { #category : #tests }
 ReSmalllintTest >> testLiteralArrayContainsComma [
+	self ruleFor: self currentSelector
+]
+
+{ #category : #tests }
+ReSmalllintTest >> testLiteralArrayContainsSuspiciousTrueFalseOrNil [
 	self ruleFor: self currentSelector
 ]
 
@@ -403,43 +405,42 @@ ReSmalllintTest >> testPrecedence [
 
 { #category : #tests }
 ReSmalllintTest >> testRBMissingSubclassResponsibilityRule [
-	| sup sub1 sub2 rule |
+	| superClass subClass1 subClass2 rule |
 	rule := ReMissingSubclassResponsibilityRule new.
-	sup := Object
-		subclass: 'MySuperclass'
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self class category.
-	sub1 := sup
-		subclass: 'MySubclass1'
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self class category.
-	sub2 := sup
-		subclass: 'MySubclass2'
-		instanceVariableNames: ''
-		classVariableNames: ''
-		poolDictionaries: ''
-		category: self class category.
 
-	sub1 compile: 'method ^ 3'.
-	sub2 compile: 'method ^ 5'.
+	superClass := self class classInstaller make: [ :aClassBuilder | 
+		aClassBuilder 
+			name: 'MySuperclass';
+			package: self class category ].
 
-	self denyEmpty: (rule check: sup).
+	subClass1 := self class classInstaller make: [ :aClassBuilder | 
+		aClassBuilder 
+			name: 'MySubclass1';
+			superclass: superClass;
+			package: self class category ].
 
-	sup compile: 'method ^ 2'.
+	subClass2 := self class classInstaller make: [ :aClassBuilder | 
+		aClassBuilder 
+			name: 'MySubclass2';
+			superclass: superClass;
+			package: self class category ].
 
-	self assertEmpty: (rule check: sup).
+	subClass1 compile: 'method ^ 3'.
+	subClass2 compile: 'method ^ 5'.
 
-	sup compile: 'method ^self subclassResponsibility'.
+	self denyEmpty: (rule check: superClass).
 
-	self assertEmpty: (rule check: sup).
+	superClass compile: 'method ^ 2'.
 
-	sub1 removeFromSystem.
-	sub2 removeFromSystem.
-	sup removeFromSystem
+	self assertEmpty: (rule check: superClass).
+
+	superClass compile: 'method ^self subclassResponsibility'.
+
+	self assertEmpty: (rule check: superClass).
+
+	subClass1 removeFromSystem.
+	subClass2 removeFromSystem.
+	superClass removeFromSystem
 ]
 
 { #category : #tests }
@@ -539,7 +540,7 @@ ReSmalllintTest >> testUncommonMessageSend [
 	self ruleFor: self currentSelector plusSelectors: {#uncommonMessageSend2}
 ]
 
-{ #category : #'test unique identifier' }
+{ #category : #'tests - unique identifier' }
 ReSmalllintTest >> testUniqueIdentifierName [
 
 	| idToRules |

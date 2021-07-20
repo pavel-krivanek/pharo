@@ -206,7 +206,21 @@ RPackageTest >> testDemoteToRPackageNamedWithExtension [
 
 ]
 
-{ #category : #'test-queries' }
+{ #category : #'tests - properties' }
+RPackageTest >> testHasProperty [
+	| package testValue |
+	
+	testValue := Date today.
+	package := self class package.
+	
+	package propertyAt: #testKeySelector put: testValue.
+	self	assert: (package hasProperty: #testKeySelector).
+	
+	package removeProperty: #testKeySelector.
+	self deny: (package hasProperty: #testKeySelector).
+]
+
+{ #category : #'tests - queries' }
 RPackageTest >> testHierarchyRoots [
 	| roots |
 	roots := (RPackageOrganizer default packageNamed: #'RPackage-Tests') hierarchyRoots. 
@@ -215,7 +229,27 @@ RPackageTest >> testHierarchyRoots [
 		do: [ :each | roots includes: each ]
 ]
 
-{ #category : #'tests-MC' }
+{ #category : #tests }
+RPackageTest >> testIsTestPackage [
+
+	|packages |
+	packages := self createMockTestPackages.
+	"Happy case: test package 'MockPackage-Tests' must contain -Tests suffix."
+	self assert: packages first isTestPackage equals: true.
+	
+	"Package 'MockPackage-tests' is not test package, since it has lowercase suffix."
+	self assert: packages second isTestPackage  equals: false.
+	
+	"Happy case: regular package 'MockPackage' without -Tests suffix is not a test package."
+	self assert: packages third isTestPackage  equals: false.
+
+	"Package 'MockPackage-Tests-Package' containting -Tests- in middle, so it is test package."
+	self assert: packages fourth isTestPackage equals: true.
+	
+	"cleanup of inst.vars should be done in tearDown"
+]
+
+{ #category : #'tests - MC' }
 RPackageTest >> testMcPackage [
 
 	| rPackage |
@@ -223,7 +257,7 @@ RPackageTest >> testMcPackage [
 	self assert: rPackage mcPackage equals: (MCPackage new name: #Test1).
 ]
 
-{ #category : #'tests-MC' }
+{ #category : #'tests - MC' }
 RPackageTest >> testMcWorkingCopy [
 
 	| rPackage |
@@ -260,7 +294,7 @@ RPackageTest >> testRenameToMakesMCDirty [
 	
 ]
 
-{ #category : #'test-queries' }
+{ #category : #'tests - queries' }
 RPackageTest >> testRoots [
 	| roots |
 	roots := (RPackageOrganizer default packageNamed: #'RPackage-Tests') roots.

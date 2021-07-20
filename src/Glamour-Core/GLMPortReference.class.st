@@ -10,6 +10,11 @@ Class {
 	#category : #'Glamour-Core'
 }
 
+{ #category : #testing }
+GLMPortReference class >> isDeprecated [
+	^ true
+]
+
 { #category : #accessing }
 GLMPortReference >> port [ 
 	 
@@ -31,8 +36,8 @@ GLMPortReference >> printOn: aStream [
 	super printOn: aStream.
 	aStream 
 		nextPut: Character space;
-		nextPutAll: self identityHash printString;
-		nextPutAll: ' ('.
-	port printOn: aStream.
-	aStream nextPut: $)
+		print: self identityHash;
+		nextPutAll: ' (';
+		print: port;
+	   nextPut: $)
 ]

@@ -1,10 +1,14 @@
 "
-I am abstract. Subclasses of me model meta objects for any kind of variables: slots (instance variables), global variables (Class, Global, Pool) and potentialy local variables of methods (temps and args). 
-Currently I only unify Slots, LiteralVariables and TemporaryVariable (recently introduced). 
+I am an abstract class. Subclasses of me model meta objects for any kind of variables: 
+
+- slots (instance variables)
+- literal variables (Class, Global, Pool) and 
+- local variables of methods (temps and args). 
 
 Being a superclass for LiteralVariable I have a restriction on my layout: I can only have a single instance variable representing the variable #name
 								DO NOT ADD ANY NEW STATE TO ME.
-This restriction is requried because LiteralVariable encodes global references in the method literals and therefore there is an expectation from the VM on particular shape of these objects.
+
+This restriction is required because LiteralVariable encodes global references in the method literals and therefore there is an expectation from the VM on particular shape of these objects.
 
 At this step I only pulled a duplicated protocol of properties from my subclasses. But more cleanup is comming:
 - breakpoints
@@ -14,7 +18,7 @@ At this step I only pulled a duplicated protocol of properties from my subclasse
 
 Internal Representation and Key Implementation Points.
 
-    Instance Variables
+Instance Variables
 	name:		<Symbol>
 "
 Class {
@@ -63,6 +67,31 @@ Variable >> = other [
 			and: [ name = other name ]
 ]
 
+{ #category : #visiting }
+Variable >> acceptVisitor: aProgramNodeVisitor node: aNode [
+	^ aProgramNodeVisitor visitVariableNode: aNode
+]
+
+{ #category : #testing }
+Variable >> allowsShadowing [
+	^false
+]
+
+{ #category : #converting }
+Variable >> asDoItVariableFrom: aContext [
+	"Specific kind of variables may require special logic to be visible in DoIt expressions.
+	For example local variables can't be accessed directly in DoIt expressions in the debugger:
+		- DoIt is executed using new process where there are no temps from the original context.
+	In such cases subclasses should return adapter variable here to represent receiver in DoIt method.
+	DoItVariable class is implemented with this purpose (see the class comment and tests)"
+	^ self
+]
+
+{ #category : #queries }
+Variable >> definingNode [
+	^ nil
+]
+
 { #category : #'code generation' }
 Variable >> emitStore: methodBuilder [
 
@@ -95,7 +124,12 @@ Variable >> hash [
 ]
 
 { #category : #testing }
-Variable >> isArg [
+Variable >> isAccessedIn: aMethod [
+	^self usingMethods includes: aMethod
+]
+
+{ #category : #testing }
+Variable >> isArgumentVariable [
 	^false
 ]
 
@@ -105,8 +139,10 @@ Variable >> isClassVariable [
 ]
 
 { #category : #testing }
-Variable >> isGlobal [ 
+Variable >> isDefinedByBlock [
+	"true if a variable node is defined by a block"
 	^false
+
 ]
 
 { #category : #testing }
@@ -115,13 +151,33 @@ Variable >> isGlobalVariable [
 ]
 
 { #category : #testing }
-Variable >> isInstance [
-	^ false
+Variable >> isInstanceVariable [
+	"check if the var is an instance variable (a Slot)"
+	^false
 ]
 
 { #category : #testing }
 Variable >> isLiteralVariable [
+	"returns true for Global Variables, Class Variables and some others 
+	(e.g. Workspace bindings and Undeclared variables, see subclasses)"
 	^false
+]
+
+{ #category : #testing }
+Variable >> isLocalVariable [
+	"temporary variables and arguments are local variables"
+	^false
+]
+
+{ #category : #testing }
+Variable >> isPoolVariable [
+	^ false
+]
+
+{ #category : #testing }
+Variable >> isReadIn: aCompiledCode [
+	^aCompiledCode ast readNodes
+		 anySatisfy: [ :node | node binding == self ]
 ]
 
 { #category : #testing }
@@ -131,38 +187,43 @@ Variable >> isReferenced [
 
 { #category : #testing }
 Variable >> isReservedVariable [
+	"thisContext, super, self are reserved variables (true, false and nil are literals)"
 	^false
 ]
 
 { #category : #testing }
-Variable >> isSelf [
+Variable >> isSelfOrSuperVariable [
+	^ self isSelfVariable or: [ self isSuperVariable ]
+]
+
+{ #category : #testing }
+Variable >> isSelfVariable [
 	^false
 ]
 
 { #category : #testing }
-Variable >> isSelfOrSuper [
-	
-	^ self isSelf or: [ self isSuper ]
+Variable >> isShadowing [
+	"I shadow a variable if looking up my name in the outer scope returns a variable"
+	^(self scope outerScope ifNotNil: [:outer | outer lookupVar: self name]) notNil
 ]
 
 { #category : #testing }
-Variable >> isSuper [
+Variable >> isSuperVariable [
 	^false
 ]
 
 { #category : #testing }
-Variable >> isTemp [
-
-	^ false
-]
-
-{ #category : #testing }
-Variable >> isThisContext [
+Variable >> isTempVariable [
 	^false
 ]
 
 { #category : #testing }
-Variable >> isUndeclared [
+Variable >> isThisContextVariable [
+	^false
+]
+
+{ #category : #testing }
+Variable >> isUndeclaredVariable [
 
 	^ false
 ]
@@ -174,8 +235,24 @@ Variable >> isUninitialized [
 ]
 
 { #category : #testing }
+Variable >> isUsed [ 
+	^ self isReferenced
+]
+
+{ #category : #testing }
+Variable >> isWorkspaceVariable [
+	^ false
+]
+
+{ #category : #testing }
 Variable >> isWritable [
 	^ true
+]
+
+{ #category : #testing }
+Variable >> isWrittenIn: aCompiledCode [
+	^aCompiledCode ast variableWriteNodes
+		anySatisfy: [ :node | node binding == self ]
 ]
 
 { #category : #accessing }
@@ -186,6 +263,12 @@ Variable >> name [
 { #category : #accessing }
 Variable >> name: aSymbol [
 	name := aSymbol
+]
+
+{ #category : #testing }
+Variable >> needsFullDefinition [
+	"all but InstanceVariableSlot and ClassVariable need to print the full definition"
+	^true
 ]
 
 { #category : #properties }
@@ -254,6 +337,11 @@ Variable >> removeProperty: propName ifAbsent: aBlock [
 	^ property
 ]
 
+{ #category : #accessing }
+Variable >> scope [
+	^self subclassResponsibility
+]
+
 { #category : #queries }
 Variable >> usingMethods [
 	self subclassResponsibility
@@ -261,5 +349,7 @@ Variable >> usingMethods [
 
 { #category : #debugging }
 Variable >> write: aValue inContext: aContext [
-	self subclassResponsibility 
+	"write the value in aContext. All #write:inContext: methods need to return the assigned value,
+	as this is the reflective version of assignment which has the assigned value as a value"
+	^self subclassResponsibility 
 ]

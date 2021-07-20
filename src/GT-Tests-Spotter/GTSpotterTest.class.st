@@ -7,6 +7,11 @@ Class {
 	#category : #'GT-Tests-Spotter-Scripting'
 }
 
+{ #category : #testing }
+GTSpotterTest class >> isDeprecated [
+	^ true
+]
+
 { #category : #assertions }
 GTSpotterTest >> assertText: aTextualObject [
 	self assertText: aTextualObject do: nil
@@ -45,7 +50,7 @@ GTSpotterTest >> testEmptyTextInput [
 ]
 
 { #category : #tests }
-GTSpotterTest >> testHistorizingTheSameObjectRemovesPreviousOccurences [
+GTSpotterTest >> testHistorizingTheSameObjectRemovesPreviousOccurrences [
 	| history |
 	history := OrderedCollection new.
 	spotter := GTSpotter new history: history.

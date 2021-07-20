@@ -19,6 +19,11 @@ WeakLayout class >> extending: superLayout scope: aScope host: aClass [
 		yourself
 ]
 
+{ #category : #description }
+WeakLayout class >> kind [ 
+	^ #weak
+]
+
 { #category : #format }
 WeakLayout >> instanceSpecification [
 	^ 4
@@ -32,4 +37,14 @@ WeakLayout >> isVariable [
 { #category : #testing }
 WeakLayout >> isWeak [
 	^ true
+]
+
+{ #category : #accessing }
+WeakLayout >> kindOfSubclass [
+	^' weakSubclass: '
+]
+
+{ #category : #accessing }
+WeakLayout >> typeOfClass [
+	^#weak
 ]

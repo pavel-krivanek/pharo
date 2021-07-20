@@ -20,22 +20,16 @@ ReVariableReferencedOnceRule class >> uniqueIdentifierName [
 ]
 
 { #category : #running }
-ReVariableReferencedOnceRule >> basicCheck: aClass [
-	^ aClass instVarNames
-		anySatisfy: [ :each | 
-			| defClass selector |
-			(aClass withAllSubclasses
-				inject: 0
-				into: [ :sum :class | 
-					| sels |
-					sels := class whichSelectorsAccess: each.
-					sels size == 1
-						ifTrue: [ selector := sels asArray first.
-							defClass := class ].
-					sum + sels size ]) == 1
-				and: [ | tree |
-					tree := defClass parseTreeFor: selector.
-					tree notNil and: [ RBReadBeforeWrittenTester isVariable: each writtenBeforeReadIn: tree ] ] ]
+ReVariableReferencedOnceRule >> check: aClass forCritiquesDo: aCriticBlock [
+		aClass slots do: [ :slot | 
+		  | usingMethods |
+		  usingMethods := slot usingMethods.
+		  usingMethods size = 1 ifFalse:  [ ^ self ].
+		  (RBReadBeforeWrittenTester
+				  isVariable: slot name
+				  writtenBeforeReadIn: usingMethods first ast) ifTrue: [aCriticBlock cull: (self critiqueFor: aClass about: slot  name)   ]]
+		
+
 ]
 
 { #category : #accessing }

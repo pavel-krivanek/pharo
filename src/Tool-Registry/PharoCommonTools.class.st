@@ -35,6 +35,7 @@ PharoCommonTools class >> initialize [
 { #category : #settings }
 PharoCommonTools class >> settingsOn: aBuilder [
 	<systemsettings>
+	
 	Smalltalk tools class == self
 		ifFalse: [ ^ self ].
 	(aBuilder group: #pharoTools)
@@ -47,8 +48,8 @@ PharoCommonTools class >> settingsOn: aBuilder [
 						targetSelector: #tools;
 						getSelector: #browserTool;
 						setSelector: #browserTool:;
-						label: 'Systembrowser';
-						default: (Smalltalk at: #ClyFullBrowser);
+						label: 'System browser';
+						default: (self environment at: #ClyFullBrowserMorph);
 						domainValues: Smalltalk tools recentBrowserTools ];
 		with: [ 
 					(aBuilder pickOne: #inspectorTool)
@@ -56,7 +57,7 @@ PharoCommonTools class >> settingsOn: aBuilder [
 						targetSelector: #tools;
 						getSelector: #inspectorTool;
 						setSelector: #inspectorTool:;
-						default: (Smalltalk at: #GTInspector);
+						default: (self environment at: #StInspector);
 						label: 'Inspector';
 						domainValues: Smalltalk tools recentInspectorTools ];
 		with: [ 
@@ -66,21 +67,8 @@ PharoCommonTools class >> settingsOn: aBuilder [
 						getSelector: #workspaceTool;
 						setSelector: #workspaceTool:;
 						label: 'Workspace';
-						default: (Smalltalk at: #GTPlayground);
+						default: (self environment at: #StPlayground);
 						domainValues: Smalltalk tools recentWorkspaceTools ];
-		with: [ 
-					(aBuilder pickOne: #debuggerTool)
-						target: Smalltalk;
-						targetSelector: #tools;
-						label: 'Debugger';
-						domainValues: Smalltalk tools recentDebuggerTools ];
-		with: [ 
-					(aBuilder pickOne: #messageListTool)
-						target: Smalltalk;
-						targetSelector: #tools;
-						label: 'Messagelist';
-						default: (Smalltalk at: #ClyOldMessageBrowserAdapter);
-						domainValues: Smalltalk tools recentMessageListTools ];
 		with: [ 
 					(aBuilder pickOne: #versionBrowserTool)
 						target: Smalltalk;
@@ -92,7 +80,7 @@ PharoCommonTools class >> settingsOn: aBuilder [
 						target: Smalltalk;
 						targetSelector: #tools;
 						label: 'Filelist';
-						default: (Smalltalk at: #FileList);
+						default: (self environment at: #FileList);
 						domainValues: Smalltalk tools recentFileListTools];
 		with: [ 
 					(aBuilder pickOne: #changeSorterTool)
@@ -111,12 +99,19 @@ PharoCommonTools class >> shutDown: aboutToQuit [
 PharoCommonTools class >> worldMenuOn: aBuilder [
 	<worldMenu>
 	(aBuilder item: #'System Browser')
-		parent: #Tools;
+		parent: #Browsing;
 		action: [ Smalltalk tools openClassBrowser ];
 		order: 0;
 		keyText: 'o, b';
 		help: 'System browser to browse and edit code.';
-		iconName: #smallSystemBrowser
+		iconName: #smallSystemBrowser.
+	(aBuilder item: #'Iceberg')
+		order: 1; 
+		icon: (self iconNamed: #komitterSmalltalkhubRemote);  
+		parent: #'Browsing';
+		keyText: 'o, i';
+		help: 'Iceberg is a set of tools that allow one to handle git repositories directly from a Pharo image.';
+		action: [ (Smalltalk at: #IceTipRepositoriesBrowser) new openWithSpec ]
 ]
 
 { #category : #'registry access' }
@@ -167,28 +162,6 @@ PharoCommonTools >> changeSorterTool: aTool [
 PharoCommonTools >> cleanUp [
 	recentTools keysAndValuesDo:[:name :toolSet|
 		toolSet copy do:[:tool | tool isObsolete ifTrue:[ toolSet remove: tool]]]
-]
-
-{ #category : #'registry access' }
-PharoCommonTools >> debugger [
-
-	^ self toolNamed: #debugger
-]
-
-{ #category : #tools }
-PharoCommonTools >> debuggerTool [
-	^ self debugger
-]
-
-{ #category : #tools }
-PharoCommonTools >> debuggerTool: aTool [
-	^ self register: aTool as: #debugger
-]
-
-{ #category : #'registry access' }
-PharoCommonTools >> debuggers [
-
-	^ self toolNamed: #debuggers
 ]
 
 { #category : #'registry access' }
@@ -281,11 +254,6 @@ PharoCommonTools >> recentChangeSorterTools [
 ]
 
 { #category : #registration }
-PharoCommonTools >> recentDebuggerTools [
-	^ self recentToolsFor: #debugger
-]
-
-{ #category : #registration }
 PharoCommonTools >> recentFileListTools [
 	^ self recentToolsFor: #fileList
 ]
@@ -293,11 +261,6 @@ PharoCommonTools >> recentFileListTools [
 { #category : #registration }
 PharoCommonTools >> recentInspectorTools [
 	^ self recentToolsFor: #inspector
-]
-
-{ #category : #registration }
-PharoCommonTools >> recentMessageListTools [
-	^ self recentToolsFor: #messageList
 ]
 
 { #category : #registration }
@@ -346,16 +309,8 @@ PharoCommonTools >> timeProfiler [
 PharoCommonTools >> toolNamed: aSymbol [
 
 	tools at: aSymbol ifPresent: [ :tool | ^ tool ].
-	
-	aSymbol = #debugger ifTrue: [ 
-		Smalltalk 
-			logError: 'No debugger installed to handle debug request.' 
-			inContext: thisContext.
-		
-			^ nil. "Smalltalk snapshot: false andQuit: true."
-	].
-
-	self error: 'No tool named: "' , aSymbol , '" present in the registry'.
+	self error:
+		'No tool named: "' , aSymbol , '" present in the registry'
 ]
 
 { #category : #'registry access' }

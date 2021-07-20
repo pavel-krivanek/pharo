@@ -1,5 +1,6 @@
 "
-Notify when executing an analisis.
+I am an announcement to force the UI to refresh the status bar.
+This is useful when the results are handled in a asynchronous way
 "
 Class {
 	#name : #DTStatusUpdate,
@@ -12,13 +13,15 @@ Class {
 
 { #category : #'instance creation' }
 DTStatusUpdate class >> message: aString [
+
 	^ self new
-		message: aString;
-		yourself
+		  message: aString;
+		  yourself
 ]
 
 { #category : #accessing }
 DTStatusUpdate >> message [
+
 	^ message
 ]
 

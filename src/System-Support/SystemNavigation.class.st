@@ -115,8 +115,8 @@ SystemNavigation >> allMethodsSelect: aBlock [
 	| aCollection |
 	aCollection := OrderedCollection new.
 	self allBehaviorsDo: [:class | 
-		class	selectorsAndMethodsDo: [:sel :m | 
-			(aBlock value: m) ifTrue: [aCollection add: class>>sel]]].
+		class	methodsDo: [:m | 
+			(aBlock value: m) ifTrue: [aCollection add: m]]].
 	^ aCollection
 ]
 
@@ -175,6 +175,13 @@ SystemNavigation >> allReferencesTo: aLiteral do: aBlock [
 ]
 
 { #category : #query }
+SystemNavigation >> allReferencesTo: aLiteral in: classes [
+	"Answer all the methods that refer to aLiteral even deeply embedded in literal array."
+
+	^ classes flatCollect: [ :class | class thoroughWhichMethodsReferTo: aLiteral]
+]
+
+{ #category : #query }
 SystemNavigation >> allReferencesToBinding: aVariablesBinding [
 	"Answer all the methods that refer to aVariableBinding, do not go into nested Arrays"
 
@@ -184,16 +191,6 @@ SystemNavigation >> allReferencesToBinding: aVariablesBinding [
 { #category : #'message sends' }
 SystemNavigation >> allSendersOf: selector [ 
 	^self allReferencesTo: selector
-]
-
-{ #category : #query }
-SystemNavigation >> allSendersToString: aString do: aBlock [
-	"Perform aBlock on all class which send message aString."
-	
-	aString isEmptyOrNil ifTrue: [ ^ self ].
-	aString asSymbol ifNotNil: [ :symbol |
-		self allBehaviorsDo: [ :class | 
-			class withThorougMethodsReferTo: symbol do: aBlock ] ]
 ]
 
 { #category : #query }

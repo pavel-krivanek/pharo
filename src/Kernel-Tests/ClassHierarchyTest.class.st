@@ -24,27 +24,13 @@ ClassHierarchyTest class >> fixSlotScope [
           ifFalse: [ Smalltalk at: e name ]) removeInstVarNamed: ivName ]
 ]
 
-{ #category : #fixing }
-ClassHierarchyTest class >> fixSubclasses [
-	"Fix all the missing subclasses"
-	"ClassHierarchyTest fixSubclasses "
-	SystemNavigation new allClassesDo: [ :cls|
-		(cls superclass subclasses includes: cls)
-			ifFalse: [ cls superclass addSubclass: cls ]]
-]
-
 { #category : #tests }
 ClassHierarchyTest >> testObjectFormatInstSize [
-	| classes offending |
-	"check that #instSize is in sync with #allInstVarNames"
-	offending := SystemNavigation default allBehaviors reject: [ :cls | cls instSize = (cls allSlots reject: #isVirtual) size ].
+	| offending |
+	"check that #instSize is in sync with the layout of the class"
+	offending := SystemNavigation default allBehaviors reject: [ :cls | 
+		cls instSize = cls classLayout fieldSize].
 	self assertCollection: offending hasSameElements: {}.
-
-	"instSpec is only 0 for classes without any inst vars or variable fields"
-	classes := SystemNavigation default allBehaviors select: [ :cls | cls isTrait not and: [ cls instSpec = 0 ] ].
-	offending := classes reject: [ :each | each instVarNames isEmpty or: [ each isVariable not ] ].
-	self assertCollection: offending hasSameElements: {}.
-
 ]
 
 { #category : #tests }

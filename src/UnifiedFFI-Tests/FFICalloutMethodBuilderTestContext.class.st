@@ -34,6 +34,12 @@ FFICalloutMethodBuilderTestContext >> compiledMethod [
 ]
 
 { #category : #accessing }
+FFICalloutMethodBuilderTestContext >> ffiLibrary [ 
+
+	^ LibC
+]
+
+{ #category : #accessing }
 FFICalloutMethodBuilderTestContext >> method [
 	^ self
 ]
@@ -48,11 +54,16 @@ FFICalloutMethodBuilderTestContext >> methodClass: anObject [
 	methodClass := anObject
 ]
 
-{ #category : #accesing }
+{ #category : #accessing }
 FFICalloutMethodBuilderTestContext >> methodProperties [
 	"stub"
 
 	^ nil
+]
+
+{ #category : #accessing }
+FFICalloutMethodBuilderTestContext >> receiver [
+	^ self
 ]
 
 { #category : #accessing }

@@ -1,5 +1,6 @@
 "
-Enlumineur is a replacement of BlueInk pretty printer.
+Enlumineur is a replacement of BlueInk pretty printer (now packaged in pharo-contributions/configurableFormatter).
+
 It was developed by Hugo Lasnier during 6 months internship within RMOD and supervised by S. Ducasse and G. Polito during 2019.
 The code was revisited and cleaned but there are probably more glitches left. 
 
@@ -413,7 +414,7 @@ EFFormatter class >> selectorAndArgumentCombinedMaxSize: anInteger [
 
 { #category : #accessing }
 EFFormatter class >> settingGroup [
-	^ #blueInkEnlumineur
+	^ #Enlumineur
 ]
 
 { #category : #settings }
@@ -654,7 +655,7 @@ EFFormatter class >> settingsNewLinesAfterMethodSignature: aBuilder [
 
 	(aBuilder setting: #numberOfNewLinesAfterMethodSignature)
 		label: 'New lines after method signature';
-		default: 1;
+		default: 2;
 		description: 'To set the number of new lines directly after the method signature.
 When numberOfNewLinesAfterMethodSignature is set to 2 new lines
 
@@ -818,7 +819,7 @@ EFFormatter class >> settingsRetainBlankLinesBetweenStatements: aBuilder [
 
 	(aBuilder setting: #retainBlankLinesBetweenStatements)
 		label: 'Retain blank lines between statements';
-		default: false;
+		default: true;
 		description: 'Keep blank lines which are between statements.
 		
 For example: when set to true the formatter will not change the following: 
@@ -1017,7 +1018,7 @@ EFFormatter >> currentLineLength [
 	^ codeStream position - lineStart
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> firstSeparatorShouldNotPassLine: aMessageNode [
 	"predicate that tells if the keyword should be forced to be on the same line."
 
@@ -1035,7 +1036,7 @@ EFFormatter >> format: aParseTree [
 	^ codeStream contents
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatArray: anArrayNode [
 	| current |
 	codeStream nextPutAll: self spacesInsideArray.
@@ -1062,7 +1063,7 @@ EFFormatter >> formatArray: anArrayNode [
 	codeStream nextPutAll: self spacesInsideArray
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatArrayBody: aSequenceNode [
 	| statements |
 	statements := aSequenceNode statements.
@@ -1077,7 +1078,7 @@ EFFormatter >> formatArrayBody: aSequenceNode [
 			ifTrue: [ self addNewLinesBeforeStatementStartingAt: (statements at: i + 1) start ] ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatBlock2: aBlockNode [
  
 	"This is a change to speed up and avoid the use of willBeMultiline: 
@@ -1114,7 +1115,7 @@ EFFormatter >> formatBlock2: aBlockNode [
 
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatBlock: aBlockNode [
  	" see formatBlock2: for a possible alternate and faster definition."
 	
@@ -1137,7 +1138,7 @@ EFFormatter >> formatBlock: aBlockNode [
 
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatBlockArgumentsFor: aBlockNode [
 
 	| onAnotherLine args |
@@ -1158,7 +1159,7 @@ EFFormatter >> formatBlockArgumentsFor: aBlockNode [
 
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatBlockCommentFor: aBlockNode [
   aBlockNode comments do: [:each |  self basicFormatCommentFor: each.
         (self isNonEmptySingleLineBlock: aBlockNode) ifTrue: [ self space ] ]
@@ -1174,7 +1175,7 @@ EFFormatter >> formatCommentCloseToStatements: aBoolean [
 	context formatCommentCloseToStatements: aBoolean
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatCommentsFor: aNode [
   aNode comments do: [:each |  self basicFormatCommentFor: each ]
 ]
@@ -1187,7 +1188,7 @@ EFFormatter >> formatMessageNode: aMessageNode [
                  nextPutAll: (self formattedSourceFor: arg) ] separatedBy: [ messageStream space ] ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatMethodBodyFor: aMethodNode [
 	self
 		indentAround:
@@ -1198,7 +1199,7 @@ EFFormatter >> formatMethodBodyFor: aMethodNode [
 			self visitNode: aMethodNode body ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatMethodCommentFor: aMethodNode [
   aMethodNode comments do: [:each |  
 				self useBasicCommentFormat 
@@ -1207,7 +1208,7 @@ EFFormatter >> formatMethodCommentFor: aMethodNode [
         		self newLines: self numberOfNewLinesAfterMethodComment ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatMethodPatternFor: aMethodNode [
 	aMethodNode arguments isEmpty
 		ifTrue: [ codeStream nextPutAll: aMethodNode selector ]
@@ -1217,13 +1218,13 @@ EFFormatter >> formatMethodPatternFor: aMethodNode [
 				ifFalse: [ self privateFormatMethodPatternMonoLineFor: aMethodNode ] ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatPragmasFor: aMethodNode [
 	
 	aMethodNode pragmas do: [ :each | self visitPragmaNode: each; newLine ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatSelectorAndArguments: aMessageNode [
 	"We are formatting a message and here we are about to format the message selector and its arguments."
 	
@@ -1250,7 +1251,7 @@ EFFormatter >> formatSelectorAndArguments: aMessageNode [
 						ifFalse: [ [ self space ] ]) ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatSelectorAndArguments: aMessageNode firstSeparator: firstBlock restSeparator: restBlock [
   | separatorBlock i |
   i := 0.
@@ -1264,7 +1265,7 @@ EFFormatter >> formatSelectorAndArguments: aMessageNode firstSeparator: firstBlo
               ((self willBeMultiline: argument) and: [ i < aMessageNode selectorParts size ]) ifTrue: [ separatorBlock := self newLine ] ] ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatSequenceNodeStatementsFor: aSequenceNode [
 	| statements |
 	statements := aSequenceNode statements.
@@ -1286,14 +1287,14 @@ EFFormatter >> formatSequenceNodeStatementsFor: aSequenceNode [
 			ifTrue: [ self addNewLinesBeforeStatementStartingAt: (statements at: i + 1) start ] ]
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatSingleArrayElement: aRBNode [ 
 	"Imagine that you have {1 factorial}, you do not want an ending period. This method is only invoked on the last array element."
 	
 	self visitNode: aRBNode
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> formatStatementCommentsFor: aStatementNode [
 	self formatCommentCloseToStatements
 		ifFalse: [ ^ self ].
@@ -1564,12 +1565,12 @@ EFFormatter >> lineUpBlockBrackets: aBoolean [
 	context lineUpBlockBrackets: aBoolean
 ]
 
-{ #category : #accessors }
+{ #category : #accessing }
 EFFormatter >> lookAheadCode [
 	^ lookAheadCode
 ]
 
-{ #category : #accessors }
+{ #category : #accessing }
 EFFormatter >> lookAheadCode: anObject [
 	lookAheadCode := anObject
 ]
@@ -1980,7 +1981,7 @@ EFFormatter >> selectorAndArgumentCombinedMaxSize: anInteger [
 	context selectorAndArgumentCombinedMaxSize: anInteger
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> shouldPassNewLineAfterHeadOfBlock: aBlockNode [
 	^  aBlockNode headIsNotEmpty or: [ self keepBlockInMessage ]
 ]
@@ -1990,7 +1991,7 @@ EFFormatter >> space [
 	codeStream space
 ]
 
-{ #category : #'private-formatting' }
+{ #category : #'private - formatting' }
 EFFormatter >> spaceAndFormatComments: aNode [
 	aNode comments ifNotEmpty: [ self space ].
 	self formatCommentsFor: aNode
@@ -2084,6 +2085,14 @@ EFFormatter >> visitCascadeNode: aCascadeNode [
 ]
 
 { #category : #visiting }
+EFFormatter >> visitEnglobingErrorNode: aNode [
+	self writeString: aNode value.
+	aNode children do: [ :e |
+		codeStream space.
+		self visitNode: e ]
+]
+
+{ #category : #visiting }
 EFFormatter >> visitLiteralArrayNode: aRBArrayLiteralNode [
 	| brackets current |
 	codeStream nextPut: $#.
@@ -2110,17 +2119,6 @@ EFFormatter >> visitLiteralNode: aLiteralNode [
 	aLiteralNode value isLiteral
 		ifFalse: [ self writeString: '''<an unprintable nonliteral value>''' ]
 		ifTrue: [ self writeString: aLiteralNode sourceText ]
-]
-
-{ #category : #visiting }
-EFFormatter >> visitLiteralVariableNode: aLiteralVariableNode [
-	| binding |
-	self halt. "looks like it is not used. Ask around RBLiteralVariableNode"
-	binding := aLiteralVariableNode binding.
-	self writeString: binding key storeString, ' -> '.
-	aLiteralVariableNode binding value isLiteral
-		ifFalse: [ self writeString: '''<an unprintable nonliteral value>''' ]
-		ifTrue: [ self writeString:  binding value asString ]
 ]
 
 { #category : #visiting }
@@ -2160,7 +2158,7 @@ EFFormatter >> visitParseErrorNode: aNode [
 	self writeString: aNode value
 ]
 
-{ #category : #'visiting patterns' }
+{ #category : #'visiting - patterns' }
 EFFormatter >> visitPatternBlockNode: aRBPatternBlockNode [ 
 	codeStream nextPut: $`.
 	self 
@@ -2168,7 +2166,7 @@ EFFormatter >> visitPatternBlockNode: aRBPatternBlockNode [
 		around: [self formatBlock: aRBPatternBlockNode]
 ]
 
-{ #category : #'visiting patterns' }
+{ #category : #'visiting - patterns' }
 EFFormatter >> visitPatternWrapperBlockNode: aRBPatternWrapperBlockNode [
 	self visitNode: aRBPatternWrapperBlockNode wrappedNode.
 	codeStream nextPut: $`.

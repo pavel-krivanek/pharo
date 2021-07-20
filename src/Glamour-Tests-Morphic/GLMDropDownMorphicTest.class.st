@@ -4,7 +4,12 @@ Class {
 	#category : #'Glamour-Tests-Morphic'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
+GLMDropDownMorphicTest class >> isDeprecated [
+	^ true
+]
+
+{ #category : #tests }
 GLMDropDownMorphicTest >> testSelectionTriggeredOnSelectedIndex [
 	| browser dropdown text dropdownMorph textMorph |
 	browser := GLMTabulator new.

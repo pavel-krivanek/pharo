@@ -32,12 +32,6 @@ LayoutClassScope >> allSlotsDo: aBlock [
 	self do: aBlock
 ]
 
-{ #category : #enumerating }
-LayoutClassScope >> allSlotsReverseDo: aBlock [
-	self reverseDo: aBlock.
-	parentScope allSlotsReverseDo: aBlock.
-]
-
 { #category : #accessing }
 LayoutClassScope >> allVisibleSlots [
 	| result |
@@ -65,6 +59,16 @@ LayoutClassScope >> flatten [
 	result := parentScope flatten.
 	result addAll: self.
 	^ result
+]
+
+{ #category : #enumerating }
+LayoutClassScope >> hasBindingThatBeginsWith: aString [
+	"Answer true if there is a Slot name that begins with aString, false otherwise"
+	
+	self allSlotsDo: [:each | 
+		(each name beginsWith: aString)
+			ifTrue:[^true]].
+	^false
 ]
 
 { #category : #testing }
@@ -129,25 +133,6 @@ LayoutClassScope >> printOn: aStream [
 	self allVisibleSlots printElementsOn: aStream.
 ]
 
-{ #category : #reshaping }
-LayoutClassScope >> rebase: originalScope to: newScope [
-	| newParent result fieldIndex |
-	newParent := parentScope == originalScope
-		ifTrue: [ newScope ]
-		ifFalse: [ parentScope rebase: originalScope to: newScope ].
-		
-	result := self copy.
-	result parentScope: newParent.
-	
-	fieldIndex := newParent firstFieldIndex.
-	result do: [ :slot | 
-		slot isVirtual ifFalse: [slot index: fieldIndex].
-		fieldIndex := fieldIndex + slot size ].
-	
-	^ result
-	
-]
-
 { #category : #enumerating }
 LayoutClassScope >> reverseDo: aBlock [
 	|size|
@@ -182,10 +167,4 @@ LayoutClassScope >> withIndexDo: elementAndIndexBlock [
 		elementAndIndexBlock
 			value: (self at: index)
 			value: index]
-]
-
-{ #category : #enumerating }
-LayoutClassScope >> withParentScopesDo: aBlock [
-	aBlock value: self.
-	parentScope withParentScopesDo: aBlock.
 ]

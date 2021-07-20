@@ -26,7 +26,7 @@ RBRemoveMethodRefactoring class >> removeMethods: selectorCollection from: aClas
 ]
 
 { #category : #preconditions }
-RBRemoveMethodRefactoring >> checkBrowseAllOccurences: anCollectionOfOccurrences [
+RBRemoveMethodRefactoring >> checkBrowseAllOccurrences: anCollectionOfOccurrences [
 	| methods callers |
 	methods := anCollectionOfOccurrences collect: [ :c | c key ] as: Set.
 	callers := anCollectionOfOccurrences collect: [ :v | v value ].
@@ -63,7 +63,7 @@ RBRemoveMethodRefactoring >> checkBrowseOccurrenceOf: selector in: aRBMethod [
 RBRemoveMethodRefactoring >> checkBrowseOccurrences: anCollectionOfOccurrences [
 	^ anCollectionOfOccurrences size = 1
 		ifTrue: [ self checkBrowseOccurrenceOf: anCollectionOfOccurrences first key in: anCollectionOfOccurrences first value ]
-		ifFalse: [ self checkBrowseAllOccurences: anCollectionOfOccurrences ]
+		ifFalse: [ self checkBrowseAllOccurrences: anCollectionOfOccurrences ]
 ]
 
 { #category : #preconditions }
@@ -85,7 +85,7 @@ RBRemoveMethodRefactoring >> checkReferencesToAnyOf: aSelectorCollection [
 RBRemoveMethodRefactoring >> checkReferencesToSuperSendsToAnyOf: superMessages [ 
 	[superMessages isEmpty] whileFalse: 
 			[self 
-				refactoringWarning: ('Although <1s> is equivalent to a superclass method,<n>it contains a super send so it might modify behavior.' 
+				refactoringWarning: ('Although <1s> is equivalent to a superclass method,<n>it contains a super send so it might modify behavior.<n>Proceed anyway?' 
 						expandMacrosWith: superMessages first).
 			superMessages remove: superMessages first]
 ]
@@ -131,16 +131,19 @@ RBRemoveMethodRefactoring >> justSendsSuper: aSelector [
 				yourself
 			].
 	matcher executeTree: parseTree initialAnswer: Set new.
-	^ ( matcher answer anySatisfy: [ :each | each isSelf not ]) not
+	^ ( matcher answer anySatisfy: [ :each | each isSelfVariable not ]) not
 ]
 
 { #category : #preconditions }
 RBRemoveMethodRefactoring >> preconditions [
-	^(selectors inject: RBCondition empty
-		into: [:cond :each | cond & (RBCondition definesSelector: each in: class)]) 
-			& (RBCondition withBlock: 
-						[self checkSuperMethods.
-						true])
+
+	^ (selectors
+		   inject: self emptyCondition
+		   into: [ :cond :each | 
+		   cond & (RBCondition definesSelector: each in: class) ])
+	  & (RBCondition withBlock: [ 
+			   self checkSuperMethods.
+			   true ])
 ]
 
 { #category : #initialization }

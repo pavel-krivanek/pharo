@@ -10,16 +10,24 @@ And an option for requesting the new method selector.
 For all selected classes a method implementing the original method is created, and if the original code uses some references to self, a parameter needs to be added to provided the former implementor.
 
 For example, moving the method #isBlack from class Color to its instvar #rgb for the type ""Integer"" creates a method 
+
+
+```
 Integer>>#isBlack
  ^ self = 0
-
+```
 and changes Colors implementation from: 
+```
 Color>>#isBlack
    ^ rgb = 0
-to: 
+```
+
+to:
+
+``` 
 Color>>#isBlack
    ^ rgb isBlack
-
+```
 "
 Class {
 	#name : #RBMoveMethodRefactoring,
@@ -52,7 +60,7 @@ RBMoveMethodRefactoring class >> selector: aSymbol class: aClass variable: aVari
 
 { #category : #transforming }
 RBMoveMethodRefactoring >> abstractVariables [
-	self performComponentRefactoring: self abstractVariablesRefactoring.
+	self performCompositeRefactoring: self abstractVariablesRefactoring.
 	parseTree := self abstractVariablesRefactoring parseTree
 ]
 
@@ -131,18 +139,16 @@ RBMoveMethodRefactoring >> checkTemporaryVariableNames [
 { #category : #transforming }
 RBMoveMethodRefactoring >> compileDelegatorMethod [
 	| statementNode delegatorNode tree |
-	delegatorNode := RBMessageNode 
-				receiver: (RBVariableNode named: variable)
-				selector: parseTree selector
-				keywordsPositions: parseTree keywordsPositions
-				arguments: (parseTree argumentNames collect: 
-							[:each | 
-							RBVariableNode 
-								named: (each = selfVariableName ifTrue: ['self'] ifFalse: [each])]).
-	self hasOnlySelfReturns 
-		ifFalse: [delegatorNode := RBReturnNode value: delegatorNode].
-	statementNode := RBSequenceNode temporaries: #()
-				statements: (Array with: delegatorNode).
+	delegatorNode := RBMessageNode
+		                 receiver: (RBVariableNode named: variable)
+		                 selector: parseTree selector
+		                 keywordsPositions: parseTree keywordsPositions
+		                 arguments: (parseTree argumentNames collect: [ :each | 
+				                  each = selfVariableName
+					                  ifTrue: [ RBVariableNode selfNode ]
+					                  ifFalse: [ RBVariableNode named: each ] ]).
+	self hasOnlySelfReturns ifFalse: [ delegatorNode := RBReturnNode value: delegatorNode ].
+	statementNode := RBSequenceNode temporaries: #(  ) statements: (Array with: delegatorNode).
 	(tree := class parseTreeFor: selector) body: statementNode.
 	class compileTree: tree
 ]
@@ -175,7 +181,7 @@ RBMoveMethodRefactoring >> getArgumentNameForSelf [
 			whileTrue: []
 ]
 
-{ #category : #'private-accessing' }
+{ #category : #'private - accessing' }
 RBMoveMethodRefactoring >> getClassForGlobalOrClassVariable [
 	| definingClass type |
 	definingClass := class whoDefinesClassVariable: (variable ifNil: ['']).
@@ -187,7 +193,7 @@ RBMoveMethodRefactoring >> getClassForGlobalOrClassVariable [
 	moveToClasses ifNil: [ self refactoringFailure: 'Method not moved' ]
 ]
 
-{ #category : #'private-accessing' }
+{ #category : #'private - accessing' }
 RBMoveMethodRefactoring >> getClassesForInstanceVariable [
 
 	| definingClass typer types |
@@ -201,7 +207,7 @@ RBMoveMethodRefactoring >> getClassesForInstanceVariable [
 	moveToClasses ifNil: [ self refactoringFailure: 'Method not moved' ]
 ]
 
-{ #category : #'private-accessing' }
+{ #category : #'private - accessing' }
 RBMoveMethodRefactoring >> getClassesForTemporaryVariable [
 
 	| types |
@@ -212,7 +218,7 @@ RBMoveMethodRefactoring >> getClassesForTemporaryVariable [
 	moveToClasses ifNil: [ self refactoringFailure: 'Method not moved' ]
 ]
 
-{ #category : #'private-accessing' }
+{ #category : #'private - accessing' }
 RBMoveMethodRefactoring >> getClassesToMoveTo [
 	self isMovingToArgument 
 		ifTrue: [self getClassesForTemporaryVariable]

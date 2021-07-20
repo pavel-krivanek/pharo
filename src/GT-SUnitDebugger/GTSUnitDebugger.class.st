@@ -9,11 +9,10 @@ Class {
 	#category : #'GT-SUnitDebugger'
 }
 
-{ #category : #testing }
-GTSUnitDebugger class >> availableAutomatically [
-	"Should this debugger be taken into account when looking for a debugger to handle an exception."
-	
-	^ true
+{ #category : #accessing }
+GTSUnitDebugger class >> defaultDebuggerRank [
+
+	^ 8
 ]
 
 { #category : #accessing }
@@ -30,27 +29,9 @@ GTSUnitDebugger class >> handlesContext: aContext [
 		anySatisfy: [ :ctx | activationPredicate matches: ctx ] 
 ]
 
-{ #category : #accessing }
-GTSUnitDebugger class >> helpClass [
-	^ GTSUnitDebuggerHelp
-]
-
 { #category : #testing }
 GTSUnitDebugger class >> lookupStackSize [
 	^ 512
-]
-
-{ #category : #'tools registry' }
-GTSUnitDebugger class >> register [
-
-	self registerToolsOn: Smalltalk tools.
-]
-
-{ #category : #'tools registry' }
-GTSUnitDebugger class >> registerToolsOn: registry [
-
-	"Add ourselves to registry. See [Smalltalk tools]" 
-	registry registerDebugger: self withRank: 70.
 ]
 
 { #category : #accessing }
@@ -59,7 +40,7 @@ GTSUnitDebugger class >> sessionClass [
 	^ GTSUnitDebugSession
 ]
 
-{ #category : #'accessing context' }
+{ #category : #'accessing - context' }
 GTSUnitDebugger >> contextToSelectFrom: aSession [
 	^ aSession assertionCallerContext ifNil: [ aSession testContext ]
 ]
@@ -106,7 +87,7 @@ GTSUnitDebugger >> setUpCodeIn: aComposite [
 		doItReceiver: [ self session testObject ].
 ]
 
-{ #category : #'accessing context' }
+{ #category : #'accessing - context' }
 GTSUnitDebugger >> setUpPresentationTitle [
 
 	^ 'SetUp', 
@@ -126,7 +107,7 @@ GTSUnitDebugger >> tearDownCodeIn: aComposite [
 		doItReceiver: [ self session testObject ].
 ]
 
-{ #category : #'accessing context' }
+{ #category : #'accessing - context' }
 GTSUnitDebugger >> tearDownPresentationTitle [
 
 	^ 'TearDown', 

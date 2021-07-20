@@ -14,6 +14,8 @@ If the wrapFlag parameter is true, then text will be wrapped at word boundaries 
 Note that fonts can only be applied to the TextMorph as a whole.  While you can change the size, color, and emphasis of a subsection of the text and have it apply to only that subsection, changing the font changes the font for the entire contents of the TextMorph. 
 
 Still a TextMorph can be composed of several texts of different fonts
+
+```
 | font1 font2 t1 t2 tMorph|
 tMorph := TextMorph new.
 font1 := (TextFontReference toFont: (StrikeFont familyName: 'Atlanta' size: 22)).
@@ -22,7 +24,7 @@ t1 := 'this is font1' asText addAttribute: font1.
 t2 := ' and this is font2' asText addAttribute: font2.
 tMorph contents: (t1,t2).
 tMorph openInHand.
-
+```
 
 Yet to do:
 Make a comprehensive control for the eyedropper, with border width and color, inner color and text color, and margin widths.
@@ -109,7 +111,7 @@ TextMorph >> addCustomMenuItems: aCustomMenu hand: aHandMorph [
 			]
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #'submorphs - add/remove' }
 TextMorph >> addMorphFront: aMorph fromWorldPosition: wp [ 
 	"Overridden for more specific re-layout and positioning"
 	aMorph textAnchorType == #document 
@@ -567,7 +569,7 @@ TextMorph >> defaultLineHeight [
 	^ textStyle lineGrid
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #'submorphs - add/remove' }
 TextMorph >> delete [
 	predecessor ifNotNil: [predecessor setSuccessor: successor].
 	successor ifNotNil: [successor setPredecessor: predecessor.
@@ -859,7 +861,7 @@ TextMorph >> getMenu: shiftKeyState [
 		ifFalse: [editor shiftedYellowButtonMenu]
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #'submorphs - add/remove' }
 TextMorph >> goBehind [
 	"We need to save the container, as it knows about fill and run-around"
 	| cont |
@@ -1049,6 +1051,21 @@ TextMorph >> italic [
 { #category : #alignment }
 TextMorph >> justified [ 
 	self changeAlignment: #justified
+]
+
+{ #category : #'event handling' }
+TextMorph >> keyDown: evt [
+
+	evt keyValue = 13
+		ifTrue: [ | action |
+			action := self crAction.
+			action ifNotNil: [
+				"Note: Code below assumes that this was some 
+				input field reacting on CR. Break the keyboard 
+				focus so that the receiver can be safely deleted."
+				evt hand newKeyboardFocus: nil.
+				^ action value]].
+	^ super keyDown: evt
 ]
 
 { #category : #'event handling' }

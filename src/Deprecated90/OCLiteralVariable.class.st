@@ -16,12 +16,6 @@ OCLiteralVariable class >> isDeprecated [
 	^true
 ]
 
-{ #category : #accessing }
-OCLiteralVariable class >> semanticNodeClass [
-
-	^RBGlobalNode
-]
-
 { #category : #emitting }
 OCLiteralVariable >> emitStore: methodBuilder [
 
@@ -50,10 +44,13 @@ OCLiteralVariable >> isFromSharedPool [
 		ifNone: [ false ]
 ]
 
-{ #category : #testing }
+{ #category : #generated }
 OCLiteralVariable >> isGlobal [
 
-	^ true
+	self
+		deprecated: 'Use #isGlobalVariable instead'
+		transformWith: '`@rec isGlobal' -> '`@rec isGlobalVariable'.
+	^ self isGlobalVariable
 ]
 
 { #category : #testing }

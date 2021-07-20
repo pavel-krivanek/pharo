@@ -9,6 +9,11 @@ RGSlot >> accept: anInterpreter assign: aValue inNode: aVariableNode [
 	self error: #TBD
 ]
 
+{ #category : #visiting }
+RGSlot >> acceptVisitor: aProgramNodeVisitor node: aNode [ 
+	^ aProgramNodeVisitor visitInstanceVariableNode: aNode
+]
+
 { #category : #'managing container' }
 RGSlot >> addoptToParentStub [
 
@@ -29,16 +34,24 @@ RGSlot >> definitionString [
 		aStream nextPutAll: '#'; nextPutAll: self name]
 ]
 
-{ #category : #'testing types' }
+{ #category : #testing }
+RGSlot >> isInstanceVariable [
+	^ true
+]
+
+{ #category : #'testing - types' }
 RGSlot >> isSlot [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : #generated }
 RGSlot >> isSpecial [
 
-	^ true
+	self
+		deprecated: 'Use #needsFullDefinition instead'
+		transformWith: '`@rec isSpecial' -> '`@rec needsFullDefinition'.
+	^ self needsFullDefinition
 ]
 
 { #category : #accessing }
@@ -46,9 +59,4 @@ RGSlot >> name: aString [
 
 	self parent parent announceDefinitionChangeDuring: [ 
 		super name: aString ].
-]
-
-{ #category : #testing }
-RGSlot >> semanticNodeClass [
-	^RBInstanceVariableNode
 ]

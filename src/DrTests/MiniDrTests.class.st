@@ -1,17 +1,19 @@
+"
+A minified version of the DrTest tool.
+"
 Class {
 	#name : #MiniDrTests,
-	#superclass : #AbstractDrTestsUI,
+	#superclass : #AbstractDrTestsPresenter,
 	#instVars : [
-		'resultsList',
-		'pluginResult'
+		'startButton'
 	],
 	#category : #'DrTests-Spec'
 }
 
 { #category : #specs }
 MiniDrTests class >> defaultSpec [
-	^ SpBoxLayout newVertical
-		add: (SpBoxLayout newHorizontal
+	^ SpBoxLayout newTopToBottom
+		add: (SpBoxLayout newLeftToRight
 				add: #switchButton;
 				yourself)
 		expand: false
@@ -23,32 +25,35 @@ MiniDrTests class >> defaultSpec [
 
 { #category : #accessing }
 MiniDrTests >> currentPlugin: anObject [
+
 	currentPlugin := anObject
 ]
 
 { #category : #accessing }
 MiniDrTests >> evaluateBackgroundColor [
+
 	^ pluginResult backgroundColor
 ]
 
-{ #category : #initialization }
+{ #category : #'private - initialization' }
 MiniDrTests >> initializeButtons [
 	super initializeButtons.
+
+	startButton := self newButton.
+
 	startButton
 		label: 'run';
 		icon: (self iconNamed: #smallUpdate);
 		color: (Color gray).
 	switchButton
-		label: 'maxi Dr'
+		label: 'Maximize'.
+		
+	startButton action: [ self runPlugin ]
 ]
 
 { #category : #initialization }
-MiniDrTests >> initializeWidgets [
-	self initializeButtons
-]
-
-{ #category : #accessing }
 MiniDrTests >> initializeWindow: aWindowPresenter [
+
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
 		title: self title;
@@ -56,42 +61,41 @@ MiniDrTests >> initializeWindow: aWindowPresenter [
 ]
 
 { #category : #accessing }
-MiniDrTests >> pluginResult [
-	^ pluginResult
+MiniDrTests >> startButton [
+	^ startButton
 ]
 
-{ #category : #accessing }
-MiniDrTests >> pluginResult: anObject [
-	pluginResult := anObject
-]
+{ #category : #'private - actions' }
+MiniDrTests >> switchToDrTest [
 
-{ #category : #accessing }
-MiniDrTests >> switchUI [
-	super switchUI.
 	DrTests
 		reloadConfiguration: testsConfiguration
 		withResults: pluginResult
 		andPlugin: currentPlugin
 ]
 
-{ #category : #accessing }
-MiniDrTests >> title [
-	^ 'MiniDrTests - ' , currentPlugin pluginName
+{ #category : #actions }
+MiniDrTests >> switchUI [
+
+	super switchUI.
+	self switchToDrTest
 ]
 
 { #category : #accessing }
+MiniDrTests >> title [
+
+	^ 'MiniDrTests - ' , currentPlugin pluginName
+]
+
+{ #category : #updating }
 MiniDrTests >> updateUI [
+
 	super updateUI.
 	startButton color: self evaluateBackgroundColor.
 	startButton label: pluginResult summarizeInfo.
 	"The next line doesn't work because Spec2 does not handle button label's styles.
 	Should be changed at some point"
 	startButton label makeAllColor: pluginResult textColor.
-]
-
-{ #category : #initialization }
-MiniDrTests >> updateWithPluginResult: aPluginResult [
-	aPluginResult ifNotNil: [ self updateWithResults: aPluginResult ]
 ]
 
 { #category : #initialization }

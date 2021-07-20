@@ -13,6 +13,11 @@ Class {
 	#category : #'Glamour-Core'
 }
 
+{ #category : #testing }
+GLMPanePort class >> isDeprecated [
+	^ true
+]
+
 { #category : #accessing }
 GLMPanePort >> basicValue: anObject [
 	value := anObject. 
@@ -54,11 +59,11 @@ GLMPanePort >> printOn: aStream [
 	 
 	aStream 
 		nextPutAll: 'Port (pane='; 
-		nextPutAll: self pane name printString; 
+		print: self pane name ; 
 		nextPutAll: ' name='; 
-		nextPutAll: self name printString; 
+		print: self name ; 
 		nextPutAll: ' value='; 
-		nextPutAll: self value printString; 
+		print: self value ; 
 		nextPut: $)
 ]
 

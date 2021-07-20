@@ -18,6 +18,12 @@ Class {
 	#category : #'Zodiac-Core'
 }
 
+{ #category : #testing }
+ZdcAbstractSocketStream class >> isAbstract [
+
+	^self == ZdcAbstractSocketStream 
+]
+
 { #category : #'instance creation' }
 ZdcAbstractSocketStream class >> on: object [
 	^ (self basicNew)
@@ -76,7 +82,7 @@ ZdcAbstractSocketStream >> debug: aBoolean [
 	debug := aBoolean 
 ]
 
-{ #category : #'private in' }
+{ #category : #'private - in' }
 ZdcAbstractSocketStream >> fillReadBuffer [
 	"Ask the delegate to fill the read buffer with data. 
 	Wait for at least some data."
@@ -91,7 +97,7 @@ ZdcAbstractSocketStream >> flush [
 	self flushWriteBuffer 
 ]
 
-{ #category : #'private out' }
+{ #category : #'private - out' }
 ZdcAbstractSocketStream >> flushWriteBuffer [
 	"Ask the delegate to write all data in the write buffer. Fail if not successful"
 	
@@ -293,12 +299,12 @@ ZdcAbstractSocketStream >> socket [
 	^ socket
 ]
 
-{ #category : #'private socket' }
+{ #category : #'private - socket' }
 ZdcAbstractSocketStream >> socketClose [
 	socket closeAndDestroy 
 ]
 
-{ #category : #'private socket' }
+{ #category : #'private - socket' }
 ZdcAbstractSocketStream >> socketConnectTo: hostAddress port: portNumber [
 	socket 
 		connectTo: hostAddress 
@@ -306,17 +312,17 @@ ZdcAbstractSocketStream >> socketConnectTo: hostAddress port: portNumber [
 		waitForConnectionFor: self timeout        
 ]
 
-{ #category : #'private socket' }
+{ #category : #'private - socket' }
 ZdcAbstractSocketStream >> socketIsConnected [
 	^ socket isConnected and: [ socket isOtherEndClosed not ]
 ]
 
-{ #category : #'private socket' }
+{ #category : #'private - socket' }
 ZdcAbstractSocketStream >> socketIsDataAvailable [
 	^ socket dataAvailable 
 ]
 
-{ #category : #'private socket' }
+{ #category : #'private - socket' }
 ZdcAbstractSocketStream >> socketReceiveDataInto: bytes startingAt: offset count: count [
 	^ socket 
 		primSocket: socket socketHandle 
@@ -325,7 +331,7 @@ ZdcAbstractSocketStream >> socketReceiveDataInto: bytes startingAt: offset count
 		count: count
 ]
 
-{ #category : #'private socket' }
+{ #category : #'private - socket' }
 ZdcAbstractSocketStream >> socketSendData: bytes startingAt: offset count: count [
 	^ socket 
 		sendSomeData: bytes 
@@ -333,13 +339,13 @@ ZdcAbstractSocketStream >> socketSendData: bytes startingAt: offset count: count
 		count: count 
 ]
 
-{ #category : #'private socket' }
+{ #category : #'private - socket' }
 ZdcAbstractSocketStream >> socketWaitForData [
 	^ socket waitForDataFor: self timeout
 	
 ]
 
-{ #category : #'private socket' }
+{ #category : #'private - socket' }
 ZdcAbstractSocketStream >> socketWaitForSendDone [
 	^ socket waitForSendDoneFor: self timeout
 	

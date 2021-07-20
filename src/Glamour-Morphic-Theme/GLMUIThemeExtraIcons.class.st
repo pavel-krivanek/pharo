@@ -131,6 +131,11 @@ GLMUIThemeExtraIcons class >> glamorousMore [
 ]
 
 { #category : #icons }
+GLMUIThemeExtraIcons class >> glamorousNativeBrowser [
+	^ self iconNamed: #smallWindow
+]
+
+{ #category : #icons }
 GLMUIThemeExtraIcons class >> glamorousOpen [
 	^ self iconNamed: #glamorousOpen
 ]
@@ -258,6 +263,11 @@ GLMUIThemeExtraIcons class >> glamourousNextProduction [
 { #category : #utilities }
 GLMUIThemeExtraIcons class >> icons [
 	^ icons ifNil: [icons := Dictionary new] 
+]
+
+{ #category : #testing }
+GLMUIThemeExtraIcons class >> isDeprecated [
+	^ true
 ]
 
 { #category : #utilities }

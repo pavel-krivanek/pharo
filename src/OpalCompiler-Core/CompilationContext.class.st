@@ -126,6 +126,16 @@ CompilationContext class >> initialize [
 ]
 
 { #category : #'options - settings API' }
+CompilationContext class >> optionCleanBlockClosure [
+	^ self readDefaultOption: #optionCleanBlockClosure
+]
+
+{ #category : #'options - settings API' }
+CompilationContext class >> optionCleanBlockClosure: aBoolean [
+	^ self writeDefaultOption: #optionCleanBlockClosure value: aBoolean
+]
+
+{ #category : #'options - settings API' }
 CompilationContext class >> optionEmbeddSources [
 	^ self readDefaultOption: #optionEmbeddSources
 ]
@@ -269,6 +279,16 @@ CompilationContext class >> optionParseErrors: aBoolean [
 ]
 
 { #category : #'options - settings API' }
+CompilationContext class >> optionParseErrorsNonInteractiveOnly [
+	^ self readDefaultOption: #optionParseErrorsNonInteractiveOnly
+]
+
+{ #category : #'options - settings API' }
+CompilationContext class >> optionParseErrorsNonInteractiveOnly: aBoolean [
+	^ self writeDefaultOption: #optionParseErrorsNonInteractiveOnly value: aBoolean
+]
+
+{ #category : #'options - settings API' }
 CompilationContext class >> optionReadOnlyLiterals [
 	^ self readDefaultOption: #optionReadOnlyLiterals
 ]
@@ -308,11 +328,13 @@ CompilationContext class >> optionsDescription [
 	
 	(- optionEmbeddSources         'Embedd sources into CompiledMethod instead of storing in .changes')
 	
-	(- optionReadOnlyLiterals 			'Compiler sets literals as read-only')
+	(+ optionReadOnlyLiterals 			'Compiler sets some literals as read-only')
 	(- optionFullBlockClosure 			'Compiler compiles closure creation to use FullBlockClosure instead of BlockClosure')
+	(- optionCleanBlockClosure 			'Compiler compiles closure creation to use CleanBlockClosure instead of FullBlockClosure for clean blocks. Experimental')
 	(- optionLongIvarAccessBytecodes 	'Specific inst var accesses to Maybe context objects')
 	(+ optionOptimizeIR 					'Rewrite jumps in bytecode in a slightly more efficient way')
-	(- optionParseErrors 					'Parse syntactically wrong code')
+	(- optionParseErrors 					'Parse syntactically wrong code (interactive and non-interactive')
+	(- optionParseErrorsNonInteractiveOnly 	'Parse syntactically wrong code in non-interactive mode only')
 	(- optionSkipSemanticWarnings 		'Do not warn about semantic problems (e.g. undeclared vars). Used for syntax highlight parsing')
 		
 	) 
@@ -363,9 +385,9 @@ CompilationContext >> bindings [
 { #category : #accessing }
 CompilationContext >> bindings: aCollectionOfAssociations [
 	"bindings are LiteralVariables, not simple Associations.
-	This method receives any collection with bindings inside and converts it to a dictionary of AdditionalBindings"
+	This method receives any collection with Associations or Variables inside and converts those to AdditionalBindings"
 	bindings := (aCollectionOfAssociations asDictionary associations
-		collect: [ :each | AdditionalBinding key: each key value: each value ]) asDictionary
+		collect: [ :each | (each isAssociation ifTrue: [ AdditionalBinding key: each key value: each value ] ifFalse: [each])]) asDictionary
 ]
 
 { #category : #accessing }
@@ -480,6 +502,12 @@ CompilationContext >> noPattern: anObject [
 ]
 
 { #category : #options }
+CompilationContext >> optionCleanBlockClosure [
+	^ options includes: #optionCleanBlockClosure
+
+]
+
+{ #category : #options }
 CompilationContext >> optionEmbeddSources [
 	^ options includes: #optionEmbeddSources
 
@@ -563,6 +591,11 @@ CompilationContext >> optionParseErrors [
 ]
 
 { #category : #options }
+CompilationContext >> optionParseErrorsNonInteractiveOnly [
+	^ options includes: #optionParseErrorsNonInteractiveOnly
+]
+
+{ #category : #options }
 CompilationContext >> optionReadOnlyLiterals [
 	^ options includes: #optionReadOnlyLiterals
 
@@ -623,7 +656,7 @@ CompilationContext >> requestorScopeClass: anObject [
 CompilationContext >> scope [
 	| newScope |
 
-	newScope := (OCEnvironmentScope for: self environment) newClassScope: self getClass.
+	newScope := self getClass.
 	requestor ifNotNil: [
 		"the requestor is allowed to manage variables, the workspace is using it to auto-define vars"  
 		newScope := (self requestorScopeClass new

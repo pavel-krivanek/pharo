@@ -10,11 +10,16 @@ Class {
 	#category : #'GT-Inspector'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 GTInspectorContextIndexedTempNode class >> hostObject: aContext tempIndex: anInteger [
 	^ (self hostObject: aContext) 
 		tempIndex: anInteger;
 		yourself
+]
+
+{ #category : #testing }
+GTInspectorContextIndexedTempNode class >> isDeprecated [
+	^ true
 ]
 
 { #category : #accessing }

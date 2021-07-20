@@ -21,14 +21,22 @@ SycFindAndReplaceMethodCommand class >> defaultMenuIconName [
 SycFindAndReplaceMethodCommand class >> methodContextMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation 
-		byItemOf: ClyMoreRefactorsMenuGroup 
-		order: 25 
-		for: ClyMethod asCalypsoItemContext
+	^ SycMethodMenuActivation
+		byRootGroupItemOrder: 25 for: ClyMethod asCalypsoItemContext
 ]
 
 { #category : #execution }
 SycFindAndReplaceMethodCommand >> applyResultInContext: aToolContext [
+]
+
+{ #category : #testing }
+SycFindAndReplaceMethodCommand >> createRefactoring [
+
+	^ RBFindAndReplaceRefactoring
+		model: model
+		find: originalMessage selector
+		of: originalMessage contextUser origin
+		inWholeHierarchy: self searchInTheWholeHierarchy
 ]
 
 { #category : #execution }
@@ -36,24 +44,20 @@ SycFindAndReplaceMethodCommand >> defaultMenuItemName [
 	^'Find and replace'
 ]
 
-{ #category : #execution }
-SycFindAndReplaceMethodCommand >> execute [
-	|dialog refactoring|
-	refactoring :=  RBFindAndReplaceMethodRefactoring 
-		find: originalMessage contextUser.
-	refactoring setOption: #listToSearch toUse: [ :met :ref |
-		dialog := RBFindAndReplacePreview method: met refactoring: ref.
-		dialog cancelled ifTrue: [ CmdCommandAborted signal ].
-		ref].
-	refactoring transform
-]
-
 { #category : #testing }
 SycFindAndReplaceMethodCommand >> isComplexRefactoring [
-	^false
+	^ true
 ]
 
 { #category : #execution }
 SycFindAndReplaceMethodCommand >> resultMessageSelector [
 	^ nil
+]
+
+{ #category : #testing }
+SycFindAndReplaceMethodCommand >> searchInTheWholeHierarchy [
+
+	^ originalMessage contextUser origin subclasses 
+		ifEmpty: [ false ]
+		ifNotEmpty: [ self confirm: 'Do you want to search occurrences in the whole hierarchy?' ]
 ]

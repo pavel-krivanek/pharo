@@ -96,8 +96,8 @@ GTInspector class >> gtInspectorExtensionsIn: composite [
 		title: 'Extensions';
 		display: [ self inspectorExtendingMethods ];
 		showOnly: 50;
-		format: [ :each | each gtDisplayString ];
-		filterOn: [ :text :each | each gtDisplayString includesSubstring: text caseSensitive: false ]
+		format: [ :each | each displayString ];
+		filterOn: [ :text :each | each displayString includesSubstring: text caseSensitive: false ]
 ]
 
 { #category : #settings }
@@ -210,8 +210,13 @@ GTInspector class >> register [
 
 { #category : #'tools registry' }
 GTInspector class >> registerToolsOn: registry [
+	"IMPORTANT: This method is disabled because the bootstrap process initializes tools by traversing
+	 all classes implementing this method in alphabetical order. Since GTInspector is not anymore the 
+	 default playground, we disable its auto-registration in that step. 
+	 Notice that the #register method still works if needed"
+
 	"self registerToolsOn: Smalltalk tools " 
-	registry register: self as: #inspector
+	"registry register: self as: #inspector"
 
 ]
 
@@ -268,7 +273,7 @@ GTInspector class >> settingsOn: aBuilder [
 				getSelector: #isGTInspectorEnabled;
 				setSelector: #setGTInspectorEnabledStatus:; 
 				label: 'GTInspector';
-				default: true;
+				default: false;
 		 		description: 'Enable or disable the GTInspector.'.
 			(aBuilder setting: #EnabledStepRefreshStatus)
 				target: self;
@@ -325,14 +330,7 @@ GTInspector >> compose [
 
 	self title: [:anObject | 'Inspector on ', (self printObjectAsAnItem: anObject)].
 	self titleIcon: (self iconNamed: #smallInspectIt).
-	self act: [:b | b update] icon: GLMUIThemeExtraIcons glamorousRefresh entitled: 'Update'.
-	self act: [:b | 
-		HelpBrowser open selectTopicSatisfying: [:each |
-			each owner notNil and:  [
-			(each owner key = GTInspectorHelp key) and: [
-				each title = 'Overview' ] ] ] ] 
-		icon: GLMUIThemeExtraIcons glamorousHelp 
-		entitled: 'Help'.
+	self act: [:b | b update] icon: GLMUIThemeExtraIcons glamorousRefresh entitled: 'Update'.	 
 	self act: [:b | b presentationFilter changeFilterRequestFor: b ] entitled: 'Filter presentations'.
 	self pager with: [ :browser | 
 		browser fixedSizePanes: self class numberOfInspectorPanes.

@@ -81,8 +81,18 @@ PharoDocCommentNode class >> settingsOn: aBuilder [
 
 { #category : #conversion }
 PharoDocCommentNode >> asTriplet [
-	"Return the expression, its returned value and its expect result."
-	^ { self expression expressionCode formattedCode . self expression evaluate . self result expressionCode formattedCode}
+	"Return the expression, its returned value and its expected result."
+	
+	^ { self expression expressionCode formattedCode. 
+		 self expression evaluate. 
+		 self result expressionCode formattedCode }
+]
+
+{ #category : #private }
+PharoDocCommentNode >> browse [
+	| methodNode |
+	methodNode := self sourceNode methodNode.
+	(methodNode methodClass>>methodNode selector) browse
 ]
 
 { #category : #accessing }
@@ -92,16 +102,18 @@ PharoDocCommentNode >> expression [
 
 { #category : #accessing }
 PharoDocCommentNode >> expression: anObject [
-	expression := anObject
+	expression := anObject.
+	expression node: self
 ]
 
 { #category : #printing }
 PharoDocCommentNode >> printOn: aStream [
 
 	super printOn: aStream.
-	aStream nextPutAll: '('.
-	aStream nextPutAll: self expression source.
-	aStream nextPutAll: ')'.
+	aStream 
+		nextPutAll: '(';
+		nextPutAll: self expression source;
+		nextPutAll: ')'
 ]
 
 { #category : #accessing }
@@ -111,7 +123,8 @@ PharoDocCommentNode >> result [
 
 { #category : #accessing }
 PharoDocCommentNode >> result: anObject [
-	result := anObject
+	result := anObject.
+	anObject node: self
 ]
 
 { #category : #accessing }

@@ -5,6 +5,38 @@ Class {
 }
 
 { #category : #utilities }
+RubTextFieldAreaTest >> simulatedKeyDownFromChar: aCharacter [
+
+	^ self simulatedKeyDownFromChar: aCharacter alt: false ctrl: false command: false shift: false
+]
+
+{ #category : #utilities }
+RubTextFieldAreaTest >> simulatedKeyDownFromChar: aCharacter alt: useAlt ctrl: useCtrl command: useCommand shift: useShift [
+	| event modifier code |
+	event := KeyboardEvent new.
+	modifier := 0.
+	useShift
+		ifTrue: [ modifier := modifier + 8 ].
+	useCtrl
+		ifTrue: [ modifier := modifier + 16 ].
+	useAlt
+		ifTrue: [ modifier := modifier + 32 ].
+	useCommand
+		ifTrue: [ modifier := modifier + 64 ].
+	code := aCharacter asInteger.
+	event
+		setType: #keyDown
+		buttons: modifier
+		position: 0 @ 0
+		keyValue: code
+		charCode: code
+		hand: self currentWorld currentHand 
+		stamp: Time now.
+	event key: (KeyboardKey fromCharacter: aCharacter).
+	^ event
+]
+
+{ #category : #utilities }
 RubTextFieldAreaTest >> simulatedKeyStrokeFromChar: aCharacter [
 
 	^ self simulatedKeyStrokeFromChar: aCharacter alt: false ctrl: false command: false shift: false
@@ -65,7 +97,7 @@ RubTextFieldAreaTest >> testKeyStrokeBackSpaceWithMaxLength [
 	self assert: m string equals: 'a'.
 	m handleEvent: (self simulatedKeyStrokeFromChar: $b).
 	self assert: m string equals: 'ab'.
-	m handleEvent: (self simulatedKeyStrokeFromChar: Character backspace).
+	m handleEvent: (self simulatedKeyDownFromChar: Character backspace).
 	self assert: m string equals: 'a'.
 	m handleEvent: (self simulatedKeyStrokeFromChar: $c).
 	self assert: m string equals: 'ac'.
@@ -170,6 +202,31 @@ RubTextFieldAreaTest >> testReplacementWithMaxLength [
 	self assert: m string equals: 'BBC'.
 	m privateReplaceFrom: 1 to: 3 with: 'XXXXXXXXXXXXXXXXXX'.
 	self assert: m string equals: 'XXX'
+]
+
+{ #category : #tests }
+RubTextFieldAreaTest >> testWhenWeHaveTheRubTextFieldAreaInsideOtherMorphHasToHonorTheExtentAssignedToIt [
+
+	| dropList widthOfButton |
+
+	"The drop list has two morphs inside, one RubTextFieldArea and a Button.
+	The button has a fixed side. 
+	The text field takes all the remaining size."	
+	dropList := DropListMorph new
+		     list: { (String loremIpsum: 100) };
+		     enabled: true;
+		     listSelectionIndex: 1;
+		     yourself.
+
+	dropList extent: 100 @ 18.
+	dropList computeBounds. 
+	
+	self assert: dropList extent x equals: 100.
+
+	widthOfButton := (dropList submorphs at: 2) extent x.
+	
+	"The text area should take the remaining size without overlapping in the button"	
+	self assert: (dropList submorphs at: 1) extent x equals: 74.
 ]
 
 { #category : #tests }

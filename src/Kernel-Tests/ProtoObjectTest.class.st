@@ -10,9 +10,16 @@ Class {
 	#category : #'Kernel-Tests-Objects'
 }
 
+{ #category : #coverage }
+ProtoObjectTest >> classToBeTested [
+	
+	^ ProtoObject
+]
+
 { #category : #'tests - testing' }
 ProtoObjectTest >> testFastPointersTo [
 	| myObject myArray myObject2 allObjects |
+	self timeLimit: 1 minute.
 	myObject := Object new.
 	myObject2 := Object new.
 	myArray := {myObject.
@@ -170,9 +177,36 @@ ProtoObjectTest >> testIfNotNilIfNil [
 ]
 
 { #category : #'tests - testing' }
+ProtoObjectTest >> testIsImmediateObject [
+	self deny: Object new isImmediateObject.
+	self deny: Array new isImmediateObject.
+	self assert: 1 isImmediateObject.
+	self assert: 1 isImmediateObject equals: 1 class isImmediateClass.
+	self assert: 1.2 isImmediateObject equals: 1.2 class isImmediateClass.
+	self assert: $a isImmediateObject equals: $a class isImmediateClass
+]
+
+{ #category : #'tests - testing' }
 ProtoObjectTest >> testIsNil [
 
 	self deny: ProtoObject new isNil
+]
+
+{ #category : #tests }
+ProtoObjectTest >> testNextObject [
+	"In issue 4011 (https://github.com/pharo-project/pharo/issues/4011), "
+	"the image crashed if nextObject was called on a Character, SmallInteger or a SmallFloat64"
+	
+	self assert: (nil nextObject notNil).
+	self assert: ('test' nextObject notNil).
+	
+	self should: [42 nextObject notNil] raise: ShouldNotImplement.
+	self should: [$x nextObject notNil] raise: ShouldNotImplement.
+
+	"Small Floats are only available in 64 bits VMs"	
+	Smalltalk vm hasSmallFloats 
+		ifTrue: [self should: [3.14 nextObject notNil] raise: ShouldNotImplement].
+
 ]
 
 { #category : #'tests - testing' }

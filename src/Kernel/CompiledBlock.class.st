@@ -15,6 +15,17 @@ Class {
 	#category : #'Kernel-Methods'
 }
 
+{ #category : #printing }
+CompiledBlock >> displayStringOn: stream [
+	self printOn: stream
+]
+
+{ #category : #accessing }
+CompiledBlock >> endPC [
+	"Answer the index of the last bytecode."
+	^ self size
+]
+
 { #category : #scanning }
 CompiledBlock >> hasMethodReturn [
 	"Answer whether the receiver has a method-return ('^') in its code."
@@ -65,6 +76,11 @@ CompiledBlock >> isCompiledBlock [
 ]
 
 { #category : #testing }
+CompiledBlock >> isEmbeddedBlock [
+	^ true
+]
+
+{ #category : #testing }
 CompiledBlock >> isInstalled [
 	
 	^ self method isInstalled
@@ -99,12 +115,6 @@ CompiledBlock >> methodNode [
 ]
 
 { #category : #accessing }
-CompiledBlock >> numberOfReservedLiterals [
-
-	^ 1
-]
-
-{ #category : #accessing }
 CompiledBlock >> outerCode [
 	"answer the compiled code that I am installed in, or nil if none."
 	^self literalAt: self numLiterals
@@ -113,11 +123,6 @@ CompiledBlock >> outerCode [
 { #category : #accessing }
 CompiledBlock >> outerCode: aCompiledCode [
 	^self literalAt: self numLiterals put: aCompiledCode
-]
-
-{ #category : #accessing }
-CompiledBlock >> penultimateLiteral [
-	^ nil
 ]
 
 { #category : #accessing }
@@ -179,4 +184,14 @@ CompiledBlock >> sourceCode [
 { #category : #'source code management' }
 CompiledBlock >> sourcePointer [
 	^self outerCode sourcePointer
+]
+
+{ #category : #'debugger support' }
+CompiledBlock >> stepIntoQuickMethods [
+	^self method stepIntoQuickMethods
+]
+
+{ #category : #'debugger support' }
+CompiledBlock >> stepIntoQuickMethods: aBoolean [
+	^self method stepIntoQuickMethods: aBoolean
 ]

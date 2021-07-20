@@ -1,8 +1,18 @@
+"
+I am a command to protect given variables
+"
 Class {
 	#name : #SycProtectVariableCommand,
 	#superclass : #SycRefactorVariableCommand,
 	#category : #'SystemCommands-VariableCommands'
 }
+
+{ #category : #activation }
+SycProtectVariableCommand class >> sourceCodeMenuActivation [
+	<classAnnotation>
+	
+	^SycSourceCodeMenuActivation byRootGroupItemOrder: 1.2 for: ClySourceCodeContext 
+]
 
 { #category : #execution }
 SycProtectVariableCommand >> asRefactorings [

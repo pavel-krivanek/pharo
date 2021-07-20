@@ -9,11 +9,16 @@ Class {
 	#category : #'GT-SUnitDebugger'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 GTSUnitDebuggerJumpToTestAction class >> gtDebuggerActionFor: aDebugger [
 	<gtStackDebuggingAction>
 	
 	^ (self forDebugger: aDebugger)
+]
+
+{ #category : #testing }
+GTSUnitDebuggerJumpToTestAction class >> isDeprecated [
+	^ true
 ]
 
 { #category : #testing }

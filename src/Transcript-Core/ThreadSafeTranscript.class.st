@@ -117,6 +117,11 @@ ThreadSafeTranscript >> critical: block [
 	^ accessSemaphore critical: block 
 ]
 
+{ #category : #accessing }
+ThreadSafeTranscript >> doItContext [
+	^nil
+]
+
 { #category : #streaming }
 ThreadSafeTranscript >> endEntry [
 "	
@@ -262,4 +267,10 @@ ThreadSafeTranscript >> tab [
 ThreadSafeTranscript >> title [
 
 	^ 'Transcript'
+]
+
+{ #category : #accessing }
+ThreadSafeTranscript >> variableBindings [
+
+	^ Dictionary new
 ]

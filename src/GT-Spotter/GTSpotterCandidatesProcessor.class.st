@@ -11,6 +11,11 @@ Class {
 	#category : #'GT-Spotter-Pragma-Based-Processors'
 }
 
+{ #category : #testing }
+GTSpotterCandidatesProcessor class >> isDeprecated [
+	^ true
+]
+
 { #category : #'instance creation' }
 GTSpotterCandidatesProcessor class >> on: anObject [
 
@@ -68,7 +73,7 @@ GTSpotterCandidatesProcessor >> itemIconFor: anObject [
 
 { #category : #private }
 GTSpotterCandidatesProcessor >> itemNameFor: anObject [
-	^ anObject gtDisplayString
+	^ anObject displayString
 ]
 
 { #category : #accessing }

@@ -5,7 +5,7 @@ The classes are nor installed or modifies other objects. That is part of the job
 I can be extended by using a different builder enhancer. 
 See ShDefaultBuilderEnhancer for a default implementation. 
 
-I can be used directly to create anonymous classes, but it is better if you use the annonymous class installer.
+I can be used directly to create anonymous classes, but it is better if you use the anonymous class installer.
 
 I also can compare the old class with the configured new class to calculate the required changes.
 "
@@ -83,6 +83,8 @@ ShiftClassBuilder >> build [
 
 	self createSharedVariables.
 
+	self installSlotsAndVariables.
+
 	self oldClass ifNotNil: [ 
 			self newClass basicCategory: self oldClass basicCategory.
 			self copyOrganization.
@@ -90,7 +92,7 @@ ShiftClassBuilder >> build [
 
 	self builderEnhancer afterMethodsCompiled: self.
 	
-	self installSlotsAndVariables.
+	
 	
 	^ newClass
 ]
@@ -167,7 +169,7 @@ ShiftClassBuilder >> comment: anObject [
 	comment := anObject
 ]
 
-{ #category : #'accessing comment' }
+{ #category : #'accessing - comment' }
 ShiftClassBuilder >> comment:aComment stamp: anStamp [
 	self comment: aComment.
 	self commentStamp: anStamp.
@@ -296,7 +298,7 @@ ShiftClassBuilder >> fillFor: aClass [
 		layoutClass: aClass classLayout class;
 		slots: aClass localSlots;
 		classSlots: aClass class localSlots;
-		sharedVariables: aClass classVariables;
+		sharedVariablesFromString: aClass classVariablesString;
 		sharedPools: aClass sharedPoolsString;
 		category: aClass category;
 		environment: aClass environment;
@@ -427,6 +429,12 @@ ShiftClassBuilder >> oldMetaclass [
 	^ oldMetaclass
 ]
 
+{ #category : #accessing }
+ShiftClassBuilder >> package: anObject [
+	
+	self category: anObject
+]
+
 { #category : #changes }
 ShiftClassBuilder >> propagateChangesTo: anotherBuilder [
 	changes do: [ :e | e propagateToSubclasses: anotherBuilder ]
@@ -443,8 +451,23 @@ ShiftClassBuilder >> propertyAt: aKey put: aValue [
 ]
 
 { #category : #accessing }
+ShiftClassBuilder >> sharedPools [
+	^ self layoutDefinition sharedPools
+]
+
+{ #category : #accessing }
 ShiftClassBuilder >> sharedPools: aString [
 	self layoutDefinition sharedPools: ((aString substrings: ' ') collect: [:e | e asSymbol])
+]
+
+{ #category : #accessing }
+ShiftClassBuilder >> sharedPoolsCollectionOfSymbols: aCol [
+	self layoutDefinition sharedPools: aCol
+]
+
+{ #category : #accessing }
+ShiftClassBuilder >> sharedVariables [
+	^ self layoutDefinition sharedVariables
 ]
 
 { #category : #accessing }
@@ -460,6 +483,11 @@ ShiftClassBuilder >> sharedVariablesFromString: aStringOrArray [
                 x isSymbol
                     ifTrue: [ x => ClassVariable ]
                     ifFalse: [ self error: 'Shared variables can only be String or an array of Symbols' ] ] ])
+]
+
+{ #category : #accessing }
+ShiftClassBuilder >> slots [
+	^ self layoutDefinition slots
 ]
 
 { #category : #accessing }
@@ -493,16 +521,6 @@ ShiftClassBuilder >> superclassResolver: asuperclassResolver [
 	superclassResolver:= asuperclassResolver
 ]
 
-{ #category : #accessing }
-ShiftClassBuilder >> traitComposition [
-	^ extensibleProperties at: #traitComposition ifAbsent: {}
-]
-
-{ #category : #accessing }
-ShiftClassBuilder >> traitComposition: aValue [
-	^ extensibleProperties at: #traitComposition put: aValue
-]
-
 { #category : #building }
 ShiftClassBuilder >> tryToFillOldClass [
 	oldClass ifNotNil: [ ^self ].
@@ -517,7 +535,7 @@ ShiftClassBuilder >> useStrictSuperclass [
 	self superclassResolver: ClassResolverStrictResolve new.
 ]
 
-{ #category : #'private validating' }
+{ #category : #'private - validating' }
 ShiftClassBuilder >> validateClassName [
 	name ifNil: [ ^self ].
 	
@@ -534,7 +552,7 @@ ShiftClassBuilder >> validateClassName [
 	DangerousClassNotifier check: name 
 ]
 
-{ #category : #'private validating' }
+{ #category : #'private - validating' }
 ShiftClassBuilder >> validateSuperclass [
 	self superclass ifNil: [ ^self ].
 	oldClass ifNil: [ ^ self ].	

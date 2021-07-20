@@ -4,13 +4,19 @@ I show in menu all commands annotated by SycSourceCodeMenuActivation
 "
 Class {
 	#name : #SycOpenSourceCodeMenuCommand,
-	#superclass : #CmdOpenContextMenuCommand,
+	#superclass : #SycOpenContextMenuCommand,
 	#category : #'SystemCommands-SourceCodeCommands'
 }
 
 { #category : #execution }
 SycOpenSourceCodeMenuCommand >> activationStrategy [
 	^SycSourceCodeMenuActivation 
+]
+
+{ #category : #'context menu' }
+SycOpenSourceCodeMenuCommand >> cmCommandClass [
+
+	^ SycSourceCodeCmCommand
 ]
 
 { #category : #accessing }

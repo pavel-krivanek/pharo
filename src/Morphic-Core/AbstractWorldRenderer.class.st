@@ -10,10 +10,22 @@ Class {
 		'alreadyActivated'
 	],
 	#classVars : [
-		'MainWorldRenderer'
+		'IsLoggingRenderingProfileToFile',
+		'IsProfilingRenderingTime',
+		'MainWorldRenderer',
+		'RenderingProfilingLogOutput'
 	],
 	#category : #'Morphic-Core-Worlds'
 }
+
+{ #category : #profiling }
+AbstractWorldRenderer class >> closeRenderingProfileLogFile [
+	RenderingProfilingLogOutput ifNotNil: [
+		RenderingProfilingLogOutput close.
+		RenderingProfilingLogOutput := nil.
+	]
+
+]
 
 { #category : #accessing }
 AbstractWorldRenderer class >> detectCorrectOneforWorld: aWorld [
@@ -29,6 +41,18 @@ AbstractWorldRenderer class >> detectCorrectOneforWorld: aWorld [
 	^ MainWorldRenderer := aRenderer
 ]
 
+{ #category : #profiling }
+AbstractWorldRenderer class >> disableRenderingProfileLogFile [
+	<script>
+	self isLoggingRenderingProfileToFile: false
+]
+
+{ #category : #profiling }
+AbstractWorldRenderer class >> enableRenderingProfileLogFile [
+	<script>
+	self isLoggingRenderingProfileToFile: true
+]
+
 { #category : #accessing }
 AbstractWorldRenderer class >> forWorld: aWorld [
 
@@ -41,6 +65,48 @@ AbstractWorldRenderer class >> forWorld: aWorld [
 AbstractWorldRenderer class >> initialize [
 
 	SessionManager default registerSystemClassNamed: self name	
+]
+
+{ #category : #profiling }
+AbstractWorldRenderer class >> isLoggingRenderingProfileToFile [
+	^ IsLoggingRenderingProfileToFile ifNil: [ IsLoggingRenderingProfileToFile := false ]
+]
+
+{ #category : #profiling }
+AbstractWorldRenderer class >> isLoggingRenderingProfileToFile: aBoolean [
+	IsLoggingRenderingProfileToFile := aBoolean.
+	IsLoggingRenderingProfileToFile ifFalse: [ self closeRenderingProfileLogFile ].
+]
+
+{ #category : #profiling }
+AbstractWorldRenderer class >> isProfilingRenderingTime [
+	^ IsProfilingRenderingTime ifNil: [IsProfilingRenderingTime := false]
+]
+
+{ #category : #profiling }
+AbstractWorldRenderer class >> isProfilingRenderingTime: aBoolean [
+	"
+	self isProfilingRenderingTime: true.
+	self isProfilingRenderingTime: false.
+	"
+	IsProfilingRenderingTime := aBoolean.
+	IsProfilingRenderingTime ifFalse: [ self closeRenderingProfileLogFile ].
+]
+
+{ #category : #profiling }
+AbstractWorldRenderer class >> logRenderingTimeMeasurements: measurements [
+	self isLoggingRenderingProfileToFile ifFalse: [ ^ self ].
+	RenderingProfilingLogOutput ifNil: [
+		RenderingProfilingLogOutput := (FileSystem workingDirectory / 'rendering-profile-log.csv') writeStream.
+		RenderingProfilingLogOutput truncate.
+		RenderingProfilingLogOutput nextPutAll: 'Class,Measurement,Time'; lf.
+	].
+	measurements do: [ :each |
+		RenderingProfilingLogOutput nextPutAll: self name asString;
+			nextPut: $,; nextPutAll: each key asString;
+			nextPut: $,; nextPutAll: each value asString;
+			lf
+	]
 ]
 
 { #category : #accessing }
@@ -63,6 +129,12 @@ AbstractWorldRenderer class >> shutDown: quitting [
 		ensure: [ MainWorldRenderer := nil ]
 ]
 
+{ #category : #profiling }
+AbstractWorldRenderer class >> startProfilingRenderingTime [
+	<script>
+	self isProfilingRenderingTime: true
+]
+
 { #category : #accessing }
 AbstractWorldRenderer class >> startUp: isANewSession [
 
@@ -70,10 +142,18 @@ AbstractWorldRenderer class >> startUp: isANewSession [
 		ifTrue: [ MainWorldRenderer := nil ]
 ]
 
+{ #category : #profiling }
+AbstractWorldRenderer class >> stopProfilingRenderingTime [
+	<script>
+	self isProfilingRenderingTime: false
+]
+
 { #category : #activation }
 AbstractWorldRenderer >> activate [
 
-	alreadyActivated ifTrue: [ ^ self ].
+	alreadyActivated ifTrue: [ 
+		"Maybe I need to change the title of the window after saving the image"
+		^ self updateWindowTitle ].
 
 	self doActivate.
 	alreadyActivated := true
@@ -83,6 +163,12 @@ AbstractWorldRenderer >> activate [
 AbstractWorldRenderer >> actualScreenSize [
 
 	self subclassResponsibility 
+]
+
+{ #category : #initialization }
+AbstractWorldRenderer >> convertWindowMouseEventPosition: aPosition [
+
+	self subclassResponsibility
 ]
 
 { #category : #activation }
@@ -152,6 +238,11 @@ AbstractWorldRenderer >> drawDuring: aBlock [
 	self subclassResponsibility
 ]
 
+{ #category : #profiling }
+AbstractWorldRenderer >> formatRenderingTimeMeasurement: measurement [	
+	^ '[{1}]{2}: {3} ms' format: {self class name . measurement key . measurement value printPaddedWith: Character space to: 5}.
+]
+
 { #category : #accessing }
 AbstractWorldRenderer >> icon: aForm [ 
 
@@ -168,6 +259,16 @@ AbstractWorldRenderer >> initialize [
 AbstractWorldRenderer >> invalidate [
 	"Invalidate the entire render"
 	"Each subclass should define me properly"
+]
+
+{ #category : #testing }
+AbstractWorldRenderer >> isProfilingRenderingTime [
+	^ self class isProfilingRenderingTime
+]
+
+{ #category : #profiling }
+AbstractWorldRenderer >> logRenderingTimeMeasurements: measurements [
+	self class logRenderingTimeMeasurements: measurements
 ]
 
 { #category : #operations }
@@ -191,6 +292,12 @@ AbstractWorldRenderer >> restoreMorphicDisplay [
 AbstractWorldRenderer >> updateDamage: rectangles [
 
 	self subclassResponsibility
+]
+
+{ #category : #activation }
+AbstractWorldRenderer >> updateWindowTitle [
+
+	"I do nothing... maybe my subclasses extend it"
 ]
 
 { #category : #initialization }

@@ -8,7 +8,8 @@ Class {
 		'driver',
 		'osWindow',
 		'display',
-		'windowCloseAction'
+		'windowCloseAction',
+		'previousFrameRenderingTime'
 	],
 	#category : #'OSWindow-Core-Morphic'
 }
@@ -28,13 +29,12 @@ OSWorldRenderer class >> priority [
 { #category : #initialization }
 OSWorldRenderer >> activateCursor: aCursor withMask: maskForm [
 
-	osWindow ifNotNil: [ osWindow setMouseCursor: aCursor mask: maskForm ]
+	osWindow ifNotNil: [ osWindow setMouseCursor: aCursor mask: maskForm andScale: world worldState worldRenderer screenScaleFactor ]
 ]
 
 { #category : #initialization }
 OSWorldRenderer >> actualScreenSize [
-
-	^ osWindow ifNil: [ 240@120 ] ifNotNil: [ osWindow extent ]
+	^ (self windowExtent / self screenScaleFactor) ceiling max: 1@1
 ]
 
 { #category : #initialization }
@@ -63,6 +63,12 @@ OSWorldRenderer >> clipboardText: aString [
 ]
 
 { #category : #initialization }
+OSWorldRenderer >> convertWindowMouseEventPosition: aPosition [
+
+	^ (aPosition / self screenScaleFactor) rounded
+]
+
+{ #category : #initialization }
 OSWorldRenderer >> deactivate [
 
 	osWindow ifNotNil: [ osWindow destroy. osWindow := nil ].
@@ -73,7 +79,7 @@ OSWorldRenderer >> deactivate [
 { #category : #operations }
 OSWorldRenderer >> deferUpdatesDuring: aBlock [
 
-	self osWindowRenderer deferUpdatesWhile: aBlock
+	self osWindowRenderer ifNotNil: [:renderer | renderer deferUpdatesWhile: aBlock ]
 ]
 
 { #category : #initialization }
@@ -97,6 +103,8 @@ OSWorldRenderer >> doActivate [
 	attributes preferableDriver: driver.
 	osWindow := OSWindow createWithAttributes: attributes eventHandler: (OSWindowMorphicEventHandler for: world).
 	
+	driver afterSetWindowTitle: Smalltalk image imageFile fullName onWindow: osWindow.
+		
 	osWindow focus. 
 	
 	world worldState doFullRepaint.
@@ -107,11 +115,47 @@ OSWorldRenderer >> doActivate [
 
 { #category : #operations }
 OSWorldRenderer >> drawDuring: aBlock [
-
 	osWindow ifNil: [ ^ self ].
+	self isProfilingRenderingTime ifTrue: [ ^ self drawWhileProfilingRenderingTimeDuring: aBlock ].
 	self osWindowRenderer deferUpdatesWhile: [
 		self osWindowRenderer drawDuring: aBlock
-	].	
+	].
+]
+
+{ #category : #profiling }
+OSWorldRenderer >> drawWhileProfilingRenderingTimeDuring: aBlock [
+	| measurements |
+	previousFrameRenderingTime := [
+		self osWindowRenderer deferUpdatesWhile: [
+			self osWindowRenderer drawDuring: [ :canvas |
+				| frameCanvasRenderingTime displayRectangle |
+				frameCanvasRenderingTime := [ aBlock value: canvas ] timeToRunWithoutGC.
+					
+				measurements := {
+					'Content' -> frameCanvasRenderingTime
+				}.
+				previousFrameRenderingTime ifNotNil: [
+					measurements := measurements , {
+						'Previous frame' -> previousFrameRenderingTime.
+					}
+				].
+				
+				displayRectangle := (0@0 extent: 250@40).
+				canvas
+					fillRectangle: displayRectangle color: Color white.
+				measurements doWithIndex: [ :each :index |
+					| line |
+					line := self formatRenderingTimeMeasurement: each.
+					canvas drawString: line at: 10@(10*index) font: nil color: Color black.
+				].
+				
+				self osWindowRenderer updateRectangle: displayRectangle.
+			]
+		]
+	] timeToRunWithoutGC.
+	
+	self logRenderingTimeMeasurements: measurements
+
 ]
 
 { #category : #initialization }
@@ -146,7 +190,7 @@ OSWorldRenderer >> initialize [
 
 { #category : #initialization }
 OSWorldRenderer >> osWindowRenderer [
-		
+	osWindow ifNil: [ ^ nil ].
 	^ osWindow renderer ifNil: [
 		osWindow newFormRenderer: display.
 		osWindow renderer
@@ -161,11 +205,31 @@ OSWorldRenderer >> pickMostSuitableWindowDriver [
 	^ driver
 ]
 
+{ #category : #initialization }
+OSWorldRenderer >> screenScaleFactor [
+	^ world scaleFactor * self windowScaleFactor
+]
+
 { #category : #operations }
 OSWorldRenderer >> updateDamage: allDamage [
 
 	"quickly copy altered rects of canvas to Display:"
 	self osWindowRenderer updateAreas: allDamage immediate: false.
+]
+
+{ #category : #activation }
+OSWorldRenderer >> updateWindowTitle [
+
+	osWindow title: Smalltalk imageFile fullName.
+	driver
+		afterSetWindowTitle: Smalltalk imageFile fullName
+		onWindow: osWindow
+]
+
+{ #category : #accessing }
+OSWorldRenderer >> window [
+	
+	^ osWindow 
 ]
 
 { #category : #accessing }
@@ -176,6 +240,17 @@ OSWorldRenderer >> windowCloseAction [
 { #category : #accessing }
 OSWorldRenderer >> windowCloseAction: anObject [
 	windowCloseAction := anObject
+]
+
+{ #category : #initialization }
+OSWorldRenderer >> windowExtent [
+
+	^ osWindow ifNil: [ 240@120 ] ifNotNil: [ osWindow extent ]
+]
+
+{ #category : #'scale factor' }
+OSWorldRenderer >> windowScaleFactor [
+	^ osWindow ifNil: [ 1 ] ifNotNil: [ osWindow screenScaleFactor max: 1 ]
 ]
 
 { #category : #initialization }

@@ -3,23 +3,16 @@ Extension { #name : #ChangeSet }
 { #category : #'*System-Changes-FileServices' }
 ChangeSet class >> fileIntoNewChangeSet: fullName [
 	"File in all of the contents of the currently selected file, if any, into a new change set." 
-
-	| fn ff |
 	fullName ifNil: [^ self ].
-	
-	fn := (Smalltalk hasClassNamed: #GZipReadStream) 
-		ifTrue: [(Smalltalk classNamed:  #GZipReadStream) uncompressedFileName: fullName]
-		ifFalse: [fullName].
-	[ ff := FileStream readOnlyFileNamed: fn.
-	self newChangesFromStream: ff named: (fn  asFileReference basename)]
-		ensure: [ff ifNotNil: [ff close]]
+	fullName asFileReference readStreamDo: [ :readStream |
+		self newChangesFromStream: readStream named: fullName asFileReference basename ]
 ]
 
 { #category : #'*System-Changes-FileServices' }
 ChangeSet class >> fileReaderServicesForFile: fullName suffix: suffix [
 	<fileService>
 	
-	^ (FileStream isSourceFileSuffix: suffix)
+	^ (#('st' 'cs') includes: suffix)
 		ifTrue: [ self services]
 		ifFalse: [#()]
 ]
@@ -30,7 +23,7 @@ ChangeSet class >> serviceFileIntoNewChangeSet [
 
 	^ SimpleServiceEntry 
 		provider: self 
-		label: 'Install into new change set'
+		label: 'Install into the image'
 		selector: #fileIntoNewChangeSet:
 		description: 'Install the file as a body of code in the image: create a new change set and file-in the selected file into it'
 		buttonLabel: 'Install'

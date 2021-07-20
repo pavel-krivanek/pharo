@@ -29,7 +29,7 @@ OCASTTranslatorForEffect >> emitIfNotNil: aMessageNode [
 	| args |
 	valueTranslator visitNode: aMessageNode receiver.
 	args := aMessageNode arguments.
-	args first arguments ifNotEmpty: [ args first arguments first binding emitStore: methodBuilder ].
+	args first arguments ifNotEmpty: [ args first arguments first variable emitStore: methodBuilder ].
 	methodBuilder pushLiteral: nil.
 	methodBuilder send: #==.
 	methodBuilder jumpAheadTo: #end if: true.
@@ -47,7 +47,7 @@ OCASTTranslatorForEffect >> emitIfTrue: aMessageNode [
 	methodBuilder jumpAheadTarget: #else.
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> emitMessageNode: aMessageNode [ 
 
 	super emitMessageNode: aMessageNode.
@@ -62,7 +62,7 @@ OCASTTranslatorForEffect >> emitOr: aMessageNode [
 	methodBuilder popTop.
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> visitArrayNode: anArrayNode [ 
 	"An arrayNode may have side effect, for example: '{self foo}'. So we cannot just generate nothing for this node."
 
@@ -71,14 +71,14 @@ OCASTTranslatorForEffect >> visitArrayNode: anArrayNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> visitAssignmentNode: anAssignmentNode [ 
 
 	super visitAssignmentNode: anAssignmentNode .
 	methodBuilder popTop. 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> visitBlockNode: aBlockNode [ 
 	"even though the code is never executed, we generate it to make sure that we 
 	can map bytecode and access temps"
@@ -86,19 +86,21 @@ OCASTTranslatorForEffect >> visitBlockNode: aBlockNode [
 	methodBuilder popTop
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> visitLiteralArrayNode: aLiteralNode [
-	"when visiting a literal array for effect, we could push it and then pop it, but we do nothing"
-	methodBuilder addLiteral: aLiteralNode value
+
+	super visitLiteralArrayNode: aLiteralNode.
+	methodBuilder popTop
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> visitLiteralNode: aLiteralNode [
-	"when visiting a literal for effect, we could push it and then pop it, but we do nothing"
-	methodBuilder addLiteral: aLiteralNode value
+
+	super visitLiteralNode: aLiteralNode.
+	methodBuilder popTop
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> visitParseErrorNode: anErrorNode [  
 
 	super visitParseErrorNode: anErrorNode.
@@ -106,16 +108,16 @@ OCASTTranslatorForEffect >> visitParseErrorNode: anErrorNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> visitSequenceNode: aSequenceNode [ 
 	aSequenceNode statements do: [:each | self visitNode: each].
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslatorForEffect >> visitVariableNode: aVariableNode [
 	"when visiting a variable for effect, we could push it and then pop it, but we do nothing"
-	| binding |
-	binding := aVariableNode binding.
-	(binding isLiteralVariable or: [ binding isUndeclared ])
-		ifTrue: [ methodBuilder addLiteral: binding ]
+	| variable |
+	variable := aVariableNode variable.
+	(variable isLiteralVariable or: [ variable isUndeclaredVariable ])
+		ifTrue: [ methodBuilder addLiteral: variable ]
 ]

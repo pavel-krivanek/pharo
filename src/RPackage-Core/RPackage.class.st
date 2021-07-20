@@ -735,6 +735,12 @@ RPackage >> extensionsForTag: aRPackageTag [
 		self category: category matches: aRPackageTag categoryName ]
 ]
 
+{ #category : #properties }
+RPackage >> hasProperty: aKey [
+	self propertyAt: aKey ifAbsent: [ ^ false ].
+	^ true
+]
+
 { #category : #accessing }
 RPackage >> hierarchyRoots [
 	"Returns all the hiearchy roots (by opposition to single classes inheriting from class outside the package) of a package"
@@ -810,6 +816,13 @@ RPackage >> includesClassTagNamed: aString [
 ]
 
 { #category : #testing }
+RPackage >> includesClassesAffectedBy: aSystemAnnouncement [
+
+	^(aSystemAnnouncement affectsClassesDefinedInPackage: self)
+		or: [ aSystemAnnouncement affectsClassesExtendedInPackage: self ]
+]
+
+{ #category : #testing }
 RPackage >> includesDefinedSelector: aSelector ofClass: aClass [
 	"Return true if the receiver includes the method of selector aSelector. Only checks methods defined in this package"
 	
@@ -868,6 +881,12 @@ RPackage >> includesMethodCategory: categoryName ofClass: aClass [
 	^ (self isYourClassExtension: categoryName)
 		or: [(self includesClass: aClass)
 				and: [(self isForeignClassExtension: categoryName) not]]
+]
+
+{ #category : #testing }
+RPackage >> includesMethodsAffectedBy: aSystemAnnouncement [
+
+	^aSystemAnnouncement affectsMethodsDefinedInPackage: self
 ]
 
 { #category : #testing }
@@ -936,6 +955,19 @@ RPackage >> isEmpty [
 { #category : #'system compatibility' }
 RPackage >> isForeignClassExtension: categoryName [
 	^ categoryName first = $* and: [(self isYourClassExtension: categoryName) not]
+]
+
+{ #category : #testing }
+RPackage >> isTestPackage [
+	"1. Test package ends with suffix -Tests. Suffix is case sensitive.
+	 2. Or test package contains '-Tests-' in middle.
+	Some examples: "
+	"(RPackage named: 'MockPackage-Tests') isTestPackage >>> true"
+	"(RPackage named: 'MockPackage-tests') isTestPackage >>> false"
+	"(RPackage named: 'MockPackage') isTestPackage >>> false"
+	"(RPackage named: 'MockPackage-Tests-Package') isTestPackage >>> true"
+	
+	^ (self name endsWith: '-Tests') or: [self name includesSubstring: '-Tests-']
 ]
 
 { #category : #'system compatibility' }
@@ -1122,7 +1154,7 @@ RPackage >> register [
 	self organizer registerPackage: self
 ]
 
-{ #category : #'private-register' }
+{ #category : #'private - register' }
 RPackage >> registerClass: aClass [
 	"Private method that declares the mapping between a class and its package."
 	self organizer
@@ -1130,7 +1162,7 @@ RPackage >> registerClass: aClass [
 	
 ]
 
-{ #category : #'private-register' }
+{ #category : #'private - register' }
 RPackage >> registerClassName: aClassNameSymbol [
 	"Private method that declares the mapping between a class and its package."
 	self organizer
@@ -1138,7 +1170,7 @@ RPackage >> registerClassName: aClassNameSymbol [
 	
 ]
 
-{ #category : #'private-register' }
+{ #category : #'private - register' }
 RPackage >> removeAllMethodsFromClassNamed: aClassNameSymbol [
 	"Remove all the methods (defined and extensions) that are related to class aClassNameSymbol. aClassNameSymbol is the name of a class and not a metaclass - see class comment."
 
@@ -1208,7 +1240,7 @@ RPackage >> removeClassDefinitionName: aClassName fromClassTag: aSymbol [
 
 ]
 
-{ #category : #'private-register' }
+{ #category : #'private - register' }
 RPackage >> removeClassDefinitionNamed: aClassNameSymbol [
 	"aClassNameSymbol should be the name of a class and not a metaclass to be coherent with the class invariant that classes are only class names and not metaclass ones. 
 	
@@ -1487,7 +1519,7 @@ RPackage >> tagsForClasses [
 	"Any class could be tagged for user purpose.
 	Now we implement it on top of RPackageTag"
 	
-	^self classTags reject: #isRoot thenCollect: #name
+	^self classTags reject: [:each | each isRoot] thenCollect: [:each | each name]
 ]
 
 { #category : #private }
@@ -1502,14 +1534,14 @@ RPackage >> unregister [
 	self organizer unregisterPackage: self
 ]
 
-{ #category : #'private-register' }
+{ #category : #'private - register' }
 RPackage >> unregisterClass: aClass [
 	"Private method that declares the mapping between a class and its package."
 	self organizer
 		unregisterPackage: self forClass: aClass.
 ]
 
-{ #category : #'private-register' }
+{ #category : #'private - register' }
 RPackage >> unregisterClassName: aClassNameSymbol [
 	"Private method that declares the mapping between a class and its package."
 	self organizer unregisterPackage: self forClassName: aClassNameSymbol

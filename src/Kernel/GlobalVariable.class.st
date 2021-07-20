@@ -9,6 +9,11 @@ Class {
 	#category : #'Kernel-Variables'
 }
 
+{ #category : #visiting }
+GlobalVariable >> acceptVisitor: aProgramNodeVisitor node: aNode [
+	^ aProgramNodeVisitor visitGlobalVariableNode: aNode
+]
+
 { #category : #queries }
 GlobalVariable >> definingClass [
 	"The class defining the variable. For Globals, return nil"
@@ -23,7 +28,7 @@ GlobalVariable >> emitStore: methodBuilder [
 
 { #category : #'code generation' }
 GlobalVariable >> emitValue: methodBuilder [
-	methodBuilder pushLiteralVariable: self.
+	methodBuilder pushLiteralVariable: self
 ]
 
 { #category : #testing }
@@ -31,9 +36,8 @@ GlobalVariable >> isGlobalVariable [
 	^true
 ]
 
-{ #category : #testing }
-GlobalVariable >> isReferenced [
- 	"A Global could be referenced from any method"
- 	^Smalltalk globals allBehaviors
- 		anySatisfy: [ :behavior | behavior hasSelectorReferringTo: self ]
+{ #category : #accessing }
+GlobalVariable >> scope [
+	"The scope of Globals is Smalltalk globals"
+	^ Smalltalk globals
 ]

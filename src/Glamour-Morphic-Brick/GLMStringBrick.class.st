@@ -47,7 +47,7 @@ Class {
 	#category : #'Glamour-Morphic-Brick-Widgets-Core'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #examples }
 GLMStringBrick class >> example [
 
 	| brick brick1 brick2 brick3|
@@ -85,6 +85,11 @@ GLMStringBrick class >> example [
 	brick asBrickedMorph
 		color: Color white;
 		openInWindow
+]
+
+{ #category : #testing }
+GLMStringBrick class >> isDeprecated [
+	^ true
 ]
 
 { #category : #geometry }

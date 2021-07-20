@@ -37,38 +37,26 @@ CoASTResultSetBuilder >> configureEmptyFetcherForNode: aNode [
 	^ self
 		configureFetcher: CoEmptyFetcher new
 		forNode: aNode
-		narrowingWith: ''
 ]
 
-{ #category : #'private-building' }
-CoASTResultSetBuilder >> configureFetcher: aFetcher forNode: aNode narrowingWith: aString [
+{ #category : #'private - building' }
+CoASTResultSetBuilder >> configureFetcher: aFetcher forNode: aNode [
 	
 	| completion |
 	completion := CoResultSet fetcher: aFetcher.
-	completion filterWithString: aString.
+	completion caseSensitive: NECPreferences caseSensitive.
+	completion filterWithString: completionContext completionToken.
 	^ completion
 ]
 
-{ #category : #'private-building' }
-CoASTResultSetBuilder >> configureFetcherForNode: aNode usingHeuristic: heuristic narrowingWith: aString [
-	
-	| fetcher |
-	fetcher := heuristic fetcherFor: aNode inContext: completionContext.
-	^ self
-		configureFetcher: fetcher
-		forNode: aNode
-		narrowingWith: aString
-]
-
-{ #category : #'private-building' }
-CoASTResultSetBuilder >> configureFetcherForNode: aNode usingHeuristicAvoidingRepetitions: heuristic narrowingWith: aString [
+{ #category : #'private - building' }
+CoASTResultSetBuilder >> configureFetcherForNode: aNode usingHeuristicAvoidingRepetitions: heuristic [
 	
 	| fetcher |
 	fetcher := heuristic fetcherFor: aNode inContext: completionContext.
 	^ self
 		configureFetcher: fetcher withoutRepetition
 		forNode: aNode
-		narrowingWith: aString
 ]
 
 { #category : #accessing }
@@ -80,10 +68,18 @@ CoASTResultSetBuilder >> node: aNode [
 { #category : #'API - building' }
 CoASTResultSetBuilder >> parseNode [
 
-	^ node ifNil: [ node := (completionContext isWorkspace
-		ifTrue: [ RBParser parseFaultyExpression: completionContext source ]
-		ifFalse: [ RBParser parseFaultyMethod: completionContext source ])
-			nodeForOffset: completionContext position ]
+	^ node ifNil: [
+		(completionContext completionClass compiler
+			source: completionContext source;
+			noPattern: completionContext isWorkspace; 
+			options: #(+ optionParseErrors + optionSkipSemanticWarnings);
+			parse) nodeForOffset: completionContext position ] 
+]
+
+{ #category : #visiting }
+CoASTResultSetBuilder >> visitArgumentVariableNode: anArgumentNode [
+
+	^ self visitVariableNode: anArgumentNode
 ]
 
 { #category : #visiting }
@@ -111,6 +107,28 @@ CoASTResultSetBuilder >> visitCascadeNode: aRBCascadeNode [
 ]
 
 { #category : #visiting }
+CoASTResultSetBuilder >> visitClassVariableNode: aRBVariableNode [
+
+	^ self visitVariableNode: aRBVariableNode
+]
+
+{ #category : #visiting }
+CoASTResultSetBuilder >> visitEnglobingErrorNode: aRBVariableNode [ 
+	^ self visitNode: aRBVariableNode
+]
+
+{ #category : #visiting }
+CoASTResultSetBuilder >> visitGlobalVariableNode: aRBVariableNode [
+
+	^ self visitVariableNode: aRBVariableNode
+]
+
+{ #category : #visiting }
+CoASTResultSetBuilder >> visitInstanceVariableNode: aRBVariableNode [ 
+	^ self visitVariableNode: aRBVariableNode
+]
+
+{ #category : #visiting }
 CoASTResultSetBuilder >> visitLiteralArrayNode: aRBLiteralArrayNode [ 
 
 	^ self visitNode: aRBLiteralArrayNode
@@ -120,6 +138,11 @@ CoASTResultSetBuilder >> visitLiteralArrayNode: aRBLiteralArrayNode [
 CoASTResultSetBuilder >> visitLiteralValueNode: aRBLiteralValueNode [ 
 	
 	^ self visitNode: aRBLiteralValueNode
+]
+
+{ #category : #visiting }
+CoASTResultSetBuilder >> visitLiteralVariableNode: aRBVariableNode [
+	^ self visitVariableNode: aRBVariableNode
 ]
 
 { #category : #visiting }
@@ -174,6 +197,12 @@ CoASTResultSetBuilder >> visitSequenceNode: aRBSequenceNode [
 CoASTResultSetBuilder >> visitSuperNode: aRBSuperNode [ 
 	
 	^ self visitNode: aRBSuperNode
+]
+
+{ #category : #visiting }
+CoASTResultSetBuilder >> visitTemporaryVariableNode: anArgumentNode [
+
+	^ self visitVariableNode: anArgumentNode
 ]
 
 { #category : #visiting }

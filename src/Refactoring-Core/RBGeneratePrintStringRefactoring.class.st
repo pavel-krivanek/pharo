@@ -4,7 +4,13 @@ I am a refactoring for generating a printString (printOn: aStream) method.
 You can specify which of my instance variables should be used for generating the printString.
 
 For example: 
-RBGeneratePrintStringRefactoring model:RBNamespace new className: ClassS variables: { #inst1 . #inst2 . #inst3 }.
+
+```
+RBGeneratePrintStringRefactoring 
+	model: RBNamespace new 
+	className: ClassS 
+	variables: { #inst1 . #inst2 . #inst3 }
+```
 
 "
 Class {
@@ -28,9 +34,13 @@ RBGeneratePrintStringRefactoring class >> model: aNamespace className: aClass va
 
 { #category : #preconditions }
 RBGeneratePrintStringRefactoring >> preconditions [
+
 	^ variables
-		inject: RBCondition empty
-		into: [ :condition :variable | condition & (RBCondition definesInstanceVariable: variable in: self theClass) ]
+		  inject: self emptyCondition
+		  into: [ :condition :variable | 
+			  condition
+			  &
+			  (RBCondition definesInstanceVariable: variable in: self theClass) ]
 ]
 
 { #category : #accessing }

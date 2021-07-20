@@ -25,14 +25,13 @@ Class {
 		'savedPatch',
 		'lastEventBuffer',
 		'lastKeyScanCode',
-		'combinedChar',
 		'captureBlock',
 		'recentModifiers',
-		'pendingEventQueue'
+		'pendingEventQueue',
+		'supressNextKeyPress'
 	],
 	#classVars : [
 		'DoubleClickTime',
-		'EventSource',
 		'EventStats',
 		'NormalCursor',
 		'PasteBuffer',
@@ -67,7 +66,7 @@ HandMorph class >> doubleClickTime: milliseconds [
 
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph class >> eventStats [
 	^ EventStats ifNil: [ 'EventStats are disabled' ].
 ]
@@ -82,7 +81,7 @@ HandMorph class >> initialize [
 
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph class >> logEventStats: evt [
 	EventStats ifNotNil: [
 		EventStats at: #count put: (EventStats at: #count ifAbsent:[0]) + 1.
@@ -103,12 +102,12 @@ HandMorph class >> logEventStatsEnabled: aBoolean [
 		ifFalse: [ self logEventStatsStop ].
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph class >> logEventStatsStart [
 	EventStats ifNil:[EventStats := IdentityDictionary new].
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph class >> logEventStatsStop [
 	EventStats := nil.
 ]
@@ -210,7 +209,7 @@ HandMorph >> balloonHelp: aBalloonMorph [
 		ifNotNil:[self setProperty: #balloonHelpMorph toValue: aBalloonMorph]
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph >> captureEventsUntil: aBlock [
 "
 	Capture all input events, bypassing normal processing flow and redirect all events into block instead.
@@ -233,7 +232,7 @@ HandMorph >> captureEventsUntil: aBlock [
 	]
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph >> captureEventsWhile: aBlock [
 "
 	Capture all input events, bypassing normal processing flow and redirect all events into block instead.
@@ -361,7 +360,7 @@ HandMorph >> eventListeners: anArrayOrNil [
 	eventListeners := anArrayOrNil
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> eventQueue [
 	^ Sensor
 ]
@@ -459,7 +458,7 @@ HandMorph >> fullDrawOn: aCanvas [
 	self drawOn: aCanvas	"draw the hand itself in front of morphs"
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> generateKeyboardEvent: evtBuf [
 	"Generate the appropriate mouse event for the given raw event buffer"
 
@@ -479,26 +478,6 @@ HandMorph >> generateKeyboardEvent: evtBuf [
 	keyValue := evtBuf third. 
 	charCode := evtBuf sixth.
 
-	type = #keystroke
-		ifTrue: [combinedChar
-			ifNil: [
-				| peekedEvent |
-				peekedEvent := Sensor peekEvent.
-				(peekedEvent notNil
-					and: [peekedEvent fourth = EventKeyDown])
-					ifTrue: [
-						(CombinedChar isCompositionCharacter: charCode)
-							ifTrue: [
-								combinedChar := CombinedChar new.
-								combinedChar simpleAdd: charCode asCharacter.
-								(combinedChar combinesWith: peekedEvent third asCharacter)
-									ifTrue: [^nil].
-								]]]
-			ifNotNil: [
-				(combinedChar simpleAdd: charCode asCharacter)
-					ifTrue: [charCode := combinedChar combined charCode].
-				combinedChar := nil]].
-
 	"This piece of code handles the creation of scrolling events. When a scroll is done by the user, the VM forwards a keystroke event with the up/down key. So we reconvert it to a MouseWheelEvent in that case."
 	(type = #keystroke 
 	 and: [(buttons anyMask: 16) 
@@ -509,23 +488,39 @@ HandMorph >> generateKeyboardEvent: evtBuf [
 					buttons: buttons
 					hand: self
 					stamp: stamp].
+
+	"All control keys (tab, cr...) should be managed as keydown and ignored as text"	
+	(type = #keystroke and: [
+		charCode <= 31 or: [ (127 to: 159) includes: charCode ]])
+		ifTrue: [ ^ #invalid ].
+
    "If charCode is not single-byte, we definately have Unicode input. Zero keyValue to avoid garbage values from som VMs."
    self flag: #pharoFixMe. "I need to look at the windows vm side, to see why this keyvalue is generated in the first place".
+
    (charCode notNil and:[charCode > 255]) ifTrue: [keyValue:=0].
 	keyEvent := KeyboardEvent new
 		setType: type
 		buttons: buttons
 		position: self position
 		keyValue: keyValue
-		charCode: charCode
+		charCode: (type == #keystroke 
+			ifTrue: [ charCode ]
+			ifFalse: [ self mapSymbolToKeyValue: keyValue ])
 		hand: self
 		stamp: stamp.
+	
+	"If a modifier key is pressed the keystroke event is handled by #visitMouseDownEvent:"
+	(type == #keystroke
+		and: [ keyEvent commandKeyPressed
+			or: [ keyEvent controlKeyPressed ] ])
+				ifTrue: [ ^ #invalid ].
+	
 	keyEvent scanCode: lastKeyScanCode.
 	^keyEvent
 
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> generateMouseEvent: evtBuf [ 
 	"Generate the appropriate mouse event for the given raw event buffer"
 
@@ -575,7 +570,7 @@ HandMorph >> generateMouseEvent: evtBuf [
 		stamp: stamp
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> generateWindowEvent: evtBuf [ 
 	"Generate the appropriate window event for the given raw event buffer"
 
@@ -657,7 +652,7 @@ HandMorph >> halo: newHalo [
 		ifNotNil:[self setProperty: #halo toValue: newHalo]
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph >> handleEvent: anEvent [
 	| evt  |
 	owner ifNil:[^self].
@@ -679,18 +674,23 @@ HandMorph >> handleEvent: anEvent [
 	self sendListenEvent: evt to: self eventListeners.
 
 	evt isWindowEvent ifTrue: [
-		self sendEvent: evt focus: nil.
-		^self mouseOverHandler processMouseOver: lastMouseEvent].
+		^ self sendEvent: evt focus: nil ].
 	
 
 	evt isKeyboard ifTrue:[
-		self sendListenEvent: evt to: self keyboardListeners.
-		self sendKeyboardEvent: evt.
-		^self mouseOverHandler processMouseOver: lastMouseEvent].
+		
+		(evt isKeystroke and: [supressNextKeyPress == true])
+			ifTrue: [
+				supressNextKeyPress := false.
+				^ self ].
+		
+			self sendListenEvent: evt to: self keyboardListeners.
+			self sendKeyboardEvent: evt.
+			supressNextKeyPress := evt isKeyDown and: [evt supressNextKeyPress].
+		^ self ].
 
 	evt isDropEvent ifTrue:[
-		self sendEvent: evt focus: nil.
-		^self mouseOverHandler processMouseOver: lastMouseEvent].
+		^ self sendEvent: evt focus: nil ].
 
 	evt isMouse ifTrue:[
 		self sendListenEvent: evt to: self mouseListeners.
@@ -700,7 +700,7 @@ HandMorph >> handleEvent: anEvent [
 	mouseClickState ifNotNil:[
 		(mouseClickState handleEvent: evt from: self) ifFalse:[
 			"Possibly dispatched #click: or something and will not re-establish otherwise"
-			^self mouseOverHandler processMouseOver: lastMouseEvent]].
+			^self ]].
 
 	evt isMove ifTrue:[
 		| pos |
@@ -751,6 +751,7 @@ HandMorph >> initialize [
 	bounds := 0 @ 0 extent: Cursor normal extent.
 	damageRecorder := DamageRecorder new.
 	cachedCanvasHasHoles := false.
+	supressNextKeyPress := false.
 	self initForEvents
 ]
 
@@ -797,6 +798,29 @@ HandMorph >> lastEvent [
 	^ lastMouseEvent
 ]
 
+{ #category : #'private - events' }
+HandMorph >> mapSymbolToKeyValue: keyValue [
+
+	"Backwards compatibility.
+	Transform a VM keycode to a corresponding ascii value"
+
+	^ { KeyboardKey down -> 31.
+		KeyboardKey keypadDown -> 31.
+		KeyboardKey left -> 28.
+		KeyboardKey keypadLeft -> 28.
+		KeyboardKey right -> 29.
+		KeyboardKey keypadRight -> 29.
+		KeyboardKey up -> 30.
+		KeyboardKey keypadUp -> 30.
+		KeyboardKey enter -> 13.
+		KeyboardKey keypadEnter -> 13.
+		KeyboardKey tab -> 9.
+		KeyboardKey backspace -> 8.
+		} asDictionary
+		at: (Smalltalk os keyForValue: keyValue)
+		ifAbsent: [ 0 ]
+]
+
 { #category : #'focus handling' }
 HandMorph >> mouseFocus [
 	^mouseFocus
@@ -822,7 +846,7 @@ HandMorph >> mouseOverHandler [
 	^mouseOverHandler ifNil:[mouseOverHandler := MouseOverHandler new].
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> mouseTrailFrom: currentBuf [ 
   "Current event, a mouse event buffer, is about to be processed.  If there are other similar mouse events queued up, then drop them from the queue, and report the positions inbetween."
 
@@ -843,7 +867,7 @@ HandMorph >> mouseTrailFrom: currentBuf [
   ^trail contents
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> moveToEvent: anEvent [
 	"Issue a mouse move event to make the receiver appear at the given position"
 	self handleEvent: (MouseMoveEvent basicNew
@@ -902,7 +926,7 @@ HandMorph >> newMouseFocus: aMorph event: event [
 	^self newMouseFocus: aMorph
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> nextEventFrom: anEventBufferQueue [
 	"Returns the next morphic event to handle.
 	Three cases may arise:
@@ -1020,7 +1044,7 @@ HandMorph >> pasteBuffer: aMorphOrNil [
 
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> pendingEventQueue [
 
 	^ pendingEventQueue ifNil: [ pendingEventQueue := WaitfreeQueue new ]
@@ -1060,29 +1084,22 @@ HandMorph >> position: aPoint [
 
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> processEvents [
 	^ self processEventsFromQueue: self eventQueue
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> processEventsFromQueue: anEventBufferQueue [
 
 	"Process user input events from the local input devices."
 
-	| evt hadAny |
+	| evt |
 
-	self lastEvent ifNotNil: [
-		"Meaning that we were invoked from within an event response.
-		Make sure z-order is up to date"
-		self mouseOverHandler processMouseOver: lastMouseEvent ].
-
-	hadAny := false.
 	[ (evt := self nextEventFrom: anEventBufferQueue) notNil ] whileTrue: [ 
 		evt == #invalid ifTrue: [ ^ self ].
 		evt ifNotNil: [ "Finally, handle it"
 			self handleEvent: evt.
-			hadAny := true.
 			"For better user feedback, return immediately after a mouse event has been processed."
 			( evt isMouse and: [ evt isMouseWheel not ] )
 				ifTrue: [ ^ self ]
@@ -1093,12 +1110,10 @@ HandMorph >> processEventsFromQueue: anEventBufferQueue [
 	mouseClickState notNil ifTrue: [ 
 		"No mouse events during this cycle. Make sure click states time out accordingly"
 		mouseClickState handleEvent: lastMouseEvent asMouseMove from: self ].
-	hadAny ifFalse: [ 
-		"No pending events. Make sure z-order is up to date"
-		self mouseOverHandler processMouseOver: lastMouseEvent ]
+
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> queuePendingEvent: aMorphicEvent [
 	"Queue an (extra) event produced during an event handling cycle, to be processed in later cycles.
 	An event handling cycle should generate and manage a single event.
@@ -1277,13 +1292,13 @@ HandMorph >> selectedObject [
 	^ halo target renderedMorph
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> sendEvent: anEvent focus: focusHolder [
 	"Send the event to the morph currently holding the focus, or if none to the owner of the hand."
 	^self sendEvent: anEvent focus: focusHolder clear:[nil]
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> sendEvent: anEvent focus: focusHolder clear: aBlock [
 	"Send the event to the morph currently holding the focus, or if none to the owner of the hand."
 	| result |
@@ -1292,19 +1307,26 @@ HandMorph >> sendEvent: anEvent focus: focusHolder clear: aBlock [
 	^result
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> sendFocusEvent: anEvent to: focusHolder clear: aBlock [
 	"Send the event to the morph currently holding the focus"
-	| result w |
+	| result w transformedEvent |
+	
 	w := focusHolder world ifNil:[^ aBlock value].
+	transformedEvent := anEvent transformedBy: (focusHolder transformedFrom: self).
+
 	w becomeActiveDuring:[
-		result := focusHolder handleFocusEvent: 
-			(anEvent transformedBy: (focusHolder transformedFrom: self)).
+		result := focusHolder handleFocusEvent: transformedEvent.
 	].
+
+	"As I am copying the event, I have to propagate the supressNextKeyPress, so it is correctly handled."
+	anEvent isKeyboard 
+		ifTrue: [ anEvent supressNextKeyPress: transformedEvent supressNextKeyPress ]. 
+
 	^result
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> sendKeyboardEvent: anEvent [ 
 	"Send the event to the morph currently holding the focus, or if none to
 	the owner of the hand."
@@ -1314,7 +1336,7 @@ HandMorph >> sendKeyboardEvent: anEvent [
 		clear: [self keyboardFocus: nil]
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> sendListenEvent: anEvent to: listenerGroup [
 	"Send the event to the given group of listeners"
 	listenerGroup ifNil:[^self].
@@ -1322,7 +1344,7 @@ HandMorph >> sendListenEvent: anEvent to: listenerGroup [
 		listener ifNotNil:[listener handleListenEvent: anEvent copy]].
 ]
 
-{ #category : #'private events' }
+{ #category : #'private - events' }
 HandMorph >> sendMouseEvent: anEvent [
 	"Send the event to the morph currently holding the focus, or if none to the owner of the hand."
 	^self sendEvent: anEvent focus: self mouseFocus clear:[self mouseFocus: nil]
@@ -1351,7 +1373,7 @@ HandMorph >> shiftPressed [
 	^lastMouseEvent shiftPressed
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph >> showDebugEvent: evt [
 
 	ShowEvents == true ifTrue: [
@@ -1363,7 +1385,7 @@ HandMorph >> showDebugEvent: evt [
 		].
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph >> showMouseFocusEvent: evt [
 
 	ShowEvents == true ifTrue: [
@@ -1500,7 +1522,7 @@ HandMorph >> visible: aBoolean [
 	super visible: aBoolean
 ]
 
-{ #category : #'events-processing' }
+{ #category : #'events - processing' }
 HandMorph >> waitButton [
 	self captureEventsUntil: [:evt | self anyButtonPressed ]
 

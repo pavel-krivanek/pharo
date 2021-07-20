@@ -1,7 +1,7 @@
 "
 I am a refactoring for extracting code fragments to a new method. 
 
-Similar to RBExtractMethodRefactoring, but you can choose to which component (instance or agument variable) the new method is added. 
+Similar to `RBExtractMethodRefactoring`, but you can choose to which component (instance or agument variable) the new method is added. 
 As such, the new method arguments will include an additional argument for the sender.
 Based on the instance variable you chosed for this method I will guess the class where to add this method, but you can change this class or add more classes.
 
@@ -52,13 +52,13 @@ RBExtractMethodToComponentRefactoring >> extractMethod [
 				in: class.
 	refactoring setOption: #methodName
 		toUse: 
-			[:ref :methodName | 
-			extractedMethodSelector := ref 
+			[:methodName | 
+			extractedMethodSelector := self 
 						uniqueMethodNameFor: methodName arguments size.
 			methodName
 				selector: extractedMethodSelector;
 				yourself].
-	self performComponentRefactoring: refactoring
+	self performCompositeRefactoring: refactoring
 ]
 
 { #category : #transforming }
@@ -69,7 +69,7 @@ RBExtractMethodToComponentRefactoring >> inlineForwarder [
 				sendersOf: extractedMethodSelector
 				in: class.
 	refactoring setOption: #inlineExpression toUse: [:ref :string | true].
-	self performComponentRefactoring: refactoring
+	self performCompositeRefactoring: refactoring
 ]
 
 { #category : #transforming }
@@ -84,12 +84,13 @@ RBExtractMethodToComponentRefactoring >> moveMethod [
 		selector: extractedMethodSelector
 		class: class
 		variable: variable.
-	self performComponentRefactoring: refactoring
+	self performCompositeRefactoring: refactoring
 ]
 
 { #category : #preconditions }
 RBExtractMethodToComponentRefactoring >> preconditions [
-	^RBCondition empty
+
+	^ self emptyCondition
 ]
 
 { #category : #printing }

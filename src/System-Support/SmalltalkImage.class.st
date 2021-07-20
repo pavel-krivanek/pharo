@@ -2,27 +2,22 @@
 My singleton is a central entry point to the system.
 
 It has many roles and responsibilities (to be documented)
-	- startup/shutdown image
-	- source management
-	- namespace access
-	- tool access
-	- platform access
-	- VM information and parameters	
-	
-Startup
------------
+- startup/shutdown image
+- source management
+- namespace access
+- tool access
+- platform access
+- VM information and parameters	
+
+###Startup
+
 At startup and shutdown the image execute the methods startUp: and shutdown: of registered classes (registered using addToStartUpList:, addToShutDownList:, ... methods and friends).
 	
 Startup phases
-During the first stage of start up the UI manager, the default uimanager is switched to a specific non interactive ui manager (StartupUIManager). Note that this specific non interactive UIManager kills the system on any attempt to open windows and interaction. So be warned, don't use interaction in the first phase. 
+During the first stage of start up the UI manager, the default uimanager is switched to a specific non interactive ui manager (`StartupUIManager`). Note that this specific non interactive UIManager kills the system on any attempt to open windows and interaction. So be warned, don't use interaction in the first phase. 
 Then all registered classes execute their start up procedures (which should not imply interactive behavior). 
 After startup list is finished, any deferred startup actions are executed, which you can add using the method
-addDeferredStartupAction: method.  
-
-
-
-
-
+`addDeferredStartupAction:` method.  
 
 "
 Class {
@@ -300,7 +295,7 @@ SmalltalkImage >> bytesLeft [
 
 { #category : #'memory space' }
 SmalltalkImage >> bytesLeft: aBool [
-	"Return the amount of available space. If aBool is true, include possibly available swap space. If aBool is false, include possibly available physical memory. For a report on the largest free block currently availabe within Pharo memory but not counting extra memory use #primBytesLeft."
+	"Return the amount of available space. If aBool is true, include possibly available swap space. If aBool is false, include possibly available physical memory. For a report on the largest free block currently available within Pharo memory but not counting extra memory use #primBytesLeft."
 	<primitive: 112>
 	^self primBytesLeft
 ]
@@ -534,7 +529,7 @@ SmalltalkImage >> exitToDebugger [
 
 { #category : #'special objects' }
 SmalltalkImage >> externalObjects [
-	"Return an array of objects that have been registered for use in non-Smalltalk code. Smalltalk objects should be referrenced by external code only via indirection through this array, thus allowing the objects to move during compaction. This array can be cleared when the VM re-starts, since variables in external code do not survive snapshots. Note that external code should not attempt to access a Smalltalk object, even via this mechanism, while garbage collection is in progress."
+	"Return an array of objects that have been registered for use in non-Smalltalk code. Smalltalk objects should be referenced by external code only via indirection through this array, thus allowing the objects to move during compaction. This array can be cleared when the VM re-starts, since variables in external code do not survive snapshots. Note that external code should not attempt to access a Smalltalk object, even via this mechanism, while garbage collection is in progress."
 	"Smalltalk externalObjects"
 
 	^ ExternalSemaphoreTable externalObjects
@@ -660,6 +655,7 @@ SmalltalkImage >> fixObsoleteReferences [
 
 { #category : #housekeeping }
 SmalltalkImage >> fixObsoleteSharedPools [
+	self cleanOutUndeclared.
 	self allClasses
 		select: [ :class |
 			class sharedPools isEmptyOrNil not and: [ 
@@ -682,13 +678,6 @@ SmalltalkImage >> flushClassNameCache [
 	"Force recomputation of the cached list of class names."
 
 	globals flushClassNameCache.
-]
-
-{ #category : #'memory space' }
-SmalltalkImage >> forceTenure [
-	"Primitive. Tell the GC logic to force a tenure on the next increment GC."
-	<primitive: 'primitiveForceTenure'>
-	^self primitiveFailed
 ]
 
 { #category : #'image, changes name' }
@@ -761,7 +750,7 @@ SmalltalkImage >> growMemoryByAtLeast: numBytes [
 
 { #category : #'class and trait names' }
 SmalltalkImage >> hasClassNamed: aString [
-	"Answer whether there is a class of the given name, but don't intern aString if it's not alrady interned."
+	"Answer whether there is a class of the given name, but don't intern aString if it's not already interned."
 
 	^ globals hasClassNamed: aString
 ]
@@ -897,24 +886,10 @@ SmalltalkImage >> isInteractiveGraphic [
 	^ false
 ]
 
-{ #category : #'memory space' }
-SmalltalkImage >> isRoot: oop [
-	"Primitive. Answer whether the object is currently a root for youngSpace."
-	<primitive: 'primitiveIsRoot'>
-	^self primitiveFailed
-]
-
 { #category : #printing }
 SmalltalkImage >> isSelfEvaluating [
 	self == Smalltalk ifTrue: [^true].
 	^super isSelfEvaluating
-]
-
-{ #category : #'memory space' }
-SmalltalkImage >> isYoung: oop [
-	"Primitive. Answer whether the object currently resides in youngSpace."
-	<primitive: 'primitiveIsYoung'>
-	^self primitiveFailed
 ]
 
 { #category : #accessing }
@@ -1141,7 +1116,11 @@ SmalltalkImage >> lowSpaceWatcher [
 		ifFalse: [free := self bytesLeft.
 			self bytesLeft > free
 				ifTrue: [^ self installLowSpaceWatcher]].
-	UIManager default lowSpaceWatcherDefaultAction: preemptedProcess
+			
+	UIManager default lowSpaceWatcherDefaultAction: preemptedProcess.
+	"We need to reinstall the lowSpaceWatcher"	
+	Smalltalk installLowSpaceWatcher.
+
 ]
 
 { #category : #'memory space' }
@@ -1185,7 +1164,7 @@ SmalltalkImage >> newSpecialObjectsArray [
 	If you are writing a plugin and need additional special object(s) for your own use, 
 	use addGCRoot() function and use own, separate special objects registry "
 	
-	"The Special Objects Array is an array of objects used by the Squeak virtual machine.
+	"The Special Objects Array is an array of objects used by the virtual machine.
 	 Its contents are critical and accesses to it by the VM are unchecked, so don't even
 	 think of playing here unless you know what you are doing."
 	| newArray |
@@ -1484,7 +1463,7 @@ SmalltalkImage >> recreateSpecialObjectsArray [
 	If you are writing a plugin and need additional special object(s) for your own use, 
 	use addGCRoot() function and use own, separate special objects registry "
 	
-	"The Special Objects Array is an array of objects used by the Squeak virtual machine.
+	"The Special Objects Array is an array of objects used by the virtual machine.
 	 Its contents are critical and accesses to it by the VM are unchecked, so don't even
 	 think of playing here unless you know what you are doing."
 	
@@ -1605,19 +1584,19 @@ SmalltalkImage >> renameClassNamed: oldName as: newName [
 	^ globals renameClassNamed: oldName as: newName
 ]
 
-{ #category : #'memory space' }
-SmalltalkImage >> rootTable [
-	"Primitive. Answer a snapshot of the VMs root table. 
-	Keep in mind that the primitive may itself cause GC."
-	<primitive: 'primitiveRootTable'>
-	^self primitiveFailed
-]
+{ #category : #cleanup }
+SmalltalkImage >> restartMethods [
 
-{ #category : #'memory space' }
-SmalltalkImage >> rootTableAt: index [
-	"Primitive. Answer the nth element of the VMs root table"
-	<primitive: 'primitiveRootTableAt'>
-	^nil
+	"Clean up. Long running loops or stored closures can lead to methods that are out if sync with the recompiled code"
+
+	| classes |
+	"Find all classes implementing #restartMethods"
+	classes := self allClasses select: [ :aClass | 
+		           aClass class includesSelector: #restartMethods ].
+	"Arrange classes in superclass order, superclasses before subclasses"
+	classes := Class superclassOrder: classes.
+	"Run the cleanup code"
+	classes do: [ :aClass | aClass restartMethods ]
 ]
 
 { #category : #saving }

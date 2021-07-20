@@ -30,7 +30,7 @@ Class {
 	#category : #'GT-Spotter-Model'
 }
 
-{ #category : #example }
+{ #category : #examples }
 GTSpotterStep class >> gtExampleBasic [
 	<gtExample>
 	^ self new
@@ -190,7 +190,7 @@ GTSpotterStep >> gtInspectorProcessorsIn: composite [
 	composite list
 		title: 'Processors';
 		display: [ self processors ];
-		format: #gtDisplayString;
+		format: #displayString;
 		when: [ self spotter notNil ]
 ]
 

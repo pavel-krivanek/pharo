@@ -402,7 +402,7 @@ SHRBTextStyler class >> settingsOn: aBuilder [
 		order: 1;
 		label: 'Format Incomplete Identifiers';
 		parentName: #'Syntax Highlighting';
-		description: 'If the code highlighter tryies to format incomplete identifiers and selectors or not. This is not recomended for big images, as it traverse all the image to get the information'
+		description: 'If the code highlighter tryies to format incomplete identifiers and selectors or not. This is not recommended for big images, as it traverse all the image to get the information'
 
 ]
 
@@ -849,9 +849,9 @@ SHRBTextStyler >> addAttributes: attributes forNode: anRBNode [
 { #category : #formatting }
 SHRBTextStyler >> addAttributes: attributes from: start to: stop [
 	charAttr
-		from: start
-		to: stop
-		put: attributes
+		from: (start max: 1)
+		to: (stop min: charAttr size)
+		put: attributes 
 ]
 
 { #category : #converting }
@@ -979,8 +979,8 @@ SHRBTextStyler >> literalStyleSymbol: aValue [
 
 { #category : #private }
 SHRBTextStyler >> methodOrBlockArgStyleFor: anArgumentNode [
-	^ anArgumentNode isBlockVar
-		ifTrue: [ anArgumentNode parent isBlock
+	^ anArgumentNode isDefinedByBlock
+		ifTrue: [ anArgumentNode isDefinition 
 				ifTrue: [ #blockPatternArg ]
 				ifFalse: [ #blockArg ] ]
 		ifFalse: [ #methodArg ]
@@ -995,7 +995,7 @@ SHRBTextStyler >> methodOrBlockTempDeclStyleFor: aSequenceNode [
 
 { #category : #private }
 SHRBTextStyler >> methodOrBlockTempStyleFor: aTemporaryNode [
-	^ aTemporaryNode isBlockVar
+	^ aTemporaryNode isDefinedByBlock
 		ifTrue: [ #blockTempVar ]
 		ifFalse: [ #tempVar ]
 ]
@@ -1015,17 +1015,20 @@ SHRBTextStyler >> privateStyle: aText [
 		options:  #(+ optionParseErrors + optionSkipSemanticWarnings);
 		requestor: workspace;
 		parse.				
-	ast doSemanticAnalysis.
 	^ self style: aText ast: ast
 ]
 
 { #category : #private }
 SHRBTextStyler >> resolveStyleFor: aVariableNode [
 	aVariableNode binding ifNil: [^#default].
-	aVariableNode isArg ifTrue: [ ^#methodArg].
-	aVariableNode isTemp ifTrue: [ ^#tempVar].
-	aVariableNode isGlobal ifTrue: [ ^#globalVar].
-	aVariableNode isInstance ifTrue: [ ^#instVar]. 
+	aVariableNode isArgumentVariable ifTrue: [ ^#methodArg].
+	aVariableNode isTempVariable ifTrue: [ ^#tempVar].
+	aVariableNode isGlobalVariable ifTrue: [ ^#globalVar].
+	"here we should add support for #classVar"
+	aVariableNode isClassVariable ifTrue: [ ^#globalVar].
+	aVariableNode isInstanceVariable ifTrue: [ ^#instVar]. 
+	"for now we use temp variable here, we could now color them with their own color"
+	aVariableNode isWorkspaceVariable ifTrue: [ ^#tempVar]. 
 	
 	(self class formatIncompleteIdentifiers and: [ aVariableNode hasIncompleteIdentifier ]) 
 		ifTrue:[ ^#incompleteIdentifier] .
@@ -1060,7 +1063,7 @@ SHRBTextStyler >> style: aText ast: ast [
 	charAttr := Array new: aText size withAll: (self attributesFor: #default).
 	bracketLevel := 0.
 	parentheseLevel:=0.
-	ast acceptVisitor: self.
+	self visitNode: ast.
 	^aText runs: (RunArray newFrom: charAttr)	
 
 ]
@@ -1164,6 +1167,13 @@ SHRBTextStyler >> visitBlockNode: aBlockNode [
 SHRBTextStyler >> visitCascadeNode: aCascadeNode [
 	aCascadeNode messages do: [ :each | self visitNode: each ].
 	aCascadeNode semicolons do: [ :pos | self addStyle: #cascadeSeparator from: pos to: pos ]
+]
+
+{ #category : #visiting }
+SHRBTextStyler >> visitEnglobingErrorNode: anEnglobingErrorNode [
+
+	self addStyle: #invalid from: anEnglobingErrorNode stop to: anEnglobingErrorNode stop + 1.
+	anEnglobingErrorNode content do: [:each | self visitNode: each ]
 ]
 
 { #category : #visiting }
@@ -1334,8 +1344,6 @@ SHRBTextStyler >> visitVariableNode: aVariableNode [
 		addStyle: (self resolveStyleFor: aVariableNode) 
 		attributes: (self resolveVariableAttributesFor: aVariableNode)
 		forNode: aVariableNode
-	
-	
 ]
 
 { #category : #accessing }

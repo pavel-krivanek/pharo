@@ -19,10 +19,7 @@ Class {
 SycMoveMethodsToClassCommand class >> methodContextMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation 
-		byItemOf: ClyMoreRefactorsMenuGroup 
-		order: 60 
-		for: ClyMethod asCalypsoItemContext
+	^ SycMethodMenuActivation byRootGroupItemOrder: 60 for: ClyMethod asCalypsoItemContext
 ]
 
 { #category : #'instance creation' }
@@ -44,10 +41,10 @@ SycMoveMethodsToClassCommand >> defaultMenuItemName [
 
 { #category : #execution }
 SycMoveMethodsToClassCommand >> execute [
-	
 	methods 
-		collect: [ :each | RBMoveMethodToClassRefactoring method: each class: targetClass]
-		thenDo: [ :each | each execute ]
+		collect: [ :each | RBMoveMethodToClassRefactoring model: model method: each class: targetClass ]
+		thenDo: [ :each | each execute ].
+	methods do: [ :each | each origin organization removeEmptyCategories ].
 ]
 
 { #category : #'drag and drop support' }

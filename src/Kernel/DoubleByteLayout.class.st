@@ -14,6 +14,11 @@ DoubleByteLayout class >> extending: superLayout scope: aScope host: aClass [
 		yourself
 ]
 
+{ #category : #description }
+DoubleByteLayout class >> kind [ 
+	^ #variableDoubleByte
+]
+
 { #category : #accessing }
 DoubleByteLayout >> bytesPerSlot [
 
@@ -33,4 +38,9 @@ DoubleByteLayout >> instanceSpecification [
 { #category : #testing }
 DoubleByteLayout >> isDoubleBytes [
 	^ true
+]
+
+{ #category : #accessing }
+DoubleByteLayout >> kindOfSubclass [
+	^' variableDoubleByteSubclass: '
 ]

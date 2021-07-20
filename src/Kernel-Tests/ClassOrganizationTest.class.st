@@ -25,7 +25,11 @@ ClassOrganizationTest >> runCase [
 { #category : #running }
 ClassOrganizationTest >> setUp [ 
 	super setUp.
-	class := Object subclass: #ClassForTests instanceVariableNames: '' classVariableNames: '' category: 'ClassOrganizer-Tests'.
+	
+	class := self class classInstaller make: [ :aBuilder | 
+		aBuilder name: #ClassForTests;
+		package: 'ClassOrganizer-Tests' ].
+	
 	organization := ClassOrganization forClass: class.
 	organization addCategory: 'empty'.
 	organization addCategory: 'one'.
@@ -69,7 +73,9 @@ ClassOrganizationTest >> testListAtCategoryNamed [
 { #category : #tests }
 ClassOrganizationTest >> testRemoveCategory [
 	self assert: self organization categories size equals: 2.
-	self should: [ self organization removeCategory: 'one' ] raise: Error.
+	"just ignore removing of non empty categories" 
+	self organization removeCategory: 'one'.
+	self assert: self organization categories size equals: 2.
 	self organization removeCategory: 'empty'.
 	self assert: self organization categories size equals: 1.
 	self assert: self organization categories first equals: 'one'

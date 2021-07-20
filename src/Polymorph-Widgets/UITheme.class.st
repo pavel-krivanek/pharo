@@ -99,12 +99,14 @@ UITheme class >> current: aUITheme [
 	self class environment at: #Paragraph ifPresent: [ :paragraph |
 		paragraph insertionPointColor: aUITheme caretColor ].
 
-	self class environment at: #BalloonMorph ifPresent: [:balloonMorph |
+	self class environment at: #BalloonMorph ifPresent: [ :balloonMorph |
 		balloonMorph setBalloonColorTo: aUITheme balloonBackgroundColor ].
 
 	aUITheme updateWorldDockingBars.
 	self currentWorld themeChanged.
-	(SystemWindow allSubInstances select:[:e | e owner isNil]) do:#themeChanged.
+	(SystemWindow allSubInstances select:[:e | e owner isNil]) do: [ :each | each themeChanged ].
+
+	SystemAnnouncer uniqueInstance announce: UIThemeChanged
 ]
 
 { #category : #accessing }
@@ -297,25 +299,25 @@ UITheme >> autoMenuColor [
 	^ self settings autoMenuColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> backgroundColor [
 
 	^ Color white
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> balloonBackgroundColor [
 
 	^self lightBaseColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> balloonTextColor [
 
 	^self textColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> baseColor [
 	^ self class baseColor
 ]
@@ -376,7 +378,7 @@ UITheme >> basicCreateArrowOfDirection: aSymbolDirection size: finalSizeInteger 
 	^resizedForm trimBordersOfColor: Color transparent
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> borderColor [ 
 	^ Color gray
 ]
@@ -417,7 +419,7 @@ UITheme >> buttonBottomRightForm [
 	^self forms at: #buttonBottomRight ifAbsent: [Form extent: 11@11 depth: Display depth]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> buttonColor [ 
 	^ self settings buttonColor
 ]
@@ -836,7 +838,7 @@ UITheme >> buttonTopRightForm [
 	^self forms at: #buttonTopRight ifAbsent: [Form extent: 11@12 depth: Display depth]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> caretColor [
 	^ Color blue
 ]
@@ -1211,7 +1213,7 @@ UITheme >> chooseOrRequestIn: aThemedMorph title: title labels: labels values: v
 	^ choice ifNil: [ dialog filterValue ]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> classExtensionColor [
 	^ Color gray darker
 ]
@@ -1742,17 +1744,17 @@ UITheme >> customQuestionIn: aThemedMorph text: labelText yesText: yesText noTex
 			noText: noText help: nil) dialog answer
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> dangerBackgroundColor [
 	^ self dangerTextColor darker darker
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> dangerTextColor [
 	^ Color red darker darker
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> darkBaseColor [
 	^ self class darkBaseColor
 ]
@@ -1913,7 +1915,7 @@ UITheme >> diffRemovedLinesBackgroundColor [
 	^ Color red alpha: 0.2
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> disabledColor [ 
 	^ Color gray
 ]
@@ -1926,7 +1928,7 @@ UITheme >> disabledItemStyle [
 	^#plain
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> disabledTextColor [ 
 	^ self disabledColor
 ]
@@ -2088,7 +2090,7 @@ UITheme >> drawWindowPlainDropShadowFor: aSystemWindow on: aCanvas [
 	aCanvas
 		clipBy: (aSystemWindow bounds bottomRight - brOffset
 			corner: aSystemWindow bounds bottomRight + (1@1))
-			during: [:c | ((RoundedBorder new
+			during: [:c | ((RoundedBorderStyle new
 							baseColor: aSystemWindow shadowColor;
 							width: 1) cornerRadius: brOffset - 1)
 							frameRectangle: (aSystemWindow bounds translateBy: 1)
@@ -2198,8 +2200,9 @@ UITheme >> editableDropListMargins [
 	
 ]
 
-{ #category : #'accessing colors' }
-UITheme >> enabledColor [ 
+{ #category : #'accessing - colors' }
+UITheme >> enabledColor [
+
 	^ Color black
 ]
 
@@ -2315,8 +2318,9 @@ UITheme >> forms: anObject [
 	forms := anObject
 ]
 
-{ #category : #'accessing colors' }
-UITheme >> ghostTextColor [ 
+{ #category : #'accessing - colors' }
+UITheme >> ghostTextColor [
+
 	^ Color lightGray
 ]
 
@@ -2333,7 +2337,7 @@ UITheme >> groupLabelBorderStyleFor: aGroupPanel [
 UITheme >> groupPanelBorderStyleFor: aGroupPanel [
 	"Answer the normal border style for a group panel."
 
-	^ SimpleBorder new
+	^ SimpleBorderStyle new
 		width: 1;
 		baseColor: ((self baseColorFor: aGroupPanel))
 ]
@@ -2447,12 +2451,12 @@ UITheme >> lessConspicuousColorFrom: aColor [
 	^	aColor alphaMixed: 0.5 with: Color white
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> lightBackgroundColor [ 
 	^ Color veryLightGray muchLighter
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> lightBaseColor [
 
 	^ self class lightBaseColor
@@ -2468,12 +2472,12 @@ UITheme >> lightSelectionColorFor: aMorph [
 	^ self class lightSelectionColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> lineNumberColor [ 
 	^ Color gray muchDarker
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> listBackgroundColor [
 	^ self backgroundColor
 ]
@@ -2522,7 +2526,7 @@ UITheme >> listNormalFillStyleFor: aList [
 	^Color white
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> listTextColor [
 	"Answer the list text color to use."
 
@@ -2547,7 +2551,7 @@ UITheme >> menuBarFont [
 	^self textFont
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> menuBorderColor [
 	^  self settings menuBorderColor
 ]
@@ -2564,7 +2568,7 @@ UITheme >> menuCloseForm [
 	^self windowCloseForm
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> menuColor [
 	"Answer the menu color to use."
 
@@ -2679,7 +2683,7 @@ UITheme >> menuItemSelectedTextColorFor: aMenuItem [
 	^ self settings menuSelectionTextColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> menuKeyboardFocusColor [
 	^ self settings menuKeyboardFocusColor
 ]
@@ -2691,17 +2695,17 @@ UITheme >> menuPinForm [
 	^ self iconNamed: #menuPinForm
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> menuSelectionColor [
 	^ self settings menuSelectionColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> menuShadowColor [
 	^ self settings menuShadowColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> menuTitleColor [
 	"Answer the menu title color to use."
 	^self settings menuTitleColor
@@ -3628,7 +3632,7 @@ UITheme >> newFocusIndicatorMorphFor: aMorph [
 
 	^ BorderedMorph new
 		fillStyle: Color transparent;
-		borderStyle: (SimpleBorder new
+		borderStyle: (SimpleBorderStyle new
 			 width: 1;
 			baseColor: (self baseSelectionColorFor: aMorph));
 		bounds: aMorph focusBounds
@@ -4743,7 +4747,7 @@ UITheme >> patchworkUIThemeColorFor: aWindowOrModel [
 UITheme >> plainGroupPanelBorderStyleFor: aGroupPanel [
 	"Answer the normal border style for a plain group panel."
 
-	^SimpleBorder new
+	^SimpleBorderStyle new
 		width: 1;
 		baseColor: Color transparent
 ]
@@ -4989,7 +4993,7 @@ UITheme >> scrollbarButtonCornerStyleIn: aThemedMorph [
 	^#square
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> scrollbarColor [
 	^ self settings scrollbarColor
 ]
@@ -5295,7 +5299,7 @@ UITheme >> scrollbarThumbVerticalMiddleForm [
 	^self forms at: #sbVThumbMiddle ifAbsent: [Form extent: 13@1 depth: Display depth]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> secondarySelectionColor [
 	^ Color r: 0.927 g: 0.962 b: 0.995 alpha: 1.0
 ]
@@ -5308,14 +5312,14 @@ UITheme >> selectedFillStyleFor: aMorph height: anInteger [
 
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> selectedItemListTextColor [
 	"Answer the color for the selected item in a list text."
 
 	^ self textColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> selectionBarColor [
 
 	^ self settings selectionBarColor
@@ -5323,7 +5327,7 @@ UITheme >> selectionBarColor [
 
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> selectionColor [
 	"Answer the selection color to use.."
 
@@ -5336,7 +5340,7 @@ UITheme >> selectionColorForFrame: frame [
 	^ self selectionColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> selectionTextColor [
  ^ self settings selectionTextColor
 ]
@@ -5461,7 +5465,7 @@ UITheme >> splitterPressedFillStyleFor: aSplitter [
 		radial: false
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> spotlightWindowColor [ 
 	^ self selectionColor muchDarker
 ]
@@ -5481,12 +5485,12 @@ UITheme >> subgroupColorFrom: paneColor [
 	^ self lightColorFor: paneColor" self class baseColor"
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> successBackgroundColor [
 	^ self successTextColor lighter lighter
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> successTextColor [
 	^ Color r: 0 g: 0.5 b: 0
 ]
@@ -5534,7 +5538,7 @@ UITheme >> tabLabelSelectedFillStyleFor: aTabLabel [
 
 { #category : #'border-styles' }
 UITheme >> tabPanelBorderStyleFor: aTabGroup [
-	^ Pharo3TabPanelBorder new 
+	^ Pharo3TabPanelBorderStyle new 
 		width: 1;
 		baseColor: ((self darkBaseColorFor: aTabGroup));
 		tabSelector: aTabGroup tabSelectorMorph
@@ -5744,12 +5748,12 @@ UITheme >> taskbarThumbnailNormalBorderStyleFor: aWindow [
 	^ self buttonNormalBorderStyleFor: aWindow
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> textColor [ 
 	^ Color black
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> textColorForNonStandardBackground [
 	^ self textColor
 ]
@@ -5921,7 +5925,7 @@ UITheme >> treeUnexpandedForm [
 	^(self forms at: #treeUnexpanded ifAbsent: [Form extent: 10@9 depth: Display depth]) scaledByDisplayScaleFactor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> unfocusedSelectionColor [
 	^ self settings unfocusedSelectionColor
 ]
@@ -5956,7 +5960,7 @@ UITheme >> updateWorldDockingBars [
 			borderStyle: (self worldMainDockingBarBorderStyleFor: d)]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> urlColor [
 	^ Color fromHexString: '03A9F4'
 ]
@@ -6030,12 +6034,12 @@ UITheme >> veryLightSelectionColorFor: aMorph [
 	^ self class veryLightSelectionColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> warningBackgroundColor [
 	^ Color yellow
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> warningTextColor [
 	^ Color yellow muchDarker
 ]
@@ -6171,7 +6175,7 @@ UITheme >> windowCollapseBoxLayoutFor: aWindow [
 		yourself
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> windowColor [
 	"Answer the window color to use."
 
@@ -6405,7 +6409,7 @@ UITheme >> windowRightOffset [
 	^ 0
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 UITheme >> windowShadowColor [
 	"Answer the window shadow color to use."
 

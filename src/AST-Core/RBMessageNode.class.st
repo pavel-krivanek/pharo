@@ -85,7 +85,8 @@ RBMessageNode >> arguments: argCollection [
 
 { #category : #querying }
 RBMessageNode >> bestNodeFor: anInterval [ 
-	(self intersectsInterval: anInterval) ifFalse: [^nil].
+	| comments |
+	(self intersectsInterval: anInterval) ifFalse: [ ^nil ] .
 	(self containedBy: anInterval) ifTrue: [^self].
 	self keywordsIntervals do:
 			[:each | 
@@ -95,14 +96,16 @@ RBMessageNode >> bestNodeFor: anInterval [
 	self children do: 
 			[:each | 
 			| node |
-			node := each bestNodeFor: anInterval.
-			node notNil ifTrue: [^node]]
+			(each intersectsInterval: anInterval) ifTrue: [node := each bestNodeFor: anInterval.
+			node notNil ifTrue: [^node]]].
+	comments := self methodNode getCommentsFor: anInterval.
+	^comments size ~= 1 ifTrue: [ self ] ifFalse: [ comments first ]
 ]
 
 { #category : #accessing }
 RBMessageNode >> children [
-	^(OrderedCollection with: self receiver)
-		addAll: self arguments;
+	^(OrderedCollection with: receiver)
+		addAll: arguments;
 		yourself
 ]
 
@@ -110,7 +113,7 @@ RBMessageNode >> children [
 RBMessageNode >> copyInContext: aDictionary [ 
 	^self class
 		receiver: (self receiver copyInContext: aDictionary)
-		selector: self selector
+		selector: self selectorNode
 		arguments: (self arguments collect: [ :each | each copyInContext: aDictionary ])
 ]
 
@@ -152,7 +155,7 @@ RBMessageNode >> isCascaded [
 	^parent notNil and: [parent isCascade]
 ]
 
-{ #category : #'private-replacing' }
+{ #category : #'private - replacing' }
 RBMessageNode >> isContainmentReplacement: aNode [ 
 	^(self mappingFor: self receiver) = aNode 
 		or: [self arguments anySatisfy: [:each | (self mappingFor: each) = aNode]]
@@ -160,7 +163,7 @@ RBMessageNode >> isContainmentReplacement: aNode [
 
 { #category : #testing }
 RBMessageNode >> isFaulty [
-	^self receiver isFaulty or: [self arguments anySatisfy: #isFaulty]
+	^self receiver isFaulty or: [self arguments anySatisfy: [:each | each isFaulty]]
 ]
 
 { #category : #testing }
@@ -169,8 +172,19 @@ RBMessageNode >> isFirstCascaded [
 ]
 
 { #category : #testing }
+RBMessageNode >> isHaltNode [
+
+	^ (#( #halt #halt: #haltIf: #haltOnce #haltIfNil #haltOnCount: ) 
+		   includes: self selector) or: [ 
+		  self receiver isGlobalVariable and: [ 
+			  self receiver variable value = Halt and: [ 
+				  (Halt class selectorsInCategory: #halting) includes:
+					  self selector ] ] ]
+]
+
+{ #category : #testing }
 RBMessageNode >> isKeyword [
-	^(selector indexOf: $:) ~= 0.
+	^(self selector indexOf: $:) ~= 0.
 ]
 
 { #category : #testing }
@@ -180,12 +194,12 @@ RBMessageNode >> isMessage [
 
 { #category : #testing }
 RBMessageNode >> isSelfSend [
-	^ self receiver isSelf
+	^ self receiver isSelfVariable
 ]
 
 { #category : #testing }
 RBMessageNode >> isSuperSend [
-	^ self receiver isVariable and: [ self receiver name = 'super' ]
+	^ self receiver isSuperVariable
 ]
 
 { #category : #testing }
@@ -195,19 +209,19 @@ RBMessageNode >> isUnary [
 
 { #category : #accessing }
 RBMessageNode >> keywords [
-	^ selector keywords.
+	^ self selector keywords.
 ]
 
 { #category : #accessing }
 RBMessageNode >> keywordsIntervals [
-	^ selector keywords
+	^ self selector keywords
 		with: self keywordsPositions 
 		collect: [ :keyword :start | start to: (start == 0 ifTrue: [ -1 ] ifFalse: [ start + keyword size - 1]) ].
 ]
 
 { #category : #accessing }
 RBMessageNode >> keywordsPositions [
-	^keywordsPositions ifNil: [ (selector keywords collect: [:char| 0 ]) asIntegerArray ]
+	^keywordsPositions ifNil: [ IntegerArray new: self selector keywords size withAll: 0 ]
 ]
 
 { #category : #accessing }
@@ -313,7 +327,7 @@ RBMessageNode >> renameSelector: newSelector andArguments: varNodeCollection [
 		selector: newSelector
 ]
 
-{ #category : #'private-replacing' }
+{ #category : #'private - replacing' }
 RBMessageNode >> replaceContainmentSourceWith: aNode [ 
 	| originalNode needsParenthesis |
 	needsParenthesis := aNode hasParentheses not and: [aNode needsParenthesis].
@@ -344,7 +358,7 @@ RBMessageNode >> replaceNode: aNode withNode: anotherNode [
 				collect: [:each | each == aNode ifTrue: [anotherNode] ifFalse: [each]])
 ]
 
-{ #category : #'private-replacing' }
+{ #category : #'private - replacing' }
 RBMessageNode >> replaceSourceWith: aNode [ 
 	(self isContainmentReplacement: aNode) 
 		ifTrue: [^self replaceContainmentSourceWith: aNode].
@@ -352,7 +366,7 @@ RBMessageNode >> replaceSourceWith: aNode [
 	^self replaceSourceWithMessageNode: aNode
 ]
 
-{ #category : #'private-replacing' }
+{ #category : #'private - replacing' }
 RBMessageNode >> replaceSourceWithMessageNode: aNode [ 
 	| isBinaryToKeyword newSelectorParts  oldkeywordsIntervals|
 	self numArgs = aNode numArgs ifFalse: [^super replaceSourceWith: aNode].
@@ -399,13 +413,17 @@ RBMessageNode >> replaceSourceWithMessageNode: aNode [
 
 { #category : #accessing }
 RBMessageNode >> selector [
-	^ selector.
+	^ selector value
 ]
 
 { #category : #accessing }
 RBMessageNode >> selector: aSelector [
 	keywordsPositions := nil.
-	selector := aSelector asSymbol.
+	selector := aSelector isString
+		ifTrue: [ RBSelectorNode value: aSelector ]
+		ifFalse: [ aSelector ].
+	selector parent: self.
+	
 ]
 
 { #category : #accessing }
@@ -433,6 +451,11 @@ RBMessageNode >> selectorInterval [
 	| positions |
 	positions := self keywordsIntervals. 
 	^positions first first to: positions last last.
+]
+
+{ #category : #accessing }
+RBMessageNode >> selectorNode [
+	^selector.
 ]
 
 { #category : #accessing }

@@ -4,6 +4,11 @@ Class {
 	#category : #'Glamour-Tests-Core'
 }
 
+{ #category : #testing }
+GLMCompositePresentationTest class >> isDeprecated [
+	^ true
+]
+
 { #category : #tests }
 GLMCompositePresentationTest >> testAdd [
 	| composite |
@@ -35,7 +40,7 @@ GLMCompositePresentationTest >> testAddSetsCorrectPane [
 	self assert: composite pane equals: presentation pane
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'tests - composer' }
 GLMCompositePresentationTest >> testCompositeWithinCompositeOuterPortEvents [
 	| childComposite finder parentComposite count |
 	count := 0.
@@ -51,7 +56,7 @@ GLMCompositePresentationTest >> testCompositeWithinCompositeOuterPortEvents [
 	self assert: count equals: 1
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'tests - composer' }
 GLMCompositePresentationTest >> testCompositeWithinCompositePanePropagation [
 	| composite0 composite1 composite21 composite22 pane |
 	composite0 := GLMCompositePresentation new.

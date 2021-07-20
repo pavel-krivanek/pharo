@@ -257,37 +257,6 @@ FinderUI >> allClassesButtonState [
 	^ false
 ]
 
-{ #category : #private }
-FinderUI >> autoSelection [
-	| aString firstIndex interval string size |
-
-	(self searchingString isEmpty or: [ self useRegEx] )
-		ifTrue: [^ 0 to:0 ].
-	
-	self isSourceSymbol ifFalse: [^ 0 to: 0].
-		
-	aString := self sourceTextModel getString asLowercase.
-	
-	aString = self defaultExplanation asLowercase
-		ifTrue: [ ^ 0 to: 0].
-	
-	string := self searchingString asLowercase.
-	(string includes: $*)
-		ifTrue: [| list lastIndex|
-			list := string substrings: '*'.
-			firstIndex := aString findString: list first.
-			lastIndex := (aString findString: list last startingAt: firstIndex) + list last size - 1.
-			interval := firstIndex to: lastIndex ]
-		ifFalse: [
-			firstIndex := aString findString: string.
-			size := string size.
-			interval := firstIndex to: (firstIndex + size - 1) ].
-		
-	^ firstIndex = 0 
-		ifTrue: [ 0 to:0 ]
-		ifFalse: [ interval ]
-]
-
 { #category : #'buttons behavior' }
 FinderUI >> browseButtonAction [
 
@@ -319,12 +288,6 @@ FinderUI >> buildAllClassesButton [
 ]
 
 { #category : #'items creation' }
-FinderUI >> buildAllTextArea [
-	self buildSearchingTextArea.
-	self buildSourceTextArea
-]
-
-{ #category : #'items creation' }
 FinderUI >> buildBrowseButton [
 	^ (PluggableButtonMorph 
 			on: self 
@@ -349,16 +312,15 @@ FinderUI >> buildBrowseToolBar: aWindow [
 
 { #category : #'text areas behavior' }
 FinderUI >> buildDescriptionOf: aClass [
-	^ String
-		streamContents:
-			[ :stream | 
-			stream nextPutAll: aClass definition.
-			aClass hasComment
-				ifTrue: [ stream
-						cr;
-						cr;
-						cr;
-						nextPutAll: aClass comment ] ]
+
+	^ String streamContents: [ :stream | 
+		  stream nextPutAll: aClass definitionString.
+		  aClass hasComment ifTrue: [ 
+			  stream
+				  cr;
+				  cr;
+				  cr;
+				  nextPutAll: aClass comment ] ]
 ]
 
 { #category : #'items creation' }
@@ -589,10 +551,9 @@ FinderUI >> defaultTreeMorph [
 			hResizing: #spaceFill;
 			vResizing: #spaceFill;
 			resizerWidth: 0;
-			columnInset: 0; 
+			columnInset: 0;
 			rowInset: 2; 
-			keystrokeActionSelector: #keyStroke:;
-			"preferedPaneColor: Color white;"
+			keyDownActionSelector: #keyDown:;
 			multiSelection: self multiSelection;
 			autoMultiSelection: self autoMultiSelection;
 			isCheckList: self isCheckList;
@@ -791,9 +752,9 @@ FinderUI >> isSourceSymbol [
 	^self finder isSourceSymbol
 ]
 
-{ #category : #'events handling' }
-FinderUI >> keyStroke: event [
-	self selectedNode ifNotNil: [:node | node keyStroke: event]
+{ #category : #private }
+FinderUI >> keyDown: event [
+	self selectedNode ifNotNil: [:node | node keyDown: event]
 ]
 
 { #category : #private }
@@ -841,19 +802,9 @@ FinderUI >> packagesSelection: aCollection [
 	self finder packagesSelection: aCollection
 ]
 
-{ #category : #accessing }
-FinderUI >> refactor [
-	^ NautilusRefactoring model: self
-]
-
 { #category : #private }
 FinderUI >> resetEnvironment [
 	self triggerEvent: #resetEnvironment
-]
-
-{ #category : #private }
-FinderUI >> resetSearchedTextList [
-	self searchedTextList removeAll
 ]
 
 { #category : #'tree behavior' }
@@ -1024,11 +975,11 @@ FinderUI >> sourceCode [
 				ifNil: [
 					self buildDescriptionOf: self selectedClass]
 				ifNotNil:[
-					| method |
-					method := self isExamplesSymbol
-								ifTrue: [self finder findSelector: self selectedMethod]
+					| selector |
+					selector := self isExamplesSymbol
+								ifTrue: [self selectedMethod selector]
 								ifFalse: [self selectedMethod].
-					(self selectedClass >> method) sourceCode]]
+					(self selectedClass >> selector) sourceCode]]
 ]
 
 { #category : #accessing }
@@ -1059,11 +1010,6 @@ FinderUI >> updateSourceCode [
 { #category : #private }
 FinderUI >> useRegEx [
 	^ self finder useRegEx
-]
-
-{ #category : #'items creation' }
-FinderUI >> useRegExCheckbox [
-	^ useRegExCheckbox ifNil: [ self buildRegExChooser ]
 ]
 
 { #category : #'buttons behavior' }

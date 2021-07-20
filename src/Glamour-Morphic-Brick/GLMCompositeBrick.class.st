@@ -69,7 +69,7 @@ GLMCompositeBrick class >> gtExampleListClassMethods [
 			b list
 			title: 'Methods of Object';
 			display: #yourself;
-			format: [ :compiledMethod | compiledMethod gtDisplayString ];
+			format: [ :compiledMethod | compiledMethod displayString ];
 			styled: [ :brick | brick height: 30 ];
 			entity: Object methods ]
 ]
@@ -126,6 +126,11 @@ GLMCompositeBrick class >> gtExampleTable [
 					evaluated: [:assoc | GTObjectPrinter asTruncatedTextFrom: assoc value ]
 					styled: [ :aBrick | aBrick margin: #(0 0 0 15) ];
 				entity: Morph new ]
+]
+
+{ #category : #testing }
+GLMCompositeBrick class >> isDeprecated [
+	^ true
 ]
 
 { #category : #phlow }

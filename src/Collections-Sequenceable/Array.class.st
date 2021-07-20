@@ -1,48 +1,49 @@
 "
-Array is a fixed-sized collection of elements accessed by integer indices. Contrary to the C convention, the first element of a Smalltalk array is at position 1 and not 0. The main protocol to access array elements is the method at: and at:put:. 
+Array is a fixed-sized collection of elements accessed by integer indices. Contrary to the C convention, the first element of a Pharo array is at position 1 and not 0. The main protocol to access array elements is the method `at:` and `at:put:`. 
 
-- at: anInteger returns the element at index anInteger. 
-- at: anInteger put: anObject puts anObject at index anInteger. 
+- `at: anInteger` returns the element at index anInteger. 
+- `at: anInteger put: anObject` puts `anObject` at index `anInteger`. 
 
 Arrays are fixed-size collections therefore we cannot add or remove elements at the end of an array. 
 
 The following code creates an array of size 5, puts values in the first 3 locations and returns the first element.
 
-[[[ 
+``` 
 | anArray |
 anArray := Array new: 5. 
 anArray at: 1 put: 4. 
 anArray at: 2 put: 3/2. 
 anArray at: 3 put: 'ssss'. 
 anArray at: 1			
-> 4
-]]]
+>>> 4
+```
 
-#() creates literal arrays with static (or “literal”) elements that have to be known when the expression is compiled, and not when it is executed. 
+`#()` creates literal arrays with static (or “literal”) elements that have to be known when the expression is compiled, and not when it is executed. 
 
 The following code creates an array of size 2 where the first element is the (literal) number 1 and the second the (literal) string 'here'.
 
-[[[  
+``` 
 #(1 'here') size 
 > 2
-]]]
+```
 
-{ } is a way to create arrays in a more dynamic manner.
+`{ }` is a way to create arrays in a more dynamic manner.
 
-[[[ 
+``` 
 | array |
-array := (Array new: 2). array
+array := (Array new: 2). 
+array
 	at: 1 put: (Point x: 10 y: 20);
 	at: 2 put: (Point x: 10 y: 20). 
 	array			
-]]]
+```
 
 is equivalent to 
 
-[[[
+```
 {(10@20) . (10@20)}
 {Point x: 10 y: 20 . Point x: 10 y: 20}
-]]]
+```
 
 "
 Class {
@@ -183,6 +184,7 @@ Array >> elementsExchangeIdentityWith: otherArray [
 	 should still be properly indexed after the mutation."
 
 	<primitive: 128 error: ec>
+	| minimalRequiredSize |
 	ec == #'bad receiver' ifTrue:
 		[^self error: 'receiver must be of class Array'].
 	ec == #'bad argument' ifTrue:
@@ -196,8 +198,15 @@ Array >> elementsExchangeIdentityWith: otherArray [
 	ec == #'object is pinned' ifTrue:
 		[^self error: 'can''t become pinned objects'].
 	ec == #'insufficient object memory' ifTrue:
-		[Smalltalk garbageCollect < 1048576 ifTrue:
-			[Smalltalk growMemoryByAtLeast: 1048576].
+		[
+			minimalRequiredSize := 
+				(self sumNumbers: [ :anElement | anElement sizeInMemory ]) 
+				+ (otherArray sumNumbers: [ :anElement | anElement sizeInMemory ]).
+			
+			Smalltalk garbageCollect < minimalRequiredSize ifTrue:
+				[ (Smalltalk growMemoryByAtLeast: minimalRequiredSize) < minimalRequiredSize ifTrue:[
+					self error: 'Could not allocate enought memory for two way become']].
+		
 		 ^self elementsExchangeIdentityWith: otherArray].
 	self primitiveFailed
 ]
@@ -318,16 +327,18 @@ Array >> shouldBePrintedAsLiteral [
 ]
 
 { #category : #printing }
-Array >> storeOn: aStream [ 
+Array >> storeOn: aStream [
+
 	"Use the literal form if possible."
 
 	self shouldBePrintedAsLiteral
-		ifTrue: 
-			[aStream nextPut: $#; nextPut: $(.
-			self do: 
-				[:element | 
-				element storeOn: aStream.
-				aStream space].
-			aStream nextPut: $)]
-		ifFalse: [super storeOn: aStream]
+		ifTrue: [ 
+			aStream
+				nextPut: $#;
+				nextPut: $(.
+			self
+				do: [ :element | element storeOn: aStream ]
+				separatedBy: [ aStream space ].
+			aStream nextPut: $) ]
+		ifFalse: [ super storeOn: aStream ]
 ]

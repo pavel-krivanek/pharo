@@ -164,18 +164,15 @@ DigitalSignatureAlgorithm class >> timeDecode: count [
 
 { #category : #testing }
 DigitalSignatureAlgorithm class >> timeDirect: aBlock as: aString count: anInteger [
-	self
-		trace:
-			(String
-				streamContents: [ :stream | 
-					stream
-						nextPutAll: anInteger asStringWithCommas;
-						nextPutAll: '  ';
-						nextPutAll: aString;
-						nextPutAll: ' took ';
-						nextPutAll: (Time millisecondsToRun: aBlock) asStringWithCommas;
-						nextPutAll: ' ms';
-						cr ])
+	self trace: (String streamContents: [ :stream | 
+			 stream
+				 nextPutAll: anInteger asStringWithCommas;
+				 nextPutAll: '  ';
+				 nextPutAll: aString;
+				 nextPutAll: ' took ';
+				 nextPutAll: (Time millisecondsToRun: aBlock) asStringWithCommas;
+				 nextPutAll: ' ms';
+				 cr ])
 ]
 
 { #category : #public }
@@ -485,7 +482,7 @@ DigitalSignatureAlgorithm >> stringToSignature: aString [
 
 		 '[DSA digital signature <r> <s>]'
 
-	where <r> and <s> are large positive integers represented by strings of hexidecimal digits."
+	where <r> and <s> are large positive integers represented by strings of hexadecimal digits."
 	| prefix stream r s |
 	prefix := '[DSA digital signature '.
 	(aString beginsWith: prefix) ifFalse: [ self error: 'bad signature prefix' ].

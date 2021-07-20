@@ -36,6 +36,12 @@ ReAbstractCritique class >> for: anEntity by: aRule [
 		yourself
 ]
 
+{ #category : #testing }
+ReAbstractCritique class >> isAbstract [ 
+
+	^self == ReAbstractCritique
+]
+
 { #category : #'instance creation' }
 ReAbstractCritique class >> withAnchor: anAnchor by: aRule [
 
@@ -171,12 +177,12 @@ ReAbstractCritique >> printOn: aStream [
 
 { #category : #actions }
 ReAbstractCritique >> provideNegativeFeedback: aComment [
-	ReFeedbacker negativeFeedback: aComment About: self
+	ReFeedbacker negativeFeedback: aComment about: self
 ]
 
 { #category : #actions }
 ReAbstractCritique >> providePositiveFeedback: aComment [
-	ReFeedbacker positiveFeedback: aComment About: self
+	ReFeedbacker positiveFeedback: aComment about: self
 ]
 
 { #category : #testing }

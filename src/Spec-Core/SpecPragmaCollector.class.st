@@ -9,9 +9,6 @@ Class {
 	#instVars : [
 		'behavior'
 	],
-	#classInstVars : [
-		'behavior'
-	],
 	#category : #'Spec-Core-Support'
 }
 
@@ -32,10 +29,7 @@ SpecPragmaCollector >> allPragmas [
 { #category : #private }
 SpecPragmaCollector >> allPragmasIn: aClass [
 
-	^ (Array
-		streamContents: [:stream | Pragma
-									withPragmasIn: aClass
-									do: [:pragma | stream nextPut: pragma ]]) 
+	^ Array streamContents: [:stream | aClass pragmasDo: [:pragma | stream nextPut: pragma ]]
 ]
 
 { #category : #accessing }

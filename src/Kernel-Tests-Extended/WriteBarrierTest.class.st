@@ -20,6 +20,11 @@ WriteBarrierTest class >> initialize [
 	ContextInstance := Context sender: nil receiver: self new method: self >> #alwaysWritableObjects arguments: #()
 ]
 
+{ #category : #cleanup }
+WriteBarrierTest class >> restartMethods [
+   self initialize
+]
+
 { #category : #'guinea pigs' }
 WriteBarrierTest >> alwaysReadOnlyObjects [
 	"Immediates are always immutable"
@@ -421,6 +426,14 @@ WriteBarrierTest >> testProxyObject: object initialState: initialState tuples: t
 		tuples: tuples 
 		setReadOnlyBlock: [ :value | 
 			MirrorPrimitives makeObject: object readOnly: value ]
+]
+
+{ #category : #'tests - object' }
+WriteBarrierTest >> testReadOnlyImmediate [
+	"immediate objects like SmallIntegers are read only"
+	self assert: 1 isReadOnlyObject.
+	"we can call beReadOnlyObject on an immediate object"
+	self assert: 1 beReadOnlyObject.
 ]
 
 { #category : #'tests - object' }

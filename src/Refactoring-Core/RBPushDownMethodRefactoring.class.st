@@ -9,7 +9,8 @@ Class {
 	#name : #RBPushDownMethodRefactoring,
 	#superclass : #RBMethodRefactoring,
 	#instVars : [
-		'selectors'
+		'selectors',
+		'classes'
 	],
 	#category : #'Refactoring-Core-Refactorings'
 }
@@ -23,49 +24,78 @@ RBPushDownMethodRefactoring class >> model: aRBSmalltalk pushDown: selectorColle
 ]
 
 { #category : #'instance creation' }
+RBPushDownMethodRefactoring class >> model: aRBSmalltalk pushDown: selectorCollection from: aClass in: classes [
+	^(self new)
+		model: aRBSmalltalk;
+		pushDown: selectorCollection from: aClass in: classes;
+		yourself
+]
+
+{ #category : #'instance creation' }
 RBPushDownMethodRefactoring class >> pushDown: selectorCollection from: aClass [ 
 	^self new pushDown: selectorCollection from: aClass
 ]
 
-{ #category : #preconditions }
-RBPushDownMethodRefactoring >> preconditions [
-	| condition |
-	self requestSelectors.
-	condition := selectors 
-		inject: RBCondition empty
-		into: [ :cond :each | 
-			cond & (RBCondition definesSelector: each in: class) 
-				& (RBCondition subclassesOf: class referToSelector: each) not].
-	^condition & (RBCondition isAbstractClass: class)
+{ #category : #'instance creation' }
+RBPushDownMethodRefactoring class >> pushDown: selectorCollection from: aClass in: classes [
+	^self new pushDown: selectorCollection from: aClass in: classes
 ]
 
 { #category : #transforming }
-RBPushDownMethodRefactoring >> pushDown: aSelector [ 
+RBPushDownMethodRefactoring >> allClasses [
+
+	^ classes ifNil: [ class subclasses ]
+]
+
+{ #category : #transforming }
+RBPushDownMethodRefactoring >> classes: aCollection [
+	classes := aCollection collect: [ :cls | 
+		self classObjectFor: cls.
+	]
+]
+
+{ #category : #preconditions }
+RBPushDownMethodRefactoring >> preconditions [
+
+	| condition |
+	condition := selectors
+		             inject: self emptyCondition
+		             into: [ :cond :each | 
+			             cond & (RBCondition definesSelector: each in: class)
+			             &
+			             (RBCondition subclassesOf: class referToSelector: each)
+				             not ].
+	^ condition & (RBCondition isAbstractClass: class)
+]
+
+{ #category : #transforming }
+RBPushDownMethodRefactoring >> pushDown: aSelector [
+
 	| code protocols refactoring |
 	code := class sourceCodeFor: aSelector.
 	protocols := class protocolsFor: aSelector.
-	refactoring := RBExpandReferencedPoolsRefactoring 
-				model: self model
-				forMethod: (class parseTreeFor: aSelector)
-				fromClass: class
-				toClasses: class subclasses.
-	self performComponentRefactoring: refactoring.
-	class subclasses do: 
-			[:each | 
-			(each directlyDefinesMethod: aSelector) 
-				ifFalse: [each compile: code classified: protocols]]
+	refactoring := RBExpandReferencedPoolsRefactoring
+		               model: self model
+		               forMethod: (class parseTreeFor: aSelector)
+		               fromClass: class
+		               toClasses: self allClasses.
+	self performCompositeRefactoring: refactoring.
+	self allClasses do: [ :each | 
+		(each directlyDefinesMethod: aSelector) ifFalse: [ 
+			each compile: code classified: protocols ] ]
 ]
 
 { #category : #initialization }
 RBPushDownMethodRefactoring >> pushDown: selectorCollection from: aClass [ 
-	self setOption: #selectorsFromView toUse: [ :ref | ].
 	class := self classObjectFor: aClass.
 	selectors := selectorCollection
 ]
 
-{ #category : #transforming }
-RBPushDownMethodRefactoring >> requestSelectors [
-	^(self options at: #selectorsFromView) value: self
+{ #category : #initialization }
+RBPushDownMethodRefactoring >> pushDown: selectorCollection from: aClass in: aCollection [
+	class := self classObjectFor: aClass.
+	selectors := selectorCollection.
+	self classes: aCollection.
 ]
 
 { #category : #transforming }

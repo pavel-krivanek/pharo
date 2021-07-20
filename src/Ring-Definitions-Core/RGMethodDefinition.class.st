@@ -326,7 +326,7 @@ RGMethodDefinition >> isDefined [
 	^rClass notNil and: [ rClass includesSelector: self selector ]
 ]
 
-{ #category : #'SUnit-support' }
+{ #category : #'testing - SUnit-support' }
 RGMethodDefinition >> isErrorTest [
 	"Is the receiver a test method that raised an error?"
 
@@ -357,7 +357,7 @@ RGMethodDefinition >> isExtension: aBoolean [
 	self annotationNamed: self class isExtensionKey put: aBoolean 
 ]
 
-{ #category : #'SUnit-support' }
+{ #category : #'testing - SUnit-support' }
 RGMethodDefinition >> isFailedTest [
 	"Is the receiver a test method that failed?"
 
@@ -409,7 +409,7 @@ RGMethodDefinition >> isOverridden [
 	^ false
 ]
 
-{ #category : #'SUnit-support' }
+{ #category : #'testing - SUnit-support' }
 RGMethodDefinition >> isPassedTest [
 	"Is the receiver a test method that passed?"
 
@@ -439,19 +439,10 @@ RGMethodDefinition >> isSameRevisionAs: aRGMethodDefinition [
 				and: [ self sourceCode = aRGMethodDefinition sourceCode ] ] ]
 ]
 
-{ #category : #'SUnit-support' }
+{ #category : #'testing - SUnit-support' }
 RGMethodDefinition >> isTestMethod [
-	| selectorString |
-	self numArgs isZero
-		ifFalse: [ ^ false ].
-	selectorString := self selector asString.
-	"unary selectors starting with 'should' are supposed to be treated as test methods too"
-	((selectorString beginsWith: 'test') or: [ selectorString beginsWith: 'should' ])
-		ifFalse: [ ^ false ].
-	"Is the receiver a TestCase test method?"
-	self methodClass isTestCase
-		ifFalse: [ ^ false ].
-	^true
+
+	^ self methodClass isTestCase and: [ self selector isTestSelector ]
 ]
 
 { #category : #'to remove as soon as possible' }

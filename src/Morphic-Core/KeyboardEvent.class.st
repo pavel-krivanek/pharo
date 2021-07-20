@@ -7,7 +7,9 @@ Class {
 	#instVars : [
 		'keyValue',
 		'charCode',
-		'scanCode'
+		'scanCode',
+		'key',
+		'supressNextKeyPress'
 	],
 	#category : #'Morphic-Core-Events'
 }
@@ -47,6 +49,13 @@ KeyboardEvent >> hash [
 
 ]
 
+{ #category : #initialization }
+KeyboardEvent >> initialize [
+
+	super initialize.
+	supressNextKeyPress := false.
+]
+
 { #category : #testing }
 KeyboardEvent >> isKeyDown [
 	^self type == #keyDown
@@ -81,7 +90,12 @@ KeyboardEvent >> isUserInterrupt [
 
 { #category : #keyboard }
 KeyboardEvent >> key [
-	^Smalltalk os keyForValue: keyValue
+	^ key ifNil: [key := Smalltalk os keyForValue: keyValue]
+]
+
+{ #category : #keyboard }
+KeyboardEvent >> key: aKeyboardKey [
+	key := aKeyboardKey
 ]
 
 { #category : #keyboard }
@@ -238,4 +252,22 @@ KeyboardEvent >> storeOn: aStream [
 	charCode storeOn: aStream.
 	aStream space.
 	scanCode storeOn: aStream.
+]
+
+{ #category : #accessing }
+KeyboardEvent >> supressNextKeyPress [
+
+	^ supressNextKeyPress
+]
+
+{ #category : #accessing }
+KeyboardEvent >> supressNextKeyPress: anObject [
+
+	supressNextKeyPress := anObject
+]
+
+{ #category : #accessing }
+KeyboardEvent >> wasHandled [
+
+	^ super wasHandled or: [ supressNextKeyPress ]
 ]

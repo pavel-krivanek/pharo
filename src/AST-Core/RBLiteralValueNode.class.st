@@ -40,8 +40,9 @@ RBLiteralValueNode class >> value: aValue start: aPosition stop: anotherPosition
 { #category : #comparing }
 RBLiteralValueNode >> = anObject [ 
 	^ super = anObject 
-		and: [ self value = anObject value 
-		and: [ self value species = anObject value species ] ]
+		and: [ self value = anObject value
+		and: [ self value class = anObject value class 
+		and: [ self value species = anObject value species ] ] ]
 ]
 
 { #category : #visiting }
@@ -52,6 +53,18 @@ RBLiteralValueNode >> acceptVisitor: aProgramNodeVisitor [
 { #category : #matching }
 RBLiteralValueNode >> copyInContext: aDictionary [
 	^ self class value: self value
+]
+
+{ #category : #evaluating }
+RBLiteralValueNode >> evaluateForContext: aContext [
+
+	^ value
+]
+
+{ #category : #evaluating }
+RBLiteralValueNode >> evaluateForReceiver: aReceicer [
+
+	^ value
 ]
 
 { #category : #accessing }

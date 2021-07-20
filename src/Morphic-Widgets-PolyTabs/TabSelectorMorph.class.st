@@ -32,6 +32,16 @@ TabSelectorMorph >> addTab: aStringOrMorph [
 ]
 
 { #category : #adding }
+TabSelectorMorph >> addTab: aStringOrMorph beforeIndex: index [
+
+	self tabs add: (self newLabelMorph: aStringOrMorph) beforeIndex: index.
+	selectedIndex >= index ifTrue: [ 
+		"there is now new tab before selected tab"
+		self selectedIndex: selectedIndex + 1 ]. 
+	self updateTabs
+]
+
+{ #category : #adding }
 TabSelectorMorph >> addTab: aStringOrMorph selected: selectedStringOrMorph [
 	"Add a new tab with the given text or morph and alternate for when selected."
 	
@@ -74,8 +84,8 @@ TabSelectorMorph >> calculateVisibleTabs [
 					accumulatedWidth := accumulatedWidth + widthStr next ].
 			accumulatedWidth > availableWidth ifTrue: [ answer removeLast ].
 			answer ]
-		ifFalse: [ tabStr := (self tabs copyFrom: 1 to: self visibleTabRange last) reversed readStream.
-			widthStr := (widths copyFrom: 1 to: self visibleTabRange last) reversed readStream.
+		ifFalse: [ tabStr := (self tabs copyFrom: 1 to: (self visibleTabRange last min: self tabs size)) reversed readStream.
+			widthStr := (widths copyFrom: 1 to: (self visibleTabRange last min: self tabs size)) reversed readStream.
 			[ accumulatedWidth <= availableWidth and: [ tabStr atEnd not ] ]
 				whileTrue: [ answer addFirst: tabStr next.
 					accumulatedWidth := accumulatedWidth + (width := widthStr next) ].
@@ -221,7 +231,7 @@ TabSelectorMorph >> initializeShortcuts: aKMDispatcher [
 ]
 
 { #category : #'event handling' }
-TabSelectorMorph >> keyStroke: event [ 
+TabSelectorMorph >> keyDown: event [ 
 	"Process keys navigation and space to toggle."
 
 	(self navigationKey: event) ifTrue: [^self].

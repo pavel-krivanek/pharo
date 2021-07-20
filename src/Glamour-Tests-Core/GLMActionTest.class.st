@@ -4,6 +4,11 @@ Class {
 	#category : #'Glamour-Tests-Core'
 }
 
+{ #category : #testing }
+GLMActionTest class >> isDeprecated [
+	^ true
+]
+
 { #category : #tests }
 GLMActionTest >> testCondition [
 	self 
@@ -24,9 +29,9 @@ GLMActionTest >> testShortcutAsString [
 	modifier := Smalltalk os menuShortcutModifierString.
 	action := GLMAction new.
 	action shortcut: $i.
-	self assert: action shortcutAsString equals: modifier , '+i'.
+	self assert: action shortcutAsString equals: modifier , '+I'.
 	action shortcut: $I.
-	self assert: action shortcutAsString equals: modifier , '+shift+i'.
+	self assert: action shortcutAsString equals: modifier , '+shift+I'.
 	action shortcut: nil.
 	self assertEmpty: action shortcutAsString
 ]

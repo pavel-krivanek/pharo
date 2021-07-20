@@ -11,6 +11,11 @@ Class {
 	#category : #'Glamour-Morphic-Widgets'
 }
 
+{ #category : #testing }
+GLMSystemWindow class >> isDeprecated [
+	^ true
+]
+
 { #category : #callbacks }
 GLMSystemWindow >> actOnWindowRequest: ann [
 
@@ -38,7 +43,7 @@ GLMSystemWindow >> extent: aPoint [
 	self fullBounds
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'event handling' }
 GLMSystemWindow >> handleKeyStroke: anEvent [
 
 	self allKeystrokeActions

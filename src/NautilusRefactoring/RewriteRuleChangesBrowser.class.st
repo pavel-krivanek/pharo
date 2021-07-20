@@ -7,10 +7,10 @@ Class {
 	#instVars : [
 		'#changes',
 		'#selectedChanges',
-		'#changeTree => SpObservableSlot',
-		'#diffView => SpObservableSlot',
-		'#buttonCancel => SpObservableSlot',
-		'#buttonOk => SpObservableSlot'
+		'#changeTree => ObservableSlot',
+		'#diffView => ObservableSlot',
+		'#buttonCancel => ObservableSlot',
+		'#buttonOk => ObservableSlot'
 	],
 	#category : #'NautilusRefactoring-Utilities'
 }
@@ -26,12 +26,12 @@ RewriteRuleChangesBrowser class >> changes: aCollection [
 { #category : #specs }
 RewriteRuleChangesBrowser class >> defaultSpec [
 
-	^ SpBoxLayout newVertical 
-		add: (SpPanedLayout newVertical
+	^ SpBoxLayout newTopToBottom 
+		add: (SpPanedLayout newTopToBottom
 			add: #changeTree;
 			add: #diffView;
 		yourself);
-		add: (SpBoxLayout newHorizontal
+		add: (SpBoxLayout newLeftToRight
 			addLast: #buttonCancel expand: false fill: true padding: 2;
 			addLast: #buttonOk expand: false fill: false padding: 0;
 			yourself) 
@@ -146,7 +146,7 @@ RewriteRuleChangesBrowser >> initializePresenters [
 			addColumn: ((SpCheckBoxTableColumn title: ' ' evaluated: [ :change | selectedChanges includes: change ])
 				onActivation: [ :change | 
 					selectedChanges add: change];
-				onDesactivation: [ :change | 
+				onDeactivation: [ :change | 
 					selectedChanges remove: change];
 				width: 20;
 				yourself);

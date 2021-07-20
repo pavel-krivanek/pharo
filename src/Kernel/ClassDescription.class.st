@@ -25,7 +25,7 @@ ClassDescription >> acceptsLoggingOfCompilation [
 	^ true
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> addAndClassifySelector: selector withMethod: compiledMethod inProtocol: category [
 	| priorMethodOrNil priorOriginOrNil oldProtocol newProtocol |
 
@@ -76,14 +76,14 @@ ClassDescription >> addInstVarNamed: aString [
 	self subclassResponsibility
 ]
 
-{ #category : #'accessing tags' }
+{ #category : #'accessing - tags' }
 ClassDescription >> addMethodTag: aSymbol [
 	"Any method could be tagged with multiple symbols for user purpose.
 	In class we could define what tags could be used for methods"
 	self organization addCategory: aSymbol
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> addSelector: selector withMethod: compiledMethod [
 	| priorMethodOrNil oldProtocol |
 	priorMethodOrNil := self compiledMethodAt: selector ifAbsent: [nil].
@@ -94,7 +94,7 @@ ClassDescription >> addSelector: selector withMethod: compiledMethod [
 		ifNotNil: [SystemAnnouncer uniqueInstance methodChangedFrom: priorMethodOrNil to: compiledMethod oldProtocol: oldProtocol ].
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> addSelectorSilently: selector withMethod: compiledMethod [
 	super addSelectorSilently: selector withMethod: compiledMethod.
 	self instanceSide noteAddedSelector: selector meta: self isMeta.
@@ -121,7 +121,7 @@ ClassDescription >> allLocalCallsOn: aSymbol [
 			(class thoroughWhichMethodsReferTo: aSymbol), (class class thoroughWhichMethodsReferTo: aSymbol)]
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> allProtocolsUpTo: mostGenericClass [
 	"Answer a list of all the method protocols of the receiver and all its superclasses, up through mostGenericClass"
 
@@ -139,7 +139,7 @@ ClassDescription >> allProtocolsUpTo: mostGenericClass [
 								thisClassCategories includes: each ]) sorted: lowercaseSortBlock)
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> allSelectorsInProtocol: aName [ 
 	"Answer a list of all the methods of the receiver and all its 
 	superclasses that are in the protocol named aName"
@@ -211,25 +211,14 @@ ClassDescription >> classComment: aString [
 ClassDescription >> classComment: aString stamp: aStamp [
 	"Store the comment, aString or Text or RemoteString, associated with the class we are organizing.  Empty string gets stored only if had a non-empty one before."
 
-	| pointer header oldCommentRemoteString oldComment oldStamp preamble |
+	| pointer header oldComment oldStamp preamble |
 	oldComment := self organization classComment.
 	oldStamp := self organization commentStamp.
 
 	aString string = oldComment string ifTrue: [ ^ self ].
 
-	aString isRemoteString ifTrue: [
-		SystemAnnouncer uniqueInstance 
-			class: self 
-			oldComment: oldComment 
-			newComment: aString string 
-			oldStamp: oldStamp 
-			newStamp: aStamp.
-		^ self organization classComment: aString stamp: aStamp].
-
-	oldCommentRemoteString := self organization commentRemoteString.
-	pointer := oldCommentRemoteString 
-			ifNil: [0] 
-			ifNotNil: [oldCommentRemoteString sourcePointer].
+	pointer := self organization commentSourcePointer ifNil: [0]. 
+		
 	
 	preamble := String streamContents: [ :file |
 		file cr; nextPut: $!.
@@ -246,8 +235,7 @@ ClassDescription >> classComment: aString stamp: aStamp [
 		preamble: preamble
 		onSuccess: [ :newSourcePointer | 
 			self organization 
-				classComment: (SourceFiles remoteStringAt: newSourcePointer) 
-				stamp: aStamp ]
+				commentSourcePointer: newSourcePointer]
 		onFail: [ "ignore" ].
 	
 	SystemAnnouncer uniqueInstance 
@@ -258,8 +246,12 @@ ClassDescription >> classComment: aString stamp: aStamp [
 		newStamp: aStamp
 ]
 
-{ #category : #'accessing comment' }
+{ #category : #'accessing - comment' }
 ClassDescription >> classCommentBlank [
+	"Classes can override this method to show another template."
+	"There are two use cases: a class hierarchy can give information about what kind of comment is 
+	useful (see 'PackageManifest class'). If in addition, '#hasComment ^true' can be implemented in 
+	cases where the class does not need a dedicated comment. See 'TestCase class'for an example"
 
 	| stream |
 	stream := (String new: 100) writeStream.
@@ -281,21 +273,21 @@ Public API and Key Messages
  
 Internal Representation and Key Implementation Points.'.
 			
-	(self instVarNames size > 0)
+	(self instanceVariables isNotEmpty)
 		 ifTrue: [stream cr; cr; nextPutAll: '    Instance Variables'.  ].
 		
-	self instVarNames asSortedCollection do: [:each |
+	self instVarNames sorted do: [:each |
 		stream
 			cr; tab; nextPutAll: each;
 			nextPut: $:;
 			tab; tab;
 			nextPutAll: '<Object>'].
 	stream cr.
-stream cr; cr; nextPutAll: '    Implementation Points'.
+	stream cr; cr; nextPutAll: '    Implementation Points'.
 	^stream contents
 ]
 
-{ #category : #'accessing parallel hierarchy' }
+{ #category : #'accessing - parallel hierarchy' }
 ClassDescription >> classSide [
 	"Return the metaclass of the couple class/metaclass. Useful to avoid explicit test."
 	"Point classSide >>> Point class"
@@ -321,16 +313,22 @@ ClassDescription >> classThatDefinesInstVarNamed: instVarName [
 ]
 
 { #category : #printing }
+ClassDescription >> classVariablesOn: aStream [
+	"Write my class variable names separated by spaces on the argument."
+	
+	self classVarNames 
+		do: [ :each | aStream nextPutAll: each ]
+		separatedBy: [ aStream space ]
+]
+
+{ #category : #printing }
 ClassDescription >> classVariablesString [
 	"Answer a string of my class variable names separated by spaces."
 
-	^String streamContents: [ :stream | 
-		self classVarNames 
-			do: [ :each | stream nextPutAll: each ]
-			separatedBy: [ stream space ] ]
+	^ String streamContents: [ :stream | self classVariablesOn: stream ]
 ]
 
-{ #category : #'accessing class hierarchy' }
+{ #category : #'accessing - class hierarchy' }
 ClassDescription >> classesThatImplementAllOf: selectorSet [
 	"Return an array of any classes that implement all the messages in selectorSet."
 
@@ -349,20 +347,20 @@ ClassDescription >> classesThatImplementAllOf: selectorSet [
 							subsThatDo , (sub classesThatImplementAllOf: remaining)]]
 ]
 
-{ #category : #'accessing comment' }
+{ #category : #'accessing - comment' }
 ClassDescription >> comment [
     "Answer the receiver's comment. (If missing, supply a template) "
     ^self instanceSide organization classComment ifEmpty: [ self classCommentBlank ]
 ]
 
-{ #category : #'accessing comment' }
+{ #category : #'accessing - comment' }
 ClassDescription >> comment: aStringOrText [
 	"Set the receiver's comment to be the argument, aStringOrText."
 
 	self instanceSide classComment: aStringOrText.
 ]
 
-{ #category : #'accessing comment' }
+{ #category : #'accessing - comment' }
 ClassDescription >> comment: aStringOrText stamp: aStamp [
 	"Set the receiver's comment to be the argument, aStringOrText."
 
@@ -371,7 +369,8 @@ ClassDescription >> comment: aStringOrText stamp: aStamp [
 
 { #category : #'file in/out' }
 ClassDescription >> commentStamp: changeStamp [
-	self organization commentStamp: changeStamp
+	"update the changeStamp"
+	self comment: self organization comment stamp: changeStamp
 ]
 
 { #category : #compiling }
@@ -574,130 +573,48 @@ ClassDescription >> definesSlotNamed: aString [
 { #category : #'file in/out' }
 ClassDescription >> definition [
 	"Answer a String that defines the receiver."
-
-	(self needsSlotClassDefinition or: [ Slot showSlotClassDefinition ]) ifTrue: [ 
-		^ self definitionWithSlots ].
-	
-	^ self definitionWithoutSlots
-	
+	self
+		deprecated: #definition
+		transformWith: '`@receiver definition' -> '`@receiver definitionString'.
+	^ self definitionString
 ]
 
-{ #category : #accessing }
-ClassDescription >> definitionForNautilus [
+{ #category : #fileout }
+ClassDescription >> definitionPrinter [
+	"Return a configurated printer associated with the current class definition format."
 
-	^ self definition
+	^ ClassDefinitionPrinter for: self
 ]
 
-{ #category : #'file in/out' }
-ClassDescription >> definitionWithSlots [
-	"The class definition with a way to specify slots. Shown when the class defines special Slot"
-	
-	| stream poolString|
-	poolString := self sharedPoolsString.
+{ #category : #fileout }
+ClassDescription >> definitionString [
+	"Return the string of the class definition, each of my subclass may tell the printer how to printer it. A kind of double dispatch since we have multiple printers and multiple entities to be printed."
 
-	stream := (String new: 800) writeStream.
-	superclass 
-		ifNotNil: [stream nextPutAll: superclass name]
-		ifNil: [stream nextPutAll: 'ProtoObject'].
-	stream 
-		nextPutAll: ' subclass: '; 
-		store: self name.
-	self hasTraitComposition ifTrue: [
-		stream 
-			crtab; 
-			nextPutAll: 'uses: ';
-			nextPutAll: self traitCompositionString ].
-			
-	self classLayout isFixedLayout ifFalse: [
-		stream 
-			crtab; 
-			nextPutAll: 'layout: ';
-			nextPutAll: self classLayout class name ].
-	
-	stream 
-		crtab; 
-		nextPutAll: 'slots: ';
-		nextPutAll: self slotDefinitionString.
-		
-	stream 
-		crtab; 
-		nextPutAll: 'classVariables: ';
-		nextPutAll: self classVariableDefinitionString.
-	
-	poolString = '' ifFalse: [
-		stream 
-			crtab; 
-			nextPutAll: 'poolDictionaries: ';
-			store: poolString ].
-		
-	stream 
-		crtab; 
-		nextPutAll: 'package: ';
-		store: self category asString.
-
-	superclass ifNil: [ 
-		stream nextPutAll: '.'; cr.
-		stream nextPutAll: self name.
-		stream space; nextPutAll: 'superclass: nil'. ].
-
-	^ stream contents
+	^ self definitionPrinter definitionString
 ]
 
-{ #category : #'file in/out' }
-ClassDescription >> definitionWithoutSlots [
+{ #category : #fileout }
+ClassDescription >> definitionStringFor: aConfiguredPrinter [
 
-	| poolString stream |
-	poolString := self sharedPoolsString.
-	stream := (String new: 800) writeStream.
-	superclass
-		ifNotNil: [ stream nextPutAll: superclass name ]
-		ifNil: [ stream nextPutAll: 'ProtoObject' ].
-	
-	stream
-		nextPutAll: self kindOfSubclass;
-		store: self name.
-	self hasTraitComposition ifTrue: [ 
-		stream
-			crtab;
-			nextPutAll: 'uses: ';
-			nextPutAll: self traitCompositionString ].
-	stream
-		crtab;
-		nextPutAll: 'instanceVariableNames: ';
-		store: self instanceVariablesString.
-	stream
-		crtab;
-		nextPutAll: 'classVariableNames: ';
-		store: self classVariablesString.
-	
-	poolString = '' ifFalse: [ 
-		stream 
-			crtab;
-			nextPutAll: 'poolDictionaries: ';
-			store: poolString ].
-	
-	stream
-		crtab;
-		nextPutAll: 'package: ';
-		store: self category asString.
-		
-	superclass ifNil: [ 
-		stream
-			nextPutAll: '.';
-			cr.
-		stream 
-			nextPutAll: self name.
-		stream
-			space;
-			nextPutAll: 'superclass: nil' ].
-
-	^ stream contents
-	
+	^ self subclassResponsibility 
 ]
 
 { #category : #private }
 ClassDescription >> errorCategoryName [
 	self error: 'Category name must be a String'
+]
+
+{ #category : #fileout }
+ClassDescription >> expandedDefinitionString [
+	"Return the string of the class definition, each of my subclass may tell the printer how to printer it. A kind of double dispatch since we have multiple printers and multiple entities to be printed."
+
+	^ self expandedDefinitionStringFor: (self definitionPrinter for: self)
+]
+
+{ #category : #fileout }
+ClassDescription >> expandedDefinitionStringFor: aPrinter [
+
+	^ self subclassResponsibility
 ]
 
 { #category : #'instance variables' }
@@ -714,12 +631,12 @@ ClassDescription >> forceNewFrom: anArray [
     ^ object
 ]
 
-{ #category : #'accessing parallel hierarchy' }
+{ #category : #'accessing - parallel hierarchy' }
 ClassDescription >> hasClassSide [
 	^self subclassResponsibility.
 ]
 
-{ #category : #'accessing comment' }
+{ #category : #'accessing - comment' }
 ClassDescription >> hasComment [
 	"Return whether this class truly has a comment other than the default"
 	^self instanceSide organization hasComment
@@ -751,6 +668,13 @@ ClassDescription >> hasSlotNamed: aString [
 	this includes non-visible slots"
 	
 	^ self classLayout hasSlotNamed: aString
+]
+
+{ #category : #'pool variable' }
+ClassDescription >> includesSharedPoolNamed:  aSharedPoolString [ 
+	"Answer whether the receiver uses the shared pool named aSharedPoolString"
+	
+	^ self sharedPools anySatisfy: [:each | each name = aSharedPoolString]
 ]
 
 { #category : #'instance variables' }
@@ -786,7 +710,7 @@ ClassDescription >> instVarNames [
 	^self slots collect: [ :each | each name ]
 ]
 
-{ #category : #'accessing parallel hierarchy' }
+{ #category : #'accessing - parallel hierarchy' }
 ClassDescription >> instanceSide [
 	"Return the class of the couple class/metaclass. Useful to avoid explicit test."
 	"Point instanceSide >>> Point"
@@ -795,26 +719,24 @@ ClassDescription >> instanceSide [
 	^ self subclassResponsibility
 ]
 
-{ #category : #accessing }
-ClassDescription >> instanceVariables [
-	"we deprecate this due to bad naming: it returns names, not variables!"
-	self
-		deprecated: 'Please use #instVarNames or #slotNames instead'
-		transformWith: '`@receiver instanceVariables' -> '`@receiver instVarNames'.
-	^self instVarNames
+{ #category : #printing }
+ClassDescription >> instanceVariablesOn: aStream [
+	"Write my instance variable names separated by spaces on the argument."
+	
+	self localSlots
+		do: [ :each | aStream nextPutAll: each name asString]
+		separatedBy: [ aStream space ].
+
 ]
 
 { #category : #printing }
 ClassDescription >> instanceVariablesString [
 	"Answer a string of my instance variable names separated by spaces."
 
-	^String streamContents: [ :stream |
-		self localSlots
-			do: [ :each | stream nextPutAll: each name ]
-			separatedBy: [ stream space ] ]
+	^ String streamContents: [ :stream | self instanceVariablesOn: stream ]
 ]
 
-{ #category : #'accessing parallel hierarchy' }
+{ #category : #'accessing - parallel hierarchy' }
 ClassDescription >> isClassSide [
 	"Return true whether the receiver is a metaclass (in a couple class/metaclass sense)."
 	"Point isClassSide >>> false"
@@ -828,7 +750,7 @@ ClassDescription >> isDeprecated [
 	^ self package isDeprecated
 ]
 
-{ #category : #'accessing parallel hierarchy' }
+{ #category : #'accessing - parallel hierarchy' }
 ClassDescription >> isInstanceSide [
 	"Return true whether the receiver is a class (in a couple class/metaclass sense)."
 	"Point isClassSide >>> false"
@@ -875,10 +797,17 @@ ClassDescription >> linesOfCode [
 { #category : #slots }
 ClassDescription >> localSlots [
 
-	^ self slots select: [ :aSlot | aSlot isLocal ]
+	^ self slots select: [ :aSlot | aSlot isDefinedByOwningClass ]
 ]
 
-{ #category : #'accessing tags' }
+{ #category : #organization }
+ClassDescription >> methodsInProtocol: aString [
+
+	^ (self organization listAtCategoryNamed: aString) 
+			collect: [ :each | (self compiledMethodAt: each) ]
+]
+
+{ #category : #'accessing - tags' }
 ClassDescription >> methodsTaggedWith: aSymbol [
 	"Any method could be tagged with multiple symbols for user purpose. 
 	And class contains all method tags which used or not used yet by methods.
@@ -940,7 +869,7 @@ ClassDescription >> newInstanceFrom: oldInstance variable: variable size: instSi
 	^new
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> noteAddedSelector: aSelector meta: isMeta [
 	"A hook allowing some classes to react to adding of certain selectors"
 ]
@@ -1013,33 +942,10 @@ ClassDescription >> obsolete [
 
 { #category : #'file in/out' }
 ClassDescription >> oldDefinition [
-	"Answer a String that defines the receiver."
-
-	| aStream |
-	aStream := (String new: 800) writeStream.
-	superclass 
-		ifNil: [aStream nextPutAll: 'ProtoObject']
-		ifNotNil: [aStream nextPutAll: superclass name].
-	aStream nextPutAll: self kindOfSubclass;
-			store: self name.
-	(self hasTraitComposition) ifTrue: [
-		aStream cr; tab; nextPutAll: 'uses: ';
-			nextPutAll: self traitCompositionString].
-	aStream cr; tab; nextPutAll: 'instanceVariableNames: ';
-			store: self instanceVariablesString.
-	aStream cr; tab; nextPutAll: 'classVariableNames: ';
-			store: self classVariablesString.
-	aStream cr; tab; nextPutAll: 'poolDictionaries: ';
-			store: self sharedPoolsString.
-	aStream cr; tab; nextPutAll: 'category: ';
-			store: self category asString.
-
-	superclass ifNil: [ 
-		aStream nextPutAll: '.'; cr.
-		aStream nextPutAll: self name.
-		aStream space; nextPutAll: 'superclass: nil'. ].
-
-	^ aStream contents
+	
+	^ ClassDefinitionPrinter legacy
+		for: self;
+		definitionString
 ]
 
 { #category : #organization }
@@ -1069,33 +975,6 @@ ClassDescription >> printOn: aStream [
 	aStream nextPutAll: self name
 ]
 
-{ #category : #'accessing class hierarchy' }
-ClassDescription >> printSubclassesOn: aStream level: level [ 
-
-		self printSubclassesOn: aStream level: level filter: nil
-]
-
-{ #category : #'accessing class hierarchy' }
-ClassDescription >> printSubclassesOn: aStream level: level filter: filterCollection [
-	"As part of the algorithm for printing a description of the receiver, print the
-	subclass on the file stream, aStream, indenting level times. 
-	An optional filterCollection restricts printing to contained classes only."
-	
-	| subclassNames |
-	filterCollection ifNotNil: [ (filterCollection includes: self) ifFalse: [ ^self ]].
-	aStream crtab: level.
-	aStream nextPutAll: self name.
-	aStream space; print: self instVarNames.
-	self == Class
-		ifTrue: 
-			[aStream crtab: level + 1; nextPutAll: '[ ... all the Metaclasses ... ]'.
-			^self].
-	subclassNames := self subclasses asSortedCollection:[:c1 :c2| c1 name <= c2 name].
-	"Print subclasses in alphabetical order"
-	subclassNames do:
-		[:subclass | subclass printSubclassesOn: aStream level: level + 1 filter: filterCollection]
-]
-
 { #category : #compiling }
 ClassDescription >> reformatAll [
 	"Reformat all methods in this class"
@@ -1109,7 +988,7 @@ ClassDescription >> removeInstVarNamed: aString [
 	^self removeSlot: (self slotNamed: aString)
 ]
 
-{ #category : #'accessing tags' }
+{ #category : #'accessing - tags' }
 ClassDescription >> removeMethodTag: aSymbol [
 	"Any method could be tagged with multiple symbols for user purpose.
 	In class we could define what tags could be used for methods.
@@ -1117,7 +996,7 @@ ClassDescription >> removeMethodTag: aSymbol [
 	self organization removeCategory: aSymbol
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> removeProtocol: aString [ 
 	"Remove each of the messages categorized under aString in the method 
 	dictionary of the receiver. Then remove the category aString."
@@ -1128,7 +1007,7 @@ ClassDescription >> removeProtocol: aString [
 	self organization removeCategory: categoryName
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> removeSelector: selector [ 
 	"Remove the message whose selector is given from the method 
 	dictionary of the receiver, if it is there. Answer nil otherwise."
@@ -1157,7 +1036,7 @@ ClassDescription >> reorganize [
 	^self organization
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> selectorsInCategory: aName [ 
 	"Answer a list of the selectors of the receiver that are in category named aName"
 	
@@ -1166,7 +1045,7 @@ ClassDescription >> selectorsInCategory: aName [
 	^ aColl asArray sort
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> selectorsInProtocol: aName [ 
 	"Answer a list of the selectors of the receiver that are in category named aName"
 	
@@ -1183,6 +1062,41 @@ ClassDescription >> sharedPoolOfVarNamed: aString [
 ]
 
 { #category : #printing }
+ClassDescription >> sharedPoolString [
+	"Answer a string of my shared pools separated by spaces."
+
+	^String streamContents: [ :stream | 
+		self sharedPoolStringOn: stream ]
+]
+
+{ #category : #printing }
+ClassDescription >> sharedPoolStringOn: aStream [
+	"Write my shared pools separated by dots on argument, aStream."
+
+	self sharedPools do:  [ :p | aStream nextPutAll: p name ] separatedBy: [ aStream nextPutAll: ' . ' ]
+]
+
+{ #category : #'pool variable' }
+ClassDescription >> sharedPools [
+	^ OrderedCollection new
+]
+
+{ #category : #printing }
+ClassDescription >> sharedPoolsOn: aStream [
+	"Answer a string of my shared pool names separated by spaces."
+
+	self sharedPools 
+		do: [ :each |
+				aStream nextPutAll: (self environment 
+					keyAtIdentityValue: each 
+					ifAbsent: [ 
+						each isObsolete
+							ifTrue: [ each name ] "obsolete classes should be visible"
+							ifFalse: [ 'private' ] ]) ] "if class is from different environment, mark it as private"
+			separatedBy: [ aStream space ] 
+]
+
+{ #category : #'pool variable' }
 ClassDescription >> sharedPoolsString [
 	"Answer a string of my shared pool names separated by spaces."
 
@@ -1196,24 +1110,6 @@ ClassDescription >> sharedPoolsString [
 							ifTrue: [ each name ] "obsolete classes should be visible"
 							ifFalse: [ 'private' ] ]) ] "if class is from different environment, mark it as private"
 			separatedBy: [ stream space ] ]
-]
-
-{ #category : #printing }
-ClassDescription >> slotDefinitionString [
-	"Answer a string that contains an executable description of my Slots"
-
-	"^self slots ifNotEmpty: [self slots asString] ifEmpty: ['{}']"
-	
-	^String streamContents: [ :str | | useFull |
-		str nextPutAll: '{ '.
-		self localSlots do: [:slot |
-				str nextPutAll: slot definitionString.
-				useFull := slot needsFullDefinition]				
-			separatedBy: [ 
-				str nextPutAll: '. '.  
-				useFull ifTrue: [ str cr;tab;tab;tab;tab ]].
-		str nextPutAll: ' }'. ]
-
 ]
 
 { #category : #slots }
@@ -1292,7 +1188,7 @@ ClassDescription >> superclass: aSuperclass withLayoutType: layoutType slots: sl
 		layout: newLayout
 ]
 
-{ #category : #'accessing tags' }
+{ #category : #'accessing - tags' }
 ClassDescription >> tagWith: aSymbol [
 	| package packageTag |
 	"Any class or trait could be tagged by multiple symbols for user purpose.
@@ -1303,7 +1199,7 @@ ClassDescription >> tagWith: aSymbol [
 	packageTag addClass: self
 ]
 
-{ #category : #'accessing tags' }
+{ #category : #'accessing - tags' }
 ClassDescription >> tags [
 	| packageTag |
 	"Any class or trait could be tagged by multiple symbols for user purpose.
@@ -1315,7 +1211,7 @@ ClassDescription >> tags [
 	^{packageTag name}
 ]
 
-{ #category : #'accessing tags' }
+{ #category : #'accessing - tags' }
 ClassDescription >> tagsForMethods [
 	"Any method could be tagged with multiple symbols for user purpose. 
 	And class contains all method tags which used or not used yet by methods.
@@ -1345,12 +1241,12 @@ ClassDescription >> theNonMetaClass [
 	^ self instanceSide
 ]
 
-{ #category : #'accessing method dictionary' }
+{ #category : #'accessing - method dictionary' }
 ClassDescription >> uncategorizedSelectors [
 	^ self selectorsInProtocol: Protocol unclassified
 ]
 
-{ #category : #'accessing tags' }
+{ #category : #'accessing - tags' }
 ClassDescription >> untagFrom: aSymbol [
 	| package packageTag |
 	"Any class or trait could be tagged by multiple symbols for user purpose.

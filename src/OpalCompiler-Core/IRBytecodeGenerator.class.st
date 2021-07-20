@@ -180,7 +180,7 @@ IRBytecodeGenerator >> compiledBlockWith: trailer [
 	| lits header cb |
 	lits := self literals allButLast "1 free only for compiledBlock".
 	header := self spurVMHeader: lits size.
-	cb := trailer createMethod: self bytecodes size class: CompiledBlock header: header.
+	cb := CompiledBlock newMethod: self bytecodes size header: header.
 	(WriteStream with: cb)
 		position: cb initialPC - 1;
 		nextPutAll: self bytecodes.
@@ -630,6 +630,13 @@ IRBytecodeGenerator >> pushThisContext [
 	encoder genPushThisContext 
 ]
 
+{ #category : #instructions }
+IRBytecodeGenerator >> pushThisProcess [
+
+	stack push.
+	encoder genPushThisProcess.
+]
+
 { #category : #private }
 IRBytecodeGenerator >> quickMethodPrim [
 
@@ -702,27 +709,19 @@ IRBytecodeGenerator >> send: selector [
 
 { #category : #instructions }
 IRBytecodeGenerator >> send: selector toSuperOf: behavior [
+	| index nArgs |
+	nArgs := selector numArgs.
+	stack pop: nArgs.
+	index := self literalIndexOf: selector.
 
 	(encoder class = EncoderForSistaV1 and: [ inBlock ])
-		ifTrue: [ 
-			| index nArgs |
-			behavior isTrait ifTrue: [ 
-				"Trait methods are copied to the users and only the last literal is updated. 
-				 For directed super send the literal of the super send should be updated too."
-				self error: 'not supported' ].
-			nArgs := selector numArgs.
-			stack pop: nArgs.
-			encoder genPushLiteralVar: (self literalIndexOf: behavior binding).
-			index := self literalIndexOf: selector.
+		ifTrue: [
+			"we need to use a copy of the binding as else 'references to' will find this method" 
+			encoder genPushLiteralVar: (self literalIndexOf: behavior binding copy).
 			encoder genSendDirectedSuper: index numArgs: nArgs ]
 		ifFalse: [ 
-			| index nArgs |
-			nArgs := selector numArgs.
-			stack pop: nArgs.
 			self addLastLiteral: behavior binding.  
-			index := self literalIndexOf: selector.
 			encoder genSendSuper: index numArgs: nArgs ]
-
 ]
 
 { #category : #results }
@@ -813,8 +812,7 @@ IRBytecodeGenerator >> updateJumpOffsets [
 IRBytecodeGenerator >> updateLiterals: code [
 	"Add back pointer from compiled block to outer code"
 	code literals do: [ :each |
-		(each isKindOf: CompiledBlock) ifTrue: 
-			[ each outerCode: code. ] ] 
+		each isEmbeddedBlock ifTrue: [ each outerCode: code ] ]
 ]
 
 { #category : #results }

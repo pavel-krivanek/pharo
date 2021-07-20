@@ -1,21 +1,26 @@
 "
-I combine a filesystem and path, which is sufficient to refer to a concrete file or directory. I provide methods for navigating my filesystem, performing filesystem operations and opening and closing files.  I am the primary mechanism for working with files and directories. 
+I combine a filesystem and path, which is sufficient to refer to a concrete file or directory. I provide methods for navigating my filesystem, performing filesystem operations and opening and closing files. 
+I am the primary mechanism for working with files and directories. 
 
+###Examples
+
+```
 | working |
 working := FileSystem disk workingDirectory.
 working files 
-
+```
+```
 | disk |
 disk := FileSystem disk.
 disk root.                               	""a reference to the root directory""
 disk working.                         	""a reference to the working directory""
+```
 "
 Class {
 	#name : #FileReference,
 	#superclass : #AbstractFileReference,
 	#instVars : [
-		'filesystem',
-		'path'
+		'filesystem'
 	],
 	#category : #'FileSystem-Core-Public'
 }
@@ -42,20 +47,6 @@ FileReference class >> newTempFilePrefix: prefix suffix: suffix [
 		fileName := prefix , random , suffix.
 		(tmpDir / fileName) exists ] whileTrue.
 	^ tmpDir / fileName
-]
-
-{ #category : #'instance creation' }
-FileReference class >> primDropRequestFileName: dropIndex [
-	"Primitive. Return the file name for some file that was just dropped onto the application.
-	Fail if dropIndex is out of range or the primitive is not supported."
-	<primitive: 'primitiveDropRequestFileName' module:'DropPlugin'>
-	^ self primitiveFail 
-]
-
-{ #category : #'drag-and-drop' }
-FileReference class >> requestDropReference: anInteger [ 
-	
-	^ (FilePathEncoder decode: (self primDropRequestFileName: anInteger)) asFileReference 
 ]
 
 { #category : #navigating }
@@ -94,6 +85,11 @@ FileReference >> asAbsolute [
 	^ self isAbsolute
 		ifTrue: [ self ]
 		ifFalse: [ filesystem referenceTo: (filesystem resolve: path) ]
+]
+
+{ #category : #converting }
+FileReference >> asFileLocatorOrReference [
+	^ self path asFileLocatorOrReference
 ]
 
 { #category : #converting }
@@ -179,6 +175,11 @@ FileReference >> deleteIfAbsent: aBlock [
 FileReference >> deviceId [
 	"Return the device id of the file at aPath"
 	^ filesystem deviceIdOf: path
+]
+
+{ #category : #printing }
+FileReference >> displayStringOn: stream [
+	filesystem printPath: path on: stream
 ]
 
 { #category : #operations }
@@ -463,12 +464,6 @@ FileReference >> numberOfHardLinks [
 { #category : #streams }
 FileReference >> openWritable: aBoolean [ 
 	^ filesystem open: path writable: aBoolean
-]
-
-{ #category : #accessing }
-FileReference >> path [
-	"Return the path internal representation that denotes the receiver in the context of its filesystem. "
-	^ path
 ]
 
 { #category : #printing }

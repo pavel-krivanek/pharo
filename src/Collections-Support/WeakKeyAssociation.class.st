@@ -66,10 +66,15 @@ WeakKeyAssociation >> hash [
 	^self key hash
 ]
 
-{ #category : #testing }
+{ #category : #generated }
 WeakKeyAssociation >> isVariableBinding [
+
 	"Return true if I represent a literal variable binding"
-	^true
+
+	self
+		deprecated: 'Use #isAssociation instead'
+		transformWith: '`@rec isVariableBinding' -> '`@rec isAssociation'.
+	^ self isAssociation
 ]
 
 { #category : #accessing }

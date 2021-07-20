@@ -21,10 +21,7 @@ Class {
 ClyMoveClassToGroupCommand class >> browserContextMenuActivation [
 	<classAnnotation>
 	
-	^ CmdContextMenuActivation  
-		byItemOf: ClyMoreRefactorsMenuGroup  
-		order: 1000
-		for: ClyClass asCalypsoItemContext 
+	^ SycClassMenuActivation byRootGroupItemOrder: 1000 for: ClyClass asCalypsoItemContext
 ]
 
 { #category : #activation }
@@ -58,7 +55,7 @@ ClyMoveClassToGroupCommand class >> fullBrowserDragAndDropActivation3 [
 ClyMoveClassToGroupCommand class >> fullBrowserShortcutActivation [
 	<classAnnotation>
 	
-	^CmdShortcutActivation by: $m meta, $c meta for: ClyClassContextOfFullBrowser 
+	^CmdShortcutActivation by: $m meta, $c meta for: ClyFullBrowserClassContext 
 ]
 
 { #category : #accessing }

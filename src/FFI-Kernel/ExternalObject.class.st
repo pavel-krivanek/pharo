@@ -1,5 +1,5 @@
 "
-External objects represent entities that are not part of the Smalltalk universe. They are accessed using a unique handle which is interpreted depending on the actual entity that is represented. 
+External objects represent entities that are not part of the Pharo universe. They are accessed using a unique handle which is interpreted depending on the actual entity that is represented. 
 
 Instance variables:
 	handle	<ByteArray | ExternalAddress>
@@ -37,6 +37,12 @@ ExternalObject class >> install [
 ExternalObject class >> installSubclasses [
 	"Notify all the subclasses of ExternalObject that we are starting up on a new platform."
 	self withAllSubclassesDo:[:cls| cls install].
+]
+
+{ #category : #'instance creation' }
+ExternalObject class >> null [
+	
+	^ self fromHandle: (ExternalAddress null).
 ]
 
 { #category : #'system startup' }

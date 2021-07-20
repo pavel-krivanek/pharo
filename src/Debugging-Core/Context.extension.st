@@ -20,23 +20,21 @@ Context >> callPrimitive: primNumber [
 ]
 
 { #category : #'*Debugging-Core' }
-Context >> lookupSymbol: aSymbol [
-	| var |
-	var := self lookupVar: aSymbol.
-	^ var readInContext: self
-]
-
-{ #category : #'*Debugging-Core' }
 Context >> lookupTempVar: aSymbol [
 	| var |
 	var := self lookupVar: aSymbol.
-	var isTemp ifFalse: [ ^self error: var name, ' is not a temp but, ', var class name].
+	var isLocalVariable ifFalse: [ ^self error: var name, ' is not a temp but, ', var class name].
 	^var
 ]
 
 { #category : #'*Debugging-Core' }
 Context >> lookupVar: aSymbol [
 	^ self astScope lookupVar: aSymbol
+]
+
+{ #category : #'*Debugging-Core' }
+Context >> lookupVar: aSymbol declare: aBoolean [
+	^ self astScope lookupVar: aSymbol declare: aBoolean
 ]
 
 { #category : #'*Debugging-Core' }
@@ -49,10 +47,18 @@ Context >> methodReturnConstant: value [
 
 { #category : #'*Debugging-Core' }
 Context >> namedTempAt: index [
+
 	"Answer the value of the temp at index in the receiver's sequence of tempNames."
+
 	"NOTE: this list of temp names is completely virtual! It omits temp vectors but 
-	adds every variable that could be acccessed from a source perspective but might not be"
-	^self tempNamed: (self tempNames at: index)
+	adds every variable that could be acccessed from a source perspective but might not be.
+	Do *not* use this!"
+
+	self
+		deprecated: 'Please access temps by name using #tempNamed:'
+		transformWith: '`@rec namedTempAt: `@arg' -> '`@rec tempNamed: (`@rec tempNames at: `@arg)'.
+	
+	^ self tempNamed: (self tempNames at: index)
 ]
 
 { #category : #'*Debugging-Core' }
@@ -60,6 +66,12 @@ Context >> namedTempAt: index put: aValue [
 	"Set the value of the temp at index in the receiver's sequence of tempNames"
 	"NOTE: this list of temp names is completely virtual! It omits temp vectors but 
 	adds every variable that could be acccessed from a source perspective but might not be"
+	"Do *not* use this!"
+	self
+		deprecated: 'Please access temps by name using #tempNamed:put:'
+		transformWith: '`@rec namedTempAt: `@arg1 put: `@arg2' ->
+		               '`@rec tempNamed: (`@rec tempNames at: `@arg1) put: `@arg2'.
+	
 	self tempNamed: (self tempNames at: index) put: aValue
 ]
 
@@ -81,37 +93,8 @@ Context >> pcRangeContextIsActive: contextIsActive [
 ]
 
 { #category : #'*Debugging-Core' }
-Context >> quickSend: selector to: aReceiver with: arguments super: superFlag [
-	"Send the given selector with arguments in an environment which closely resembles the non-simulating environment, with an interjected unwind-protected block to catch nonlocal returns.
-	Attention: don't get lost!"
-	| lookupClass contextToReturnTo result |
-	contextToReturnTo := self.
-	lookupClass := superFlag
-					ifTrue: [(self compiledCode literalAt: self compiledCode numLiterals) value superclass]
-					ifFalse: [self objectClass: aReceiver].
-	[ | oldSender |
-	oldSender := thisContext sender swapSender: self.
-	result := self object: aReceiver perform: selector withArguments: arguments inClass: lookupClass.
-	thisContext sender swapSender: oldSender] ifCurtailed: [
-		contextToReturnTo := thisContext sender receiver.	"The block context returning nonlocally"
-		contextToReturnTo jump: -1.	"skip to front of return bytecode causing this unwind"
-		contextToReturnTo nextByte = 16r7C ifTrue: [
-			"If it was a returnTop, push the value to be returned.
-			Otherwise the value is implicit in the bytecode"
-			contextToReturnTo push: (thisContext sender tempAt: 1)].
-		thisContext swapSender: thisContext home sender.	"Make this block return to the method's sender"
-		contextToReturnTo].
-	contextToReturnTo push: result.
-	^contextToReturnTo
-]
-
-{ #category : #'*Debugging-Core' }
-Context >> quickStep [
-	"If the next instruction is a send, just perform it.
-	Otherwise, do a normal step."
-
-	self willSend ifTrue: [ QuickStep := self ].
-	^self step
+Context >> readVariableNamed: aName [
+	^ (self lookupVar: aName) readInContext: self
 ]
 
 { #category : #'*Debugging-Core' }
@@ -162,6 +145,18 @@ Context >> return: value to: aSender [
 	self releaseTo: aSender.
 	aSender ifNil: [^ nil].
 	^ aSender push: value
+]
+
+{ #category : #'*Debugging-Core' }
+Context >> returnBooleanPrimitive [
+
+	^ 257
+]
+
+{ #category : #'*Debugging-Core' }
+Context >> returnSelfPrimitive [
+
+	^ 256
 ]
 
 { #category : #'*Debugging-Core' }
@@ -231,9 +226,6 @@ Context >> send: selector super: superFlag numArgs: numArgs [
 					args: (arguments at: 4).
 				self push: answer.
 				^self]. "
-	QuickStep == self ifTrue: [
-		QuickStep := nil.
-		^ self quickSend: selector to: currentReceiver with: arguments super: superFlag].
 	^ self send: selector to: currentReceiver with: arguments super: superFlag
 ]
 
@@ -275,39 +267,51 @@ Context class >> simulatePrimitiveNumber: num with: simulator [
 ]
 
 { #category : #'*Debugging-Core' }
-Context >> stepToHome: aContext [ 
+Context >> stepToHome: aContext [
 	"Resume self until the home of top context is aContext.  Top context may be a block context."
 
-	| home ctxt here error topContext context |
-	
+	| home ctxt here error wrapperContext |
 	here := thisContext.
-	ctxt := self step.
-	ctxt = self ifFalse: [ 
-		"Insert ensure and exception handler contexts under aSender"
-		error := nil.
-		context := aContext insertSender: (Context
-			contextOn: UnhandledError do: [:ex |
-				error ifNil: [
-					error := ex exception.
-					topContext := thisContext.
-					ex resumeUnchecked: here jump ]
-						ifNotNil: [ ex pass ]]).
-	].
+	error := nil.
+	
+	wrapperContext := aContext insertSender: (Context contextOn: Exception do: [ :ex | 
+				            error
+					            ifNil: [ 
+						            			error := ex.
+												ex resumeUnchecked: here jump ]
+					            ifNotNil: [ 
+										ex pass ] ]).
 	home := aContext home.
-	home == ctxt home ifTrue: [ ^{ctxt. nil} ].
-	
-	[ctxt := ctxt step.
-	error ifNotNil: [
+
+	"A first Step to do at least one step"
+	ctxt := self step.
+
+	home == ctxt home ifTrue: [ 
 		"remove above inserted ensure and handler contexts"
-		context ifNotNil: [aContext terminateTo: context sender].
-		^ {ctxt. error}].
-	
-	home == ctxt home] whileFalse: [
-		home isDead ifTrue: [^ {ctxt. nil}]
-	].
+		aContext terminateTo: wrapperContext sender.
+		^ { 
+			  ctxt.
+			  error } ].
+
+	[  ctxt := ctxt step.
+		error ifNotNil: [ 
+		"remove above inserted ensure and handler contexts"
+		aContext terminateTo: wrapperContext sender.
+			^ { 
+				  ctxt.
+				  error } ].
+
+		home == ctxt home ] whileFalse: [ 
+			home isDead ifTrue: [ 
+				^ { 
+					  ctxt.
+					  nil } ] ].
 	"remove above inserted ensure and handler contexts"
-	context ifNotNil: [aContext terminateTo: context sender].
-	^ {ctxt. nil}
+	aContext terminateTo: wrapperContext sender.
+	
+	^ { 
+		  ctxt.
+		  nil }
 ]
 
 { #category : #'*Debugging-Core' }
@@ -364,18 +368,14 @@ Context class >> tallyMethods: aBlock [
 Context >> tempNamed: aName [
 	"Returns the value of the temporaries, aName"
 
-	| var |
-	var := self lookupTempVar: aName.
-	^var readInContext: self
+	^(self lookupTempVar: aName) readInContext: self
 ]
 
 { #category : #'*Debugging-Core' }
 Context >> tempNamed: aName put: anObject [
 	"Assign the value of the temp with name in aContext"
 	
-	| var |
-	var := self lookupTempVar: aName.
-	var write: anObject inContext: self
+	^(self lookupTempVar: aName) write: anObject inContext: self
 ]
 
 { #category : #'*Debugging-Core' }
@@ -434,4 +434,20 @@ Context >> tempsAndValuesLimitedTo: sizeLimit indent: indent [
 { #category : #'*Debugging-Core' }
 Context >> unusedBytecode [
 	^ self respondsToUnknownBytecode 
+]
+
+{ #category : #'*Debugging-Core' }
+Context >> updatePCForQuickPrimitiveRestart [
+
+	({self returnBooleanPrimitive.	self returnSelfPrimitive } includes: self method primitive) 
+		ifTrue: [ 
+			pc := self method endPC.
+			^ self ].
+
+	pc := pc + self quickMethodPrimitiveBytecodeSize
+]
+
+{ #category : #'*Debugging-Core' }
+Context >> writeVariableNamed: aName value: anObject [ 
+	^ (self lookupVar: aName) write: anObject inContext: self
 ]

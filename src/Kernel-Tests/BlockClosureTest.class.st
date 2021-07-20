@@ -20,7 +20,8 @@ BlockClosureTest >> blockWithNonLocalReturn: resultObject [
 { #category : #running }
 BlockClosureTest >> setUp [
 	super setUp.
-	aBlockContext := [100@100 corner: 200@200].
+	"we reference self to force a full block"
+	aBlockContext := [self . 100@100 corner: 200@200].
 	contextOfaBlockContext := thisContext.
 ]
 
@@ -139,6 +140,33 @@ BlockClosureTest >> testCullCullCullCull [
 		equals: 4
 ]
 
+{ #category : #'tests - evaluating' }
+BlockClosureTest >> testHasMethodReturn [
+
+	self assert: [ ^self  ] hasMethodReturn.
+	self deny: [ 1 + 2 ] hasMethodReturn.
+	self deny: [ self printString ] hasMethodReturn.
+	
+	"nested blocks"
+	self assert: [ 1 > 2 ifTrue: [ ^self ] ] hasMethodReturn.
+	self assert: [ #(1) do: [ ^self ] ] hasMethodReturn
+]
+
+{ #category : #'tests - testing' }
+BlockClosureTest >> testIsClean [
+	| local |
+	local := #testIsClean.
+	self assert: [] isClean. "closes over nothing at all"
+	self assert: [thisContext] isClean. "we can access the context"
+	self assert: [:a :b| a < b] isClean. "accesses only arguments"
+	self assert: [:a :b| | s | s := a + b. s even] isClean. "accesses only local variables"
+	self deny: [^nil] isClean. "closes over home (^-return)"
+	self deny: [self] isClean. "closes over the receiver"
+	self deny: [super testIsClean] isClean. "closes over the receiver"
+	self deny: [contextOfaBlockContext] isClean. "closes over the receiver (to access the inst var contextOfaBlockContext)"
+	self deny: [local] isClean. "closes over local variable of outer context"
+]
+
 { #category : #tests }
 BlockClosureTest >> testNew [
 	self	should: [Context new: 5] raise: Error.
@@ -201,14 +229,15 @@ BlockClosureTest >> testOnForkErrorExecutesBlock [
 { #category : #'tests - on-fork' }
 BlockClosureTest >> testOnForkErrorOnSeparateProcess [
 	"Test that if code runs with error, there is fork"
-	
-	| result forkedProc sema |
-	
-	sema := Semaphore new.	
-	result := [ 1/0 ] on: Exception fork: [ forkedProc := Processor activeProcess. sema signal ].
+
+	| forkedProc sema |
+	sema := Semaphore new.
+	[ 1 / 0 ] on: Exception fork: [ 
+		forkedProc := Processor activeProcess.
+		sema signal ].
 
 	sema wait.
-	self assert: (forkedProc ~~ Processor activeProcess).
+	self deny: forkedProc identicalTo: Processor activeProcess
 ]
 
 { #category : #'tests - on-fork' }
@@ -282,15 +311,14 @@ BlockClosureTest >> testOneArgument [
 
 { #category : #'tests - printing' }
 BlockClosureTest >> testPrintOn [
-
-	self assert: [ 1 + 2 ] printString equals: '[ 1 + 2 ]'
+	self assert: (RBParser parseExpression: [ 1 + 2 ] printString) equals: (RBParser parseExpression: '[ 1 + 2 ]')
 ]
 
 { #category : #'tests - printing' }
 BlockClosureTest >> testPrintOnBlockDefinedInMethodWithoutSourceCode [
 	| method copy start block |
 	"Generating method with source code"
-	UndefinedObject compile: 'method ^ [1 + 2]'.
+	UndefinedObject compile: 'method ^ [ 1 + 2 ]'.
 	method := UndefinedObject >> #method.
 	["Removing the source code of method"
 		copy := method copyWithTrailerBytes: CompiledMethodTrailer new.
@@ -299,7 +327,7 @@ BlockClosureTest >> testPrintOnBlockDefinedInMethodWithoutSourceCode [
 		block := nil method.
 		
 		self deny: method hasSourceCode.
-		self assert: block asString equals: [ 1 + 2 ] asString.
+		self assert: (RBParser parseExpression: block printString) equals: (RBParser parseExpression: '[ 1 + 2 ]').
 	] ensure: [ method removeFromSystem ]
 ]
 
@@ -443,6 +471,11 @@ BlockClosureTest >> testValueWithArgumentsWithOrderedCollection [
 			self assert: err expectedArgumentsCount equals: 1.
 			self assert: err calledArgumentsCount equals: 2 ].
 
+]
+
+{ #category : #'tests - evaluating' }
+BlockClosureTest >> testValueWithExit [
+	self assert: [:exit | 1 ] valueWithExit equals: 1
 ]
 
 { #category : #'tests - evaluating' }

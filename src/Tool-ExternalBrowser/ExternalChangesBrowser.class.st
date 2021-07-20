@@ -67,8 +67,8 @@ ExternalChangesBrowser class >> fileReaderServicesForFile: fullName suffix: suff
 	<fileService>
 	| services |
 	services := OrderedCollection new.
-	(FileStream isSourceFileSuffix: suffix) | 
-	(FileStream isChangesFileSuffix: suffix) | (suffix = '*')
+	(ExternalBrowser sourceFileSuffixes includes: suffix) |
+	('changes' = suffix) | (suffix = '*')
 		ifTrue: [ services add: self serviceBrowseCSOrSTFile ].
 	^services
 ]
@@ -195,7 +195,8 @@ ExternalChangesBrowser >> compareToCurrent: aMethodDeclaration [
 	| class sourceString |
 	class := aMethodDeclaration targetClass.
 	sourceString := (class >> aMethodDeclaration methodSelector) sourceCode.
-	UIManager default
+	
+	self
 		openComparisonFrom: aMethodDeclaration contents
 		to: sourceString
 		belongingTo: class
@@ -259,6 +260,54 @@ ExternalChangesBrowser >> initializeWidgets [
 		label: 'file in selected'.
 
 	codePane := self newCode.
+]
+
+{ #category : #private }
+ExternalChangesBrowser >> openComparisonFrom: targetMethodSource
+					to: originalMethodSource
+					belongingTo: aClass
+					from: aChange 
+					labeled: aLabel 
+					inWindowLabeled: aWindowLabel [ 
+
+	| diffBuilder difference  |
+
+	PSMCPatchMorph usedByDefault 
+		ifTrue: [ ^ self openPolymorphComparisonFrom: originalMethodSource 
+					to: targetMethodSource
+					belongingTo: aClass
+					from: aChange
+					labeled: aLabel
+					inWindowLabeled: aWindowLabel   ].
+
+	diffBuilder :=  TextDiffBuilder
+			from: originalMethodSource 
+			to: targetMethodSource.
+
+	difference := diffBuilder buildDisplayPatch.
+	
+	UIManager default edit: difference label: aLabel.
+				
+]
+
+{ #category : #private }
+ExternalChangesBrowser >> openPolymorphComparisonFrom: targetMethodSource
+					to: originalMethodSource
+					belongingTo: aClass
+					from: aChange 
+					labeled: aLabel 
+					inWindowLabeled: aWindowLabel [ 
+
+	| diffMorph |
+
+	diffMorph := DiffChangeMorph
+		from: targetMethodSource
+		label: aChange stamp
+		to: originalMethodSource
+		label: (aClass compiledMethodAt: aChange methodSelector) timeStamp
+		contextClass: aClass.
+
+	diffMorph openInWindowLabeled: aWindowLabel.
 ]
 
 { #category : #accessing }

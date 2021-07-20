@@ -17,25 +17,31 @@ Class {
 	#category : #'Calypso-SystemTools-QueryBrowser-Commands-Queries'
 }
 
+{ #category : #'instance creation' }
+ClyShowClassRefCommand class >> forClasses: classes by: aBrowser [ 
+	^(self for: classes) 
+		browser: aBrowser
+]
+
 { #category : #activation }
 ClyShowClassRefCommand class >> fullBrowserMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation byItemOf: ClyQueryMenuGroup for: ClyClassContextOfFullBrowser
+	^CmdContextMenuActivation byItemOf: ClyQueryMenuGroup for: ClyFullBrowserClassContext
 ]
 
 { #category : #activation }
 ClyShowClassRefCommand class >> fullBrowserShortcutActivation [
 	<classAnnotation>
 	
-	^CmdShortcutActivation by: $n meta for: ClyClassContextOfFullBrowser
+	^CmdShortcutActivation by: $n meta for: ClyFullBrowserClassContext
 ]
 
 { #category : #activation }
 ClyShowClassRefCommand class >> fullBrowserToolbarActivation [
 	<classAnnotation>
 	
-	^ClyToolbarActivation byItemOf: ClyButtonToolbarGroup for: ClyClassContextOfFullBrowser 
+	^ClyToolbarActivation byItemOf: ClyButtonToolbarGroup for: ClyFullBrowserClassContext 
 ]
 
 { #category : #activation }
@@ -64,6 +70,18 @@ ClyShowClassRefCommand class >> sourceCodeMenuActivation [
 	<classAnnotation>
 	
 	^SycSourceCodeMenuActivation byItemOf: ClyQueryMenuGroup for: ClySourceCodeContext
+]
+
+{ #category : #accessing }
+ClyShowClassRefCommand >> browser [
+
+	^ browser
+]
+
+{ #category : #accessing }
+ClyShowClassRefCommand >> browser: anObject [
+
+	browser := anObject
 ]
 
 { #category : #accessing }

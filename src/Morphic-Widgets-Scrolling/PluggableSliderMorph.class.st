@@ -415,7 +415,7 @@ PluggableSliderMorph >> setValue: newValue [
 	"Propagate throught the model"
 	self model ifNotNil: [
 		self setValueSelector ifNotNil: [:sel |
-			self model perform: sel with: value ]]
+			self model perform: sel with: scaled ]]
 ]
 
 { #category : #accessing }
@@ -425,7 +425,7 @@ PluggableSliderMorph >> setValueSelector [
 	^setValueSelector
 ]
 
-{ #category : #access }
+{ #category : #accessing }
 PluggableSliderMorph >> sliderColor: newColor [
 	"Set the slider colour."
 	

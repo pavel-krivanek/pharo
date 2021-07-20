@@ -25,28 +25,28 @@ DAPackageAnalyzerCycleDetectionWindow class >> system [
 		open
 ]
 
-{ #category : #'initialization-filter' }
+{ #category : #'initialization - filter' }
 DAPackageAnalyzerCycleDetectionWindow >> initializeCycleDetectionTreeModelWith: aCollection [
 
 	self initializeWithSystemCycles.
 	packageAnalyzerTreeModel filterWithPackages: aCollection
 ]
 
-{ #category : #'initialization-filter' }
+{ #category : #'initialization - filter' }
 DAPackageAnalyzerCycleDetectionWindow >> initializeWithFilter: aCollection [
 	self initializeCycleDetectionTreeModelWith: aCollection.
 	self buildandAddAllMorph
 ]
 
-{ #category : #'initialization-union' }
+{ #category : #'initialization - union' }
 DAPackageAnalyzerCycleDetectionWindow >> initializeWithPackageNames: aCollection [
-	packageAnalyzerTreeModel  := DAPackageCycleDetectionTreeModel  onPackagesNamed: aCollection.
+	packageAnalyzerTreeModel  := DAPackageCycleDetectionTreePresenter  onPackagesNamed: aCollection.
 	self buildandAddAllMorph 
 ]
 
-{ #category : #'initialization-filter' }
+{ #category : #'initialization - filter' }
 DAPackageAnalyzerCycleDetectionWindow >> initializeWithSystemCycles [
-	packageAnalyzerTreeModel := DAPackageCycleDetectionTreeModel system.
+	packageAnalyzerTreeModel := DAPackageCycleDetectionTreePresenter system.
 ]
 
 { #category : #update }

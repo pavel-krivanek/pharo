@@ -58,6 +58,7 @@ MetaLink class >> defaultOptions [
 	+ optionWeakAfter 						  "do not use #ensure: for #after "
 	- optionAnnounce                    "do we announce adding / removing links? Slow"
 	- argsAsArray                       "pass all arguments in one array. By default off as it adds an array creation"
+	- optionStyler							  "should the metalink be visualized in the Tools?"
 	)
 ]
 
@@ -93,6 +94,16 @@ MetaLink >> allReifications [
 { #category : #installing }
 MetaLink >> announceChange [
 	self optionAnnounce ifTrue: [SystemAnnouncer uniqueInstance announce: (MetalinkChanged new link: self)]
+]
+
+{ #category : #installing }
+MetaLink >> announceInstall: node [
+	self optionAnnounce ifTrue: [SystemAnnouncer uniqueInstance announce: (MetalinkChanged linkAdded: self toNode: node)]
+]
+
+{ #category : #installing }
+MetaLink >> announceRemove: node [
+	self optionAnnounce ifTrue: [SystemAnnouncer uniqueInstance announce: (MetalinkChanged linkRemoved: self fromNode: node)]
 ]
 
 { #category : #accessing }
@@ -212,8 +223,9 @@ MetaLink >> doesNotUnderstand: message [
 { #category : #'reflective api' }
 MetaLink >> enable [
 	"turn on link reflectively if it has been turned off"
-	self hasReifiedCondition
-		ifTrue: [self condition enable].
+	self condition: (self condition originalLinkCondition)
+	"self hasReifiedCondition
+		ifTrue: [self condition enable]."
 	
 
 ]
@@ -260,33 +272,26 @@ MetaLink >> installOn: aNode [
 	
 ]
 
-{ #category : #'installing - link installer' }
-MetaLink >> installOnClassVarNamed: aClassVarName for: aClassOrObject option: option instanceSpecific: instanceSpecific [
-	| permalink |
-	permalink := self permaLinkFor: aClassOrObject option: option instanceSpecific: instanceSpecific.
-	^ self linkInstaller installPermaLink: permalink onClassVarNamed: aClassVarName
-]
-
-{ #category : #'installing - link installer' }
-MetaLink >> installOnSlotNamed: aSlotName for: aClassOrObject option: option instanceSpecific: instanceSpecific [
-	| permalink |
-	permalink := self
-		permaLinkFor: aClassOrObject
-		option: option
-		instanceSpecific: instanceSpecific.
-	^ self linkInstaller installPermaLink: permalink onSlotNamed: aSlotName
-]
-
-{ #category : #'installing - link installer' }
-MetaLink >> installOnTempVarNamed: aTempName inMethod: aMethodName for: aClassOrObject option: option instanceSpecific: instanceSpecific [
-	| permalink |
-	permalink := self permaLinkFor: aClassOrObject option: option instanceSpecific: instanceSpecific.
-	^ self linkInstaller installPermaLink: permalink onTempVarNamed: aTempName inMethod: aMethodName
-]
-
 { #category : #installing }
 MetaLink >> installOnVariable: aVariable [
 	nodes add: aVariable
+]
+
+{ #category : #'installing - link installer' }
+MetaLink >> installOnVariable: aVariable for: aClassOrObject option: option instanceSpecific: instanceSpecific [
+
+	| permalink |
+	permalink := self permaLinkFor: aClassOrObject option: option instanceSpecific: instanceSpecific.
+	^ self linkInstaller installPermaLink: permalink onVariable: aVariable
+]
+
+{ #category : #'installing - link installer' }
+MetaLink >> installOnVariableNamed: aName for: aClassOrObject option: option instanceSpecific: instanceSpecific [
+
+	| permalink variable |
+	permalink := self permaLinkFor: aClassOrObject option: option instanceSpecific: instanceSpecific.
+	variable := permalink targetObjectOrClass nonAnonymousClass lookupVar: aName.
+	^ self linkInstaller installPermaLink: permalink onVariable: variable
 ]
 
 { #category : #installing }
@@ -535,6 +540,10 @@ MetaLink >> selector: aSymbol [
 
 { #category : #installing }
 MetaLink >> uninstall [
+	"An uninstalled metaLink may not be re-installable. If you want to be sure you can reinstall it, please use #disable and #enable.
+	Cases when this metalink cannot be reinstalled:
+		- the method the AST node belongs to has been recompiled
+		- the image was saved (i.e. the ASTCache was reset)"
 	self linkInstaller uninstallFromAllAnonymousNodes: self.
 	self linkInstaller uninstallPermaLinkFor: self.
 	nodes do: [ :node | node removeLink: self ].

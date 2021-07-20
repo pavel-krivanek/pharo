@@ -13,19 +13,20 @@ BaselineOfGeneralTests >> baseline: spec [
 		spec 
 			package: 'Debugging-Utils-Tests';
 			package: 'Tests';
+			package: 'NumberParser-Tests';
 			package: 'AST-Core-Tests';			
 			package: 'RPackage-Tests';
 			package: 'Monticello-Tests';	"required by MonticelloMocks"
 			package: 'System-Installers-Tests' ;
 			package: 'MonticelloMocks';
 			package: 'Fuel-Tests-Core';
-			package: 'Fuel-Platform-Pharo-Core-Tests'	;
 			package: 'FormCanvas-Tests';
 			package: 'Collections-DoubleLinkedList-Tests';
 			package: 'Collections-Arithmetic-Tests';
 			package: 'ConfigurationCommandLineHandler-Tests';
 			package: 'MetacelloCommandLineHandler-Tests';
-			package: 'Debugger-Tests';
+			package: 'Debugger-Model-Tests';
+			package: 'Debugger-Oups-Tests';		
 			package: 'EmbeddedFreeType-Tests';
 			
 			package: 'Ombu-Tests';
@@ -68,6 +69,7 @@ BaselineOfGeneralTests >> baseline: spec [
 			package: 'Tool-Finder-Tests';
 			package: 'Tool-Profilers-Tests';
 			package: 'Tool-Workspace-Tests';
+			package: 'Tools-CodeNavigation-Tests';
 			package: 'Tools-Test';
 			package: 'Zinc-Resource-Meta-FileSystem';
 			package: 'Zinc-Resource-Meta-Tests';

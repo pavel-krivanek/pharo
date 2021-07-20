@@ -14,6 +14,11 @@ WordLayout class >> extending: superLayout scope: aScope host: aClass [
 		yourself
 ]
 
+{ #category : #description }
+WordLayout class >> kind [ 
+	^ #variableWord
+]
+
 { #category : #accessing }
 WordLayout >> bytesPerSlot [
 	
@@ -33,4 +38,14 @@ WordLayout >> instanceSpecification [
 { #category : #testing }
 WordLayout >> isWords [
 	^ true
+]
+
+{ #category : #accessing }
+WordLayout >> kindOfSubclass [
+	^' variableWordSubclass: '
+]
+
+{ #category : #accessing }
+WordLayout >> typeOfClass [
+	^#words
 ]

@@ -20,22 +20,6 @@ GZipReadStream class >> fileIn: fullFileName [
 ]
 
 { #category : #'file in/out' }
-GZipReadStream class >> fileIntoNewChangeSet: fullFileName [
-	"FileIn the contents of a gzipped file"
-
-	| csClass |
-	csClass := Smalltalk globals at: #ChangeSet ifAbsent: [ ^ self ].
-	fullFileName asFileReference
-		binaryReadStreamDo: [ :aBinaryStream | 
-			self with: aBinaryStream
-				do: [ :aGzStream | 
-					aGzStream contents asString
-						readStreamDo: [ :aReadStream | 
-							aReadStream reset.
-							csClass newChangesFromStream: aReadStream named: fullFileName asFileReference basename ] ] ]
-]
-
-{ #category : #'file in/out' }
 GZipReadStream class >> saveContents: fullFileName [
 	"Save the contents of a gzipped file"
 
@@ -55,15 +39,6 @@ GZipReadStream class >> saveContents: fullFileName [
 										whileFalse: [ bar current: zipped sourceStream position.
 											unzipped nextPutAll: (zipped nextInto: buffer) ] ] ] ] ].
 	^ newName
-]
-
-{ #category : #'file in/out' }
-GZipReadStream class >> uncompressedFileName: fullName [
-	^((fullName endsWith: '.gz') and: [self confirm: ('{1}
-appears to be a compressed file.
-Do you want to uncompress it?' format:{fullName})])
-		ifFalse: [fullName]
-		ifTrue:[self saveContents: fullName]
 ]
 
 { #category : #unzipping }
@@ -96,7 +71,7 @@ GZipReadStream class >> unzip: fullFileName to: pathName [
 
 { #category : #'file in/out' }
 GZipReadStream class >> viewContents: fullFileName [
-	"Open the decompressed contents of the .gz file with the given name.  This method is only required for the registering-file-list of Squeak 3.3a and beyond, but does no harm in an earlier system"
+	"Open the decompressed contents of the .gz file with the given name."
 
 	| file |
 	(file := fullFileName asFileReference) binaryReadStreamDo: 

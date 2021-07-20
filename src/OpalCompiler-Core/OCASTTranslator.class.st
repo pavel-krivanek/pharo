@@ -128,7 +128,6 @@ OCASTTranslator >> emitCaseOf: aMessageNode otherwiseBlock: aBlock [
 	| cases assocMessageNode  |
 	
 	cases := aMessageNode arguments first statements.
-	cases ifEmpty: [ self backendError: 'At least one case required' forNode: aMessageNode ].
 	valueTranslator visitNode: aMessageNode receiver.
 	valueTranslator emitAllButLastCases: cases.
 	
@@ -215,7 +214,7 @@ OCASTTranslator >> emitIfNil: aMessageNode boolean: aBoolean [
 	"emits the == nil code and push correct value on stack if the ifNotNil block has an argument"
 	args := aMessageNode arguments.
 	notNilBlock := aBoolean ifTrue: [args first] ifFalse: [args last].
-	notNilBlock arguments ifNotEmpty: [ notNilBlock arguments first binding emitStore: methodBuilder ].
+	notNilBlock arguments ifNotEmpty: [ notNilBlock arguments first variable emitStore: methodBuilder ].
 	methodBuilder pushLiteral: nil.
 	methodBuilder send: #==.
 	
@@ -250,7 +249,7 @@ OCASTTranslator >> emitIfTrueIfFalse: aMessageNode [
 	self emitIf: aMessageNode boolean: false
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> emitMessageNode: aMessageNode [
 
 	aMessageNode isCascaded ifFalse: [
@@ -293,7 +292,8 @@ OCASTTranslator >> emitTimesRepeat: aMessageNode [
 	block := aMessageNode arguments last.
 	
 	limitEmit := [valueTranslator visitNode: limit].
-	limit isLiteral | limit isSelf | limit isSuper ifFalse: [
+	"if the limit is not just a literal or a non-writable variable, make a temp store it there"
+	(limit isLiteralNode or: [limit isVariable and: [limit variable isWritable not]]) ifFalse: [
 		valueTranslator visitNode: limit.
 		methodBuilder addTemp: #'0limit'.
 		methodBuilder storeTemp: #'0limit'.
@@ -346,10 +346,11 @@ OCASTTranslator >> emitToDo: aMessageNode step: step [
 	
 	limit := aMessageNode arguments first.
 	block := aMessageNode arguments last.
-	iterator := block arguments first binding.
+	iterator := block arguments first variable.
 	
 	limitEmit := [valueTranslator visitNode: limit].
-	limit isLiteralNode | limit isSelf | limit isSuper | limit isArgument ifFalse: [
+	"if the limit is not just a literal or a non-writable variable, make a temp store it there"
+	(limit isLiteralNode or: [limit isVariable and: [limit variable isWritable not]]) ifFalse: [
 		valueTranslator visitNode: limit.
 		methodBuilder addTemp: ('0limit_', iterator name).
 		methodBuilder storeTemp: ('0limit_', iterator name).
@@ -404,11 +405,10 @@ OCASTTranslator >> emitWhileTrue: aMessageNode [
 OCASTTranslator >> initialize [
 
 	methodBuilder := IRBuilder new.
-	effectTranslator := self as: self classForEffect.
-	valueTranslator := self as: self classForValue.
-	effectTranslator instVarNamed: #effectTranslator put: effectTranslator.
-	effectTranslator instVarNamed: #valueTranslator put: valueTranslator.
-	valueTranslator instVarNamed: #valueTranslator put: valueTranslator.
+	effectTranslator := self classForEffect basicNew.
+	valueTranslator := self classForValue basicNew.
+	effectTranslator setFromSimilar: self.
+	valueTranslator setFromSimilar: self.
 
 ]
 
@@ -428,12 +428,34 @@ OCASTTranslator >> isValueTranslator [
 	^self == valueTranslator
 ]
 
+{ #category : #private }
+OCASTTranslator >> privateEffectTranslator [
+	^ effectTranslator
+]
+
+{ #category : #private }
+OCASTTranslator >> privateMethodBuilder [
+	^ methodBuilder
+]
+
+{ #category : #private }
+OCASTTranslator >> privateValueTranslator [
+	^ valueTranslator
+]
+
+{ #category : #initialization }
+OCASTTranslator >> setFromSimilar: aSimilarTranslator [
+	methodBuilder := aSimilarTranslator privateMethodBuilder.
+	effectTranslator := aSimilarTranslator privateEffectTranslator.
+	valueTranslator := aSimilarTranslator privateValueTranslator.
+]
+
 { #category : #errors }
 OCASTTranslator >> shouldBeSentToValueOrEffectTranslator [
 	self error: 'should be sent only to valueTranslator or effectTranslator'
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> translateFullBlock: aBlockNode [
 
 	methodBuilder mapToNode: aBlockNode.
@@ -457,7 +479,7 @@ OCASTTranslator >> translateFullBlock: aBlockNode [
 	^ aBlockNode ir compiledBlock: aBlockNode scope
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitArrayNode: anArrayNode [ 
 
 	| elementNodes |
@@ -469,15 +491,15 @@ OCASTTranslator >> visitArrayNode: anArrayNode [
 	methodBuilder pushConsArray: elementNodes size.
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitAssignmentNode: anAssignmentNode [ 
 
 	valueTranslator visitNode: anAssignmentNode value.
-	anAssignmentNode variable binding emitStore: methodBuilder
+	anAssignmentNode variable variable emitStore: methodBuilder
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitBlockNode: aBlockNode [
 	aBlockNode arguments size >15 ifTrue: [self backendError: 'Too many arguments' forNode: aBlockNode ].
 	
@@ -504,7 +526,7 @@ OCASTTranslator >> visitBlockNode: aBlockNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitCascadeNode: aCascadeNode [ 
 
 	valueTranslator visitNode: aCascadeNode receiver.
@@ -516,14 +538,16 @@ OCASTTranslator >> visitCascadeNode: aCascadeNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitFullBlockNode: aBlockNode [
 	| compiledBlock |
 	compiledBlock := self compilationContext astTranslatorClass new translateFullBlock: aBlockNode.
-	methodBuilder pushFullClosureCompiledBlock: compiledBlock copiedValues: aBlockNode scope inComingCopiedVarNames
+	(self compilationContext optionCleanBlockClosure and: [ aBlockNode isClean ])
+		ifTrue: [ methodBuilder pushLiteral: ((CleanBlockClosure new: 0) numArgs: compiledBlock numArgs; compiledBlock: compiledBlock)]
+		ifFalse: [methodBuilder pushFullClosureCompiledBlock: compiledBlock copiedValues: aBlockNode scope inComingCopiedVarNames  ]
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitInlinedBlockNode: anOptimizedBlockNode [
 
 	"We are visiting a scope that is not a block, but inlined in the outer context.
@@ -552,7 +576,7 @@ OCASTTranslator >> visitInlinedBlockNode: anOptimizedBlockNode [
 	methodBuilder popMap
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitLargeArrayNode: aRBArrayNode [ 
 	"Long form: generates (Array braceStream: N) nextPut: a; nextPut: b; ...; braceArray"
 	methodBuilder pushLiteralVariable: Array binding.
@@ -568,21 +592,21 @@ OCASTTranslator >> visitLargeArrayNode: aRBArrayNode [
 				
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitLiteralArrayNode: aRBLiteralArrayNode [ 
 	 
 	methodBuilder pushLiteral: aRBLiteralArrayNode value.
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitLiteralNode: aLiteralNode [
 
 	methodBuilder pushLiteral: aLiteralNode value.
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitMessageNode: aMessageNode [
 	aMessageNode isInlined ifTrue: [
 		methodBuilder addLiteral: aMessageNode selector. "so searching for senders will work"
@@ -592,7 +616,7 @@ OCASTTranslator >> visitMessageNode: aMessageNode [
 	^ self emitMessageNode: aMessageNode
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitMethodNode: aMethodNode [
 	
 	aMethodNode arguments size > 15 ifTrue: [self backendError: 'Too many arguments' forNode: aMethodNode ].
@@ -614,7 +638,7 @@ OCASTTranslator >> visitMethodNode: aMethodNode [
 	aMethodNode body lastIsReturn ifFalse:  [methodBuilder pushReceiver; returnTop]
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitNode: aNode [
 	methodBuilder mapToNode: aNode.
 	super visitNode: aNode.
@@ -622,24 +646,28 @@ OCASTTranslator >> visitNode: aNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitParseErrorNode: anErrorNode [  
 	methodBuilder 
-		pushLiteralVariable: (AdditionalBinding key: #error value: anErrorNode asSyntaxErrorNotification);
-		send: #signal.
-
-
+		pushLiteralVariable: RuntimeSyntaxError binding;
+		pushLiteral: anErrorNode;
+		send: #signalSyntaxError:
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitPragmaNode: aPragmaNode [
-	methodBuilder addPragma: aPragmaNode asPragma.
-	aPragmaNode isPrimitiveError ifTrue: [
-		methodBuilder storeTemp: (aPragmaNode argumentAt: #error:) value].
 
+	| var |
+	methodBuilder addPragma: aPragmaNode asPragma.
+	
+	"if the pragma is a primitive that defines an error variable, we need to store error value 
+	which is on the stack"
+	aPragmaNode isPrimitiveError ifFalse: [ ^ self ].
+	var := aPragmaNode methodNode scope lookupVar: aPragmaNode primitiveErrorVariableName.
+	var emitStore: methodBuilder.
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitReturnNode: aReturnNode [ 
 
 	valueTranslator visitNode: aReturnNode value.
@@ -648,15 +676,15 @@ OCASTTranslator >> visitReturnNode: aReturnNode [
 
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitSequenceNode: aSequenceNode [ 
 
 	self shouldBeSentToValueOrEffectTranslator
 ]
 
-{ #category : #'visitor-double dispatching' }
+{ #category : #'visitor - double dispatching' }
 OCASTTranslator >> visitVariableNode: aVariableNode [
-	aVariableNode binding emitValue: methodBuilder
+	aVariableNode variable emitValue: methodBuilder
 	
 	
 ]

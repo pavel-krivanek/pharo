@@ -10,7 +10,7 @@ Class {
 	#category : #'Renraku-Critiques'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 ReTransformationCritique class >> for: anEntity by: aRule tree: newAST [
 
 	^ self basicNew
@@ -24,7 +24,9 @@ ReTransformationCritique class >> for: anEntity by: aRule tree: newAST [
 ReTransformationCritique >> change [
 	"re-add the method compiled from the new AST"
 	
-	^ RBAddMethodChange compile: newTree newSource in: self entity methodClass
+	^ (RBRefactoryChangeFactory instance) 
+		addMethodSource: newTree newSource 
+		in: self entity methodClass
 ]
 
 { #category : #initialization }

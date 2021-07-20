@@ -1,7 +1,7 @@
 Class {
 	#name : #RBExtractToTemporaryTest,
 	#superclass : #RBRefactoringTest,
-	#category : #'Refactoring-Tests-Core'
+	#category : #'Refactoring-Tests-Core-Refactorings'
 }
 
 { #category : #'failure tests' }
@@ -40,15 +40,16 @@ RBExtractToTemporaryTest >> testBadName [
 
 { #category : #tests }
 RBExtractToTemporaryTest >> testExtractToTemporaryForLastStatementInBlock [
-	| refactoring |
+	| refactoring methodName |
+	methodName := ('caller', '2') asSymbol.
 	refactoring := RBExtractToTemporaryRefactoring
 		extract: (52 to: 73)
 		to: 'temp'
-		from: #caller2
+		from: methodName
 		in: RBRefactoryTestDataApp.
 	self executeRefactoring: refactoring.
 
-	self assert: ((refactoring model classNamed: #RBRefactoryTestDataApp) parseTreeFor: #caller2) equals: (self parseMethod: 'caller2
+	self assert: ((refactoring model classNamed: #RBRefactoryTestDataApp) parseTreeFor: methodName) equals: (self parseMethod: 'caller2
 	^(1 to: 10) inject: 1 into: [:sum :each | | temp | temp := sum * (self foo: each). temp]')
 ]
 
@@ -89,6 +90,15 @@ RBExtractToTemporaryTest >> testExtractToTemporaryWithDuplicates [
 	result2 := temp.
 	answer := result1 + result2 + temp.
 	^ answer')
+]
+
+{ #category : #'failure tests' }
+RBExtractToTemporaryTest >> testNoValidNameOfTemp [
+	self shouldFail: (RBExtractToTemporaryRefactoring 
+			extract: (51 to: 60)
+			to: 'collection'
+			from: #modifiesCollection
+			in: RBRefactoryTestDataApp)
 ]
 
 { #category : #'failure tests' }

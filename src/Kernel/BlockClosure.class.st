@@ -144,13 +144,8 @@ BlockClosure >> copyForSaving [
 { #category : #evaluating }
 BlockClosure >> cull: anArg [
 	"Execute the receiver with one or zero arguments depending on the receiver"
-	"([ 12 ] cull: 13)
-	>>> 12 
-	"
-	"([:x | x + 12] cull: 3)
-	>>> 15
-	"
-	<debuggerCompleteToSender>
+	"([ 12 ] cull: 13)>>> 12 "
+	"([:x | x + 12] cull: 3)>>> 15"
 	^numArgs = 0 
 		ifTrue: [self value]
 		ifFalse: [self value: anArg]
@@ -160,11 +155,9 @@ BlockClosure >> cull: anArg [
 { #category : #evaluating }
 BlockClosure >> cull: firstArg cull: secondArg [
 	"Execute the receiver with one or two arguments depending on the receiver"
-	"([:x | x + 1] cull: 13 cull: 12)
-	>>> 14
+	"([:x | x + 1] cull: 13 cull: 12) >>> 14
 	"
-	"([:x :y | x + y] cull: 3 cull: 2)
-	>>> 5
+	"([:x :y | x + y] cull: 3 cull: 2) >>> 5
 	"
 	^numArgs < 2 
 		ifTrue: [self cull: firstArg]
@@ -188,6 +181,11 @@ BlockClosure >> cull: firstArg cull: secondArg cull: thirdArg cull: fourthArg [
 		ifTrue: [self cull: firstArg cull: secondArg cull: thirdArg]
 		ifFalse: [self value: firstArg value: secondArg value: thirdArg value: fourthArg]
 	
+]
+
+{ #category : #printing }
+BlockClosure >> doPrintOn: aStream [
+	aStream nextPutAll: self sourceNode sourceCode 
 ]
 
 { #category : #controlling }
@@ -355,23 +353,8 @@ BlockClosure >> isClean [
 	 being created at compile-time."
 	self numCopiedValues > 0 ifTrue:
 		[^false].
-	self abstractBytecodeMessagesDo:
-		[:msg|
-		(#(	pushReceiver
-			pushReceiverVariable: popIntoReceiverVariable: storeIntoReceiverVariable:
-			methodReturnConstant: methodReturnReceiver methodReturnTop)
-				includes: msg selector) ifTrue:
-					[^false]].
-	^true
 
-	"clean:"
-		"[] isClean"
-		"[:a :b| a < b] isClean"
-	"unclean"
-		"[^nil] isClean"
-		"[self class] isClean"
-		"| v | v := 0.
-		 [v class] isClean"
+	^ CleanBlockChecker check: self method
 ]
 
 { #category : #testing }
@@ -492,36 +475,33 @@ BlockClosure >> on: exception fork: handlerAction [
 	up to the top of the stack will be transferred to forked process, with handlerAction on top.
 	(so when the forked process will be resuming, it will enter the handlerAction)
 	 "
-		
-	^ self on: exception do: [:ex |
-		| copy onDoCtx process handler bottom thisCtx |
-		
-		onDoCtx := thisContext.
-		thisCtx := onDoCtx home.
 
-		"find the context on stack for which this method's is sender"
+	^ self
+		  on: exception
+		  do: [ :ex | 
+			  | onDoCtx handler bottom thisCtx |
+			  onDoCtx := thisContext.
+			  thisCtx := onDoCtx home.
 
-		[ onDoCtx sender == thisCtx] whileFalse: [ 
-			onDoCtx := onDoCtx sender.
-			onDoCtx ifNil: [ 
-				"Can't find our home context. seems like we're already forked
-				and handling another exception in new thread. In this case, just pass it through handler."
-				^ handlerAction cull: ex ]
-		 ].
+			  "find the context on stack for which this method's is sender"
 
-		bottom := [ Processor terminateActive ] asContext.
-		onDoCtx privSender: bottom.
+			  [ onDoCtx sender == thisCtx ] whileFalse: [ 
+				  onDoCtx := onDoCtx sender.
+				  onDoCtx ifNil: [ "Can't find our home context. seems like we're already forked
+				and handling another exception in new thread. In this case, just pass it through handler." 
+					  ^ handlerAction cull: ex ] ].
 
-		handler := [ handlerAction cull: ex ] asContext.
-		handler privSender: thisContext sender.
+			  bottom := [ Processor terminateActive ] asContext.
+			  onDoCtx privSender: bottom.
 
-		(Process forContext: handler priority: Processor activePriority) resume.
+			  handler := [ handlerAction cull: ex ] asContext.
+			  handler privSender: thisContext sender.
 
-		"cut the stack of current process"
-		thisContext privSender: thisCtx.
-		nil
-	]
+			  (Process forContext: handler priority: Processor activePriority) resume.
 
+			  "cut the stack of current process"
+			  thisContext privSender: thisCtx.
+			  nil ]
 ]
 
 { #category : #exceptions }
@@ -566,7 +546,12 @@ BlockClosure >> outerContext: aContext startpc: aStartpc numArgs: argCount copie
 
 { #category : #printing }
 BlockClosure >> printOn: aStream [
-	aStream nextPutAll: self sourceNode sourceCode 
+		
+	[self doPrintOn: aStream] 
+		onErrorDo: [ aStream 
+				nextPutAll: '<Error printing blockClosure in: ';
+				print: self method;
+				nextPutAll: ' >' ]
 ]
 
 { #category : #accessing }
@@ -884,8 +869,9 @@ BlockClosure >> valueWithEnoughArguments: anArray [
 ]
 
 { #category : #evaluating }
-BlockClosure >> valueWithExit [ 
-	  self value: [ ^nil ]
+BlockClosure >> valueWithExit [
+
+	^ self value: [ ^ nil ]
 ]
 
 { #category : #evaluating }
@@ -905,17 +891,13 @@ BlockClosure >> valueWithInterval: aDelay [
 { #category : #evaluating }
 BlockClosure >> valueWithPossibleArgs: anArray [ 
 	"Execute the receiver with the correct number of arguments taken from the argument."
-	"([:x | x + 1] valueWithPossibleArgs: #( 13 12 15))
-	>>> 14
+	"([:x | x + 1] valueWithPossibleArgs: #( 13 12 15)) >>> 14
 	"
-	"([:x :y | x + y] valueWithPossibleArgs: #( 13 12 15)) 
-	>>> 25
+	"([:x :y | x + y] valueWithPossibleArgs: #( 13 12 15)) >>> 25
 	"
-	"([:x :y :z | x + y + z] valueWithPossibleArgs: #( 13 12 15)) 
-	>>> 40
+	"([:x :y :z | x + y + z] valueWithPossibleArgs: #( 13 12 15)) >>> 40
 	"
-	"([:x :y :z | x + y + z] valueWithPossibleArgs: #( 13 12 15)) 
-	>>> 40
+	"([:x :y :z | x + y + z] valueWithPossibleArgs: #( 13 12 15)) >>> 40
 	"
 	^numArgs = 0
 		ifTrue: [self value]

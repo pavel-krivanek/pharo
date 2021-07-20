@@ -10,9 +10,6 @@ Internal Representation and Key Implementation Points.
 Class {
 	#name : #ClyCriticContext,
 	#superclass : #ClyBrowserContext,
-	#instVars : [
-		'analyzedObject'
-	],
 	#category : #'Calypso-SystemPlugins-Critic-Browser'
 }
 
@@ -20,7 +17,7 @@ Class {
 ClyCriticContext class >> selectionStrategy [
 	<classAnnotation>
 	
-	^ClyContextSelectionStrategy for: ClyCriticDecorator
+	^ClyContextSelectionStrategyAnnotation for: ClyCriticDecorator
 ]
 
 { #category : #accessing }

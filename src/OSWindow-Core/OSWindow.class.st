@@ -80,6 +80,12 @@ OSWindow class >> finalizeResourceData: windowHandle [
 	windowHandle destroy.
 ]
 
+{ #category : #initialization }
+OSWindow class >> initialize [ 
+
+	self traceEvents: false
+]
+
 { #category : #'instance creation' }
 OSWindow class >> new [
 	^ self createWithAttributes: OSWindowAttributes new
@@ -156,17 +162,16 @@ OSWindow >> createWindow [
 OSWindow >> deliverEvent: anEvent [
 	"TODO..."
 
-	TraceEvents == true
+	TraceEvents
 		ifTrue: [ self traceCr: anEvent ].
 	eventHandler ifNotNil: [ eventHandler handleEvent: anEvent ].
-	anEvent performDefaultAction
 ]
 
 { #category : #'dispatching events' }
 OSWindow >> deliverGlobalEvent: aGlobalEvent [
 	"TODO..."
 
-	TraceEvents == true
+	TraceEvents
 		ifTrue: [ self traceCr: aGlobalEvent ].
 	eventHandler ifNotNil: [ eventHandler handleEvent: aGlobalEvent ]
 ]
@@ -176,6 +181,11 @@ OSWindow >> destroy [
 	self validHandle destroy.
 	backendWindow := nil.
 	eventHandler := nil.
+]
+
+{ #category : #accessing }
+OSWindow >> diagonalDPI [
+	^ self validHandle diagonalDPI
 ]
 
 { #category : #accessing }
@@ -220,6 +230,11 @@ OSWindow >> getFlags [
 OSWindow >> hide [
 	self checkIsValid .
 	backendWindow hide
+]
+
+{ #category : #accessing }
+OSWindow >> horizontalDPI [
+	^ self validHandle horizontalDPI
 ]
 
 { #category : #accessing }
@@ -272,22 +287,22 @@ OSWindow >> minimize [
 
 { #category : #'instance creation' }
 OSWindow >> newAthensRenderer [
-	^ backendWindow newAthensRenderer
+	^ backendWindow ifNotNil: [backendWindow newAthensRenderer]
 ]
 
 { #category : #factory }
 OSWindow >> newFormRenderer: form [
-	^ backendWindow newFormRenderer: form
+	^ backendWindow ifNotNil: [backendWindow newFormRenderer: form]
 ]
 
 { #category : #factory }
 OSWindow >> newGenericRenderer [
-	^ backendWindow newGenericRenderer
+	^ backendWindow ifNotNil: [backendWindow newGenericRenderer]
 ]
 
 { #category : #factory }
 OSWindow >> newOpenGLRenderer [
-	^ backendWindow newOpenGLRenderer
+	^ backendWindow ifNotNil: [backendWindow newOpenGLRenderer]
 ]
 
 { #category : #accessing }
@@ -341,6 +356,16 @@ OSWindow >> restore [
 	self validHandle restore.
 ]
 
+{ #category : #accessing }
+OSWindow >> screenScaleFactor [
+	^ self validHandle screenScaleFactor
+]
+
+{ #category : #accessing }
+OSWindow >> screenScaleFactorBaseDPI [
+	^ self validHandle screenScaleFactorBaseDPI
+]
+
 { #category : #'window management' }
 OSWindow >> setDraggableArea: aRectangle [
 
@@ -362,10 +387,16 @@ OSWindow >> setMouseCursor: cursorWithMask [
 
 { #category : #accessing }
 OSWindow >> setMouseCursor: cursor mask: mask [
+
+	self setMouseCursor: cursor mask: mask andScale: 1
+]
+
+{ #category : #accessing }
+OSWindow >> setMouseCursor: cursor mask: mask andScale: scale [
 	currentCursor == cursor ifTrue: [ ^ self ].
 	currentCursor := cursor.
 
-	self validHandle setMouseCursor: cursor mask: mask
+	self validHandle setMouseCursor: cursor mask: mask andScale: scale
 ]
 
 { #category : #visibility }
@@ -417,6 +448,11 @@ OSWindow >> toggleBorderOn [
 OSWindow >> validHandle [
 	self checkIsValid.
 	^ backendWindow
+]
+
+{ #category : #accessing }
+OSWindow >> verticalDPI [
+	^ self validHandle verticalDPI
 ]
 
 { #category : #accessing }

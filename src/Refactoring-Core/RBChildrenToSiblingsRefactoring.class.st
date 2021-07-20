@@ -49,14 +49,14 @@ RBChildrenToSiblingsRefactoring class >> name: aClassName class: aClass subclass
 		yourself
 ]
 
-{ #category : #'private-accessing' }
+{ #category : #'private - accessing' }
 RBChildrenToSiblingsRefactoring >> abstractSuperclass [
 	^self model classNamed: className asSymbol
 ]
 
 { #category : #transforming }
 RBChildrenToSiblingsRefactoring >> addSuperclass [
-	self performComponentRefactoring: (RBAddClassRefactoring 
+	self performCompositeRefactoring: (RBAddClassRefactoring 
 				model: self model
 				addClass: className
 				superclass: parent superclass
@@ -73,7 +73,7 @@ RBChildrenToSiblingsRefactoring >> changeIsKindOfReferences [
 	self convertAllReferencesToClass: parent using: replacer
 ]
 
-{ #category : #'private-methods' }
+{ #category : #'private - methods' }
 RBChildrenToSiblingsRefactoring >> computeSubclassSupersOf: aClass [ 
 	| selectors |
 	selectors := Set new.
@@ -84,7 +84,7 @@ RBChildrenToSiblingsRefactoring >> computeSubclassSupersOf: aClass [
 	^selectors
 ]
 
-{ #category : #'private-methods' }
+{ #category : #'private - methods' }
 RBChildrenToSiblingsRefactoring >> createSubclassResponsibilityFor: aSelector in: aClass [
 
 	| source |
@@ -119,37 +119,37 @@ RBChildrenToSiblingsRefactoring >> preconditions [
 					& (RBCondition isImmediateSubclass: each of: parent)]
 ]
 
-{ #category : #'private-variables' }
+{ #category : #'private - variables' }
 RBChildrenToSiblingsRefactoring >> pullUpClassInstanceVariables [
 	| newSuperclass |
 	newSuperclass := self abstractSuperclass classSide.
 	parent classSide instanceVariableNames do: 
 		[ :each | 
-		self performComponentRefactoring: (RBPullUpInstanceVariableRefactoring 
+		self performCompositeRefactoring: (RBPullUpInstanceVariableRefactoring 
 				model: self model
 				variable: each
 				class: newSuperclass) ]
 ]
 
-{ #category : #'private-variables' }
+{ #category : #'private - variables' }
 RBChildrenToSiblingsRefactoring >> pullUpClassVariables [
 	| newSuperclass |
 	newSuperclass := self abstractSuperclass.
 	parent classVariableNames do: 
 			[:each | 
-			self performComponentRefactoring: (RBPullUpClassVariableRefactoring 
+			self performCompositeRefactoring: (RBPullUpClassVariableRefactoring 
 						model: self model
 						variable: each
 						class: newSuperclass)]
 ]
 
-{ #category : #'private-variables' }
+{ #category : #'private - variables' }
 RBChildrenToSiblingsRefactoring >> pullUpInstanceVariables [
 	| newSuperclass |
 	newSuperclass := self abstractSuperclass.
 	parent instanceVariableNames do: 
 			[:each | 
-			self performComponentRefactoring: (RBPullUpInstanceVariableRefactoring 
+			self performCompositeRefactoring: (RBPullUpInstanceVariableRefactoring 
 						model: self model
 						variable: each
 						class: newSuperclass)]
@@ -161,7 +161,7 @@ RBChildrenToSiblingsRefactoring >> pullUpMethods [
 	self pushUpMethodsFrom: parent classSide
 ]
 
-{ #category : #'private-variables' }
+{ #category : #'private - variables' }
 RBChildrenToSiblingsRefactoring >> pullUpPoolVariables [
 	"Don't remove the pool variables from the subclass since they might be referenced there."
 
@@ -171,7 +171,7 @@ RBChildrenToSiblingsRefactoring >> pullUpPoolVariables [
 		do: [:each | newSuperclass addPoolDictionary: each]
 ]
 
-{ #category : #'private-methods' }
+{ #category : #'private - methods' }
 RBChildrenToSiblingsRefactoring >> pushUp: aSelector in: aClass [
 
 	| source |
@@ -181,7 +181,7 @@ RBChildrenToSiblingsRefactoring >> pushUp: aSelector in: aClass [
 		ifNotNil: [ aClass superclass compile: source classified: ( aClass protocolsFor: aSelector ) ]
 ]
 
-{ #category : #'private-methods' }
+{ #category : #'private - methods' }
 RBChildrenToSiblingsRefactoring >> pushUpMethodsFrom: aClass [ 
 	| selectorsToPushUp |
 	selectorsToPushUp := self selectorsToPushUpFrom: aClass.
@@ -206,7 +206,7 @@ RBChildrenToSiblingsRefactoring >> reparentSubclasses [
 	self model reparentClasses: subclasses to: self abstractSuperclass
 ]
 
-{ #category : #'private-methods' }
+{ #category : #'private - methods' }
 RBChildrenToSiblingsRefactoring >> selectorsToPushUpFrom: aClass [ 
 	| superSelectors |
 	superSelectors := self computeSubclassSupersOf: aClass.
@@ -215,7 +215,7 @@ RBChildrenToSiblingsRefactoring >> selectorsToPushUpFrom: aClass [
 			(superSelectors includes: each) or: [self shouldPushUp: each from: aClass]]
 ]
 
-{ #category : #'private-methods' }
+{ #category : #'private - methods' }
 RBChildrenToSiblingsRefactoring >> shouldPushUp: aSelector from: aClass [
 	^ (aClass isMeta
 		ifTrue: [ subclasses collect: [ :each | each classSide ] ]
@@ -237,7 +237,7 @@ RBChildrenToSiblingsRefactoring >> storeOn: aStream [
 	aStream nextPut: $)
 ]
 
-{ #category : #'private-methods' }
+{ #category : #'private - methods' }
 RBChildrenToSiblingsRefactoring >> subclassResponsibilityFor: aSelector in: aClass [
 	| methodNode position source |
 	source := aClass sourceCodeFor: aSelector.

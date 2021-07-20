@@ -3,10 +3,10 @@ ParseTreeSearcher walks over a normal source code parse tree using the visitor p
 
 Instance Variables:
 	answer	<Object>	the ""answer"" that is propagated between matches
-	argumentSearches	<Collection of: (Association key: RBProgramNode value: BlockClosure)>	argument searches (search for the BRProgramNode and perform the BlockClosure when its found)
+	argumentSearches	<Collection of: (Association key: RBProgramNode value: BlockClosure)>	argument searches (search for the RBProgramNode and perform the BlockClosure when its found)
 	context	<RBSmallDictionary>	a dictionary that contains what each meta-node matches against. This could be a normal Dictionary that is created for each search but is created once and reused (efficiency).
 	messages	<Collection>	the sent messages in our searches
-	searches	<Collection of: (Association key: RBProgramNode value: BlockClosure)>	non-argument searches (search for the BRProgramNode and perform the BlockClosure when its found)
+	searches	<Collection of: (Association key: RBProgramNode value: BlockClosure)>	non-argument searches (search for the RBProgramNode and perform the BlockClosure when its found)
 "
 Class {
 	#name : #RBParseTreeSearcher,
@@ -55,7 +55,7 @@ RBParseTreeSearcher class >> buildTree: aString method: aBoolean [
 
 { #category : #'instance creation' }
 RBParseTreeSearcher class >> getterMethod: aVarName [ 
-	^(self new)
+	^ self new
 		matchesMethod: '`method ^' , aVarName do: [:aNode :ans | aNode selector];
 		matchesMethod: '`method ^' , aVarName, ' ifNil:[ `@expr]' do: [:aNode :ans | aNode selector];
 		yourself

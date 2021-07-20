@@ -81,21 +81,12 @@ RGClassDefinitionTest >> testAsClassDefinitionSourceDefinition [
 	| newClass |
 	newClass := MOPTestClassC asRingDefinition.
 	self
-		assert: newClass definitionSource
-		equals:
-			'Object subclass: #MOPTestClassC
-	uses: Trait2
-	instanceVariableNames: ''''
-	classVariableNames: ''''
-	poolDictionaries: ''''
-	category: ''Tests-Traits-MOP'''.
+		assert: newClass definitionSource 
+		equals: (ClassDefinitionPrinter new for: MOPTestClassC) definitionString.
 
 	self
 		assert: newClass classSide definitionSource
-		equals:
-			'MOPTestClassC class
-	uses: Trait2 classTrait
-	instanceVariableNames: '''''
+		equals: (ClassDefinitionPrinter new for: MOPTestClassC class) definitionString
 ]
 
 { #category : #testing }

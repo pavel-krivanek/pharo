@@ -4,6 +4,9 @@ I am an abstract superclass for FileLocator and FileReference. By implementing m
 Class {
 	#name : #AbstractFileReference,
 	#superclass : #Object,
+	#instVars : [
+		'path'
+	],
 	#category : #'FileSystem-Core-Public'
 }
 
@@ -195,7 +198,7 @@ AbstractFileReference >> binaryWriteStreamDo: doBlock ifPresent: presentBlock [
 AbstractFileReference >> canonicalize [
 	"Answer the receiver with references to the current folder (.) and parent folder (..) removed"
 
-	^ self withPath: self resolve path canonicalize
+	^ self withPath: self path canonicalize
 ]
 
 { #category : #accessing }
@@ -364,8 +367,8 @@ AbstractFileReference >> directoryNames [
 
 { #category : #operations }
 AbstractFileReference >> ensureCreateDirectory [
-	"Verifies that the directory does not exist and only creates if necessary. Do not remove files contained if they exist.Creates the parents if needed"
-	^ self resolve ensureCreateDirectory
+	"Verifies that the directory does not exist and only creates if necessary. Do not remove files contained if they exist. Creates the parents if needed"
+	self resolve ensureCreateDirectory
 ]
 
 { #category : #operations }
@@ -709,6 +712,11 @@ AbstractFileReference >> parent [
 { #category : #delegated }
 AbstractFileReference >> parentUpTo: aParentDirName [
 	^ self withPath: (self path parentUpTo: aParentDirName)
+]
+
+{ #category : #accessing }
+AbstractFileReference >> path [
+	^ path
 ]
 
 { #category : #accessing }

@@ -62,7 +62,8 @@ FullBlockClosure >> endPC [
 { #category : #scanning }
 FullBlockClosure >> hasMethodReturn [
 	"Answer whether the receiver has a method-return ('^') in its code."
-	^ self compiledBlock hasMethodReturn
+	self withAllBlocksDo: [ :each | each hasMethodReturn ifTrue: [ ^true ] ].
+	^false
 ]
 
 { #category : #accessing }
@@ -177,14 +178,9 @@ FullBlockClosure >> value [
 	 message. Supply the copied values to the activation as its copied
 	 temps. Primitive. Essential."
 	<primitive: 207>
-	| newContext |
 	numArgs ~= 0 ifTrue:
 		[self numArgsError: 0].
-	false
-		ifTrue: "Old code to simulate the closure value primitive on VMs that lack it."
-			[newContext := self asContextWithSender: thisContext sender.
-			thisContext privSender: newContext]
-		ifFalse: [self primitiveFailed]
+	^self primitiveFailed
 ]
 
 { #category : #evaluating }
@@ -302,4 +298,9 @@ FullBlockClosure >> valueWithArguments: anArray [
 		ifFalse: [
 			"Retrying with an array as parameter. As the primitive only supports arrays"
 			^ self valueWithArguments: anArray asArray ]
+]
+
+{ #category : #accessing }
+FullBlockClosure >> withAllBlocksDo: aBlock [
+	self compiledBlock withAllBlocksDo: aBlock
 ]

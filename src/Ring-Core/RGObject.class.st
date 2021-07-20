@@ -158,14 +158,14 @@ RGObject >> copyWithParent: newParent [
 		yourself.
 ]
 
-{ #category : #'hierarchy-defaults' }
+{ #category : #'hierarchy - defaults' }
 RGObject >> defaultClassStub [
 
 	<ignoreForMutations>
 	^ RGClass unresolved
 ]
 
-{ #category : #'hierarchy-defaults' }
+{ #category : #'hierarchy - defaults' }
 RGObject >> defaultCommentStubIn: anRGBehavior [
 
 	<ignoreForMutations>
@@ -174,21 +174,21 @@ RGObject >> defaultCommentStubIn: anRGBehavior [
 		yourself.
 ]
 
-{ #category : #'hierarchy-defaults' }
+{ #category : #'hierarchy - defaults' }
 RGObject >> defaultEnvironmentStub [
 
 	<ignoreForMutations>
 	^ RGEnvironment unresolved
 ]
 
-{ #category : #'hierarchy-defaults' }
+{ #category : #'hierarchy - defaults' }
 RGObject >> defaultFixedLayoutStub [
 
 	<ignoreForMutations>
 	^ RGFixedLayout unresolved
 ]
 
-{ #category : #'hierarchy-defaults' }
+{ #category : #'hierarchy - defaults' }
 RGObject >> defaultFixedLayoutStubIn: anRGBehavior [
 
 	<ignoreForMutations>
@@ -197,7 +197,7 @@ RGObject >> defaultFixedLayoutStubIn: anRGBehavior [
 		yourself.
 ]
 
-{ #category : #'hierarchy-defaults' }
+{ #category : #'hierarchy - defaults' }
 RGObject >> defaultPackageStubIn: anRGEnvironment [
 
 	<ignoreForMutations>
@@ -212,13 +212,13 @@ RGObject >> defaultParentStub [
 	self subclassResponsibility
 ]
 
-{ #category : #'hierarchy-defaults' }
+{ #category : #'hierarchy - defaults' }
 RGObject >> defaultTraitCompositionStub [
 
 	^ RGTraitComposition unresolved
 ]
 
-{ #category : #'hierarchy-defaults' }
+{ #category : #'hierarchy - defaults' }
 RGObject >> defaultTraitCompositionStubIn: anRGBehavior [
 	<ignoreForMutations>
 
@@ -254,11 +254,22 @@ RGObject >> hasProperties [
 ]
 
 { #category : #properties }
-RGObject >> hasPropertyNamed: propertyName [
-	
+RGObject >> hasProperty: propertyName [
+
 	^ self hasProperties
 		ifTrue: [ properties includesKey: propertyName ]	
 		ifFalse:[ false ].
+
+]
+
+{ #category : #properties }
+RGObject >> hasPropertyNamed: propertyName [
+
+	self
+		deprecated: 'Use hasProperty: instead'
+		transformWith: '`@rec hasPropertyNamed: `@arg' -> '`@rec hasProperty: `@arg'.
+
+	^ self hasProperty: propertyName
 
 ]
 
@@ -324,37 +335,37 @@ RGObject >> initializeUnresolved [
 
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isBehavior [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isClass [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isComment [
 
 	^false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isEnvironment [
 
 	^false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isGlobalVariable [
 
 	^false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isLayout [
 
 	^false
@@ -366,31 +377,31 @@ RGObject >> isMeta [
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isMetaclass [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isMetaclassTrait [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isMethod [
 
 	^false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isPackage [
 
 	^false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isProtocol [
 
 	^false
@@ -422,37 +433,37 @@ RGObject >> isRingResolved [
 	^ self propertyNamed: #resolved ifAbsent: [ true ]
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isSlot [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isTraitAlias [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isTraitComposition [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isTraitExclusion [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isTraitTransformation [
 
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isVariable [
 
 	"is the definition a variable class?"
@@ -460,10 +471,13 @@ RGObject >> isVariable [
 	^ false
 ]
 
-{ #category : #'testing types' }
+{ #category : #'testing - types' }
 RGObject >> isVariableDefinition [
-
-	^ false
+	self 
+		deprecated: 'Use #isVariable instead.' 
+		transformWith: '`@receiver isVariableDefinition' -> '`@receiver isVariable'.
+	
+	^ self isVariable
 ]
 
 { #category : #resolving }
@@ -631,10 +645,10 @@ RGObject >> pvtUnresolvedProperties [
 ]
 
 { #category : #properties }
-RGObject >> removePropertyNamed: propertyName [ 
-	
-	(self hasPropertyNamed: propertyName)
-		ifTrue: [ properties removeKey: propertyName ]
+RGObject >> removePropertyNamed: propertyName [
+
+	(self hasProperty: propertyName) ifTrue: [ 
+		properties removeKey: propertyName ]
 ]
 
 { #category : #accessing }

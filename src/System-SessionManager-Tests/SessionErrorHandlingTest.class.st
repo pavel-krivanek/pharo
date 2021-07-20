@@ -28,7 +28,7 @@ SessionErrorHandlingTest >> setUp [
 
 { #category : #tests }
 SessionErrorHandlingTest >> testErrorCaughtAndDefferedIfExceptionSignaledAtStartupWhenStartupUiManagerActive [
-
+	<haltOrBreakpointForTesting>
 	UIManager nonInteractiveDuring: [	manager register: (TestSessionHandler onStartup: [ Halt now ]).	
 		session errorHandler: 
 			(TestStartupUIManager new
@@ -46,20 +46,21 @@ SessionErrorHandlingTest >> testErrorCaughtAndDefferedIfExceptionSignaledAtStart
 { #category : #tests }
 SessionErrorHandlingTest >> testErrorCaughtIfExceptionSignaledAtShutdownWhenDefaultUiManagerActive [
 	"session errorHandler will be TestWorkingSession that will register caught errors"
-
+	<haltOrBreakpointForTesting>
 	manager register: (TestSessionHandler onShutdown: [ Halt now ]).
 
 	"ensure error handled"
 	self shouldnt: [ session stop: false ] raise: Halt.
 	self assert: session errorHandler errors size equals: 1.
 
-	"ensure no defered actions"
+	"ensure no deferred actions"
 	self assertEmpty: (session instVarNamed: 'deferredStartupActions')
 ]
 
 { #category : #tests }
 SessionErrorHandlingTest >> testErrorHandledIfExceptionSignaledAtShutdownWhenStartupUiManagerActive [
-	manager register: (TestSessionHandler onShutdown: [ Halt now ]).	
+	<haltOrBreakpointForTesting>
+	manager register: (TestSessionHandler onShutdown: [ ZeroDivide signal ]).	
 	session errorHandler: 
 		(TestStartupUIManager new
 			sessionManager: manager;
@@ -67,7 +68,7 @@ SessionErrorHandlingTest >> testErrorHandledIfExceptionSignaledAtShutdownWhenSta
 	
 	self 
 		shouldnt: [ session stop: false ]
-		raise: Halt.
+		raise: ZeroDivide.
 	self
 		assert: (session instVarNamed: 'deferredStartupActions') size 
 		equals: 1
@@ -75,6 +76,7 @@ SessionErrorHandlingTest >> testErrorHandledIfExceptionSignaledAtShutdownWhenSta
 
 { #category : #tests }
 SessionErrorHandlingTest >> testErrorHandledIfExceptionSignaledAtStartupWhenDefaultUiManagerActive [
+	<haltOrBreakpointForTesting>
 	"session errorHandler will be TestWorkingSession that will register caught errors"
 
 	manager register: (TestSessionHandler onStartup: [ Halt now ]).
@@ -83,6 +85,6 @@ SessionErrorHandlingTest >> testErrorHandledIfExceptionSignaledAtStartupWhenDefa
 	self shouldnt: [ session start: false ] raise: Halt.
 	self assert: session errorHandler errors size equals: 1.
 
-	"ensure no defered actions"
+	"ensure no deferred actions"
 	self assertEmpty: (session instVarNamed: 'deferredStartupActions')
 ]

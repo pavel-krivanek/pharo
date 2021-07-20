@@ -46,7 +46,7 @@ RBTransformation class >> initializeRefactoringOptions [
 		put: [ :ref :imps | self error: #implementorToInline ];
 		
 		at: #methodName
-		put: [ :ref :methodName | self error: #methodName ];
+		put: [ :methodName | self error: #methodName ];
 		
 		at: #selfArgumentName
 		put: [ :ref | self error: #selfArgumentName ];
@@ -141,6 +141,14 @@ RBTransformation >> defaultEnvironment [
 	^ RBBrowserEnvironment new
 ]
 
+{ #category : #execution }
+RBTransformation >> execute [
+	self primitiveExecute.
+	RBRefactoryChangeManager instance 
+		performChange: self changes; 
+		addUndoPointer: (RBRefactoryChangeManager nextCounter)
+]
+
 { #category : #initialization }
 RBTransformation >> initialize [
 	super initialize.
@@ -223,6 +231,12 @@ RBTransformation >> preconditionChecking: aBoolean [
 RBTransformation >> preconditions [
 
 	self subclassResponsibility
+]
+
+{ #category : #executing }
+RBTransformation >> primitiveExecute [
+	"compatibility method RBRefactoring"
+	self transform
 ]
 
 { #category : #executing }

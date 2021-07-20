@@ -270,6 +270,12 @@ GLMEmptyPopupBrick >> isInsideOfTriggerBrick: anEvent [
 ]
 
 { #category : #'events-processing' }
+GLMEmptyPopupBrick >> keyDown: anEvent [
+
+	self closer handleListenEvent: anEvent
+]
+
+{ #category : #'events-processing' }
 GLMEmptyPopupBrick >> keyStroke: anEvent [
 
 	self closer handleListenEvent: anEvent
@@ -482,6 +488,13 @@ GLMEmptyPopupBrick >> triggerBrick: aBrick [
 
 	triggerBrick := aBrick.
 	self addBrickBack: self triggerBrick
+]
+
+{ #category : #generated }
+GLMEmptyPopupBrick >> unsubscribeListeners [
+
+	self deprecated: 'Use #unsubscribeListeners: instead'.
+	self removeCloserListener
 ]
 
 { #category : #'popup - listeners' }

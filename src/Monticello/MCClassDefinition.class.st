@@ -111,6 +111,7 @@ MCClassDefinition >> classInstanceVariables [
 
 { #category : #printing }
 MCClassDefinition >> classInstanceVariablesString [
+
 	^ self stringForVariablesOfType: #isClassInstanceVariable
 ]
 
@@ -189,6 +190,19 @@ MCClassDefinition >> createClass [
 				environment: superClass environment ] ]
 		on: Warning , DuplicatedVariableError
 		do: [ :ex | ex resume ]
+]
+
+{ #category : #installing }
+MCClassDefinition >> createVariableFromString: aString [
+	^[ Smalltalk compiler evaluate: aString ] 
+		on: Error 
+		do: [ 
+			"if an error happens, we parse the slot definition to an ast.
+			and create a UndefinedSlot"
+			| ast slotName |
+			ast := RBParser parseExpression: aString. 
+			slotName := ast receiver value. 
+			UndefinedSlot named: slotName ast: ast  ]
 ]
 
 { #category : #initializing }
@@ -339,9 +353,11 @@ MCClassDefinition >> kindOfSubclass [
 	type = #compiledMethod ifTrue: [^ ' variableByteSubclass: ' ].
 	type = #immediate ifTrue: [ ^ ' immediateSubclass: ' ].
 	type = #ephemeron ifTrue: [ ^ ' ephemeronSubclass: ' ].
+	type = #DoubleByteLayout ifTrue: [ ^' variableDoubleByteSubclass: ' ].
+	type = #DoubleWordLayout ifTrue: [ ^' variableDoubleWordSubclass: ' ].
 	"hack to support user defined layouts"
 	(Smalltalk hasClassNamed: type) ifTrue: [ ^type asString].
-	self error: 'Unrecognized class type'
+	self error: 'Unrecognized class type', type asString
 ]
 
 { #category : #installing }
@@ -392,6 +408,19 @@ MCClassDefinition >> printClassDefinitionOn: stream [
 ]
 
 { #category : #printing }
+MCClassDefinition >> printDefinitionBodyOn: stream [
+
+	self hasClassTraitComposition ifTrue: [
+		stream
+			nextPutAll: 'uses: ';
+			nextPutAll: self classTraitCompositionString;
+			cr; tab ].
+	stream
+		nextPutAll: ' instanceVariableNames: '; 
+		store: self classInstanceVariablesString
+]
+
+{ #category : #printing }
 MCClassDefinition >> printDefinitionOn: stream [
 		stream 
 			nextPutAll: self superclassName;
@@ -423,14 +452,7 @@ MCClassDefinition >> printMetaDefinitionOn: stream [
 	stream 
 		nextPutAll: self className;
 		nextPutAll: ' class'; cr; tab.
-	self hasClassTraitComposition ifTrue: [
-		stream
-			nextPutAll: 'uses: ';
-			nextPutAll: self classTraitCompositionString;
-			cr; tab ].
-	stream
-		nextPutAll: ' instanceVariableNames: '; 
-		store: self classInstanceVariablesString
+	self printDefinitionBodyOn: stream
 ]
 
 { #category : #comparing }
@@ -557,6 +579,7 @@ MCClassDefinition >> variables [
 { #category : #installing }
 MCClassDefinition >> variablesOfType: aSymbol [
 	"version for complex vars, { definition . definition }"
-	^(((self selectVariables: aSymbol) collect: [:each | Smalltalk compiler evaluate: each])) asArray.
-		
+	^(self selectVariables: aSymbol) 
+		collect: [:each | self createVariableFromString: each]
+		as: Array
 ]

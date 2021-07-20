@@ -16,8 +16,8 @@ ClyBrowseBreakpointsCommand class >> worldMenuOn: aBuilder [
 	| command |
 	command := self new.
 	(aBuilder item: command defaultMenuItemName)
-		parent: #Debugging;
-		order: 0;
+		parent: #Breakpoints;
+		order: 1;
 		icon: command defaultMenuIcon;
 		help: command description;
 		action: [ command execute ]
@@ -38,11 +38,11 @@ ClyBrowseBreakpointsCommand >> defaultMenuItemName [
 { #category : #accessing }
 ClyBrowseBreakpointsCommand >> description [
 
-	^'Open browser with methods where halts or breakpoints are installed'
+	^'Open browser with methods where Halts or Breakpoints are installed'
 ]
 
 { #category : #execution }
 ClyBrowseBreakpointsCommand >> execute [ 
 	
-	ClyQueryBrowser browseBreakpoints
+	ClyQueryBrowserMorph browseBreakpoints
 ]

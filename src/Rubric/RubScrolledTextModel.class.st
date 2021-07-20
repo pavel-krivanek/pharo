@@ -44,6 +44,11 @@ RubScrolledTextModel >> bindingOf: aString [
 	^ interactionModel ifNotNil:  [ interactionModel bindingOf: aString  ]
 ]
 
+{ #category : #shout }
+RubScrolledTextModel >> bindings [
+	^ self variableBindings
+]
+
 { #category : #'text managing' }
 RubScrolledTextModel >> canDiscardEdits [
 	^ self hasUnacceptedEdits not
@@ -56,7 +61,7 @@ RubScrolledTextModel >> cancelEdits [
 	self clearUserEdits  
 ]
 
-{ #category : #'undo-redo' }
+{ #category : #'undo - redo' }
 RubScrolledTextModel >> clearUndoManager [
 	self reconfigureViewWith: [ :view | view textArea editingState clearUndoManager: nil ]
 ]

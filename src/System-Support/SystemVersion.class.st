@@ -31,8 +31,7 @@ Class {
 
 { #category : #accessing }
 SystemVersion class >> current [
-	Current ifNil: [Current := SystemVersion new].
-	^Current
+	^Current ifNil: [Current := self new]
 ]
 
 { #category : #'private - accessing' }
@@ -198,7 +197,7 @@ SystemVersion >> highestUpdate: anInteger [
 
 { #category : #'accessing - version strings' }
 SystemVersion >> imageVersionString [
-	"Print the version compatibile with naming the image."
+	"Print the version compatible with naming the image."
 	
 	^String streamContents: [:str |
 		str nextPutAll: self type;

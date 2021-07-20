@@ -17,21 +17,21 @@ ClyClassSideBoldTableDecorator class >> decorateTableCell: anItemCellMorph of: a
 ClyClassSideBoldTableDecorator class >> methodDecorationStrategy [
 	<classAnnotation>
 	
-	^ClyTableDecorationStrategy for: ClyMethodContextOfFullBrowser
+	^ClyTableDecorationStrategyAnnotation for: ClyFullBrowserMethodContext
 ]
 
 { #category : #decoration }
 ClyClassSideBoldTableDecorator class >> methodGroupDecorationStrategy [
 	<classAnnotation>
 	
-	^ClyTableDecorationStrategy for: ClyMethodGroupContextOfFullBrowser
+	^ClyTableDecorationStrategyAnnotation for: ClyFullBrowserMethodGroupContext
 ]
 
 { #category : #decoration }
 ClyClassSideBoldTableDecorator class >> variableDecorationStrategy [
 	<classAnnotation>
 	
-	^ClyTableDecorationStrategy for: ClyVariableContextOfFullBrowser
+	^ClyTableDecorationStrategyAnnotation for: ClyFullBrowserVariableContext
 ]
 
 { #category : #testing }

@@ -114,6 +114,23 @@ ReflectivityControlTest >> testAfterBlockOptimizedIfTrue [
 ]
 
 { #category : #'tests - after' }
+ReflectivityControlTest >> testAfterBlockOptimizedWhileFalseSend [
+	| sendNode |
+	sendNode := (ReflectivityExamples >> #exampleWhileFalse) ast sendNodes first.
+	link := MetaLink new
+		metaObject: self;
+		selector: #tagExec;
+		control: #after.
+	sendNode link: link.
+	self assert: sendNode hasMetalinkAfter.
+	self assert: (ReflectivityExamples >> #exampleWhileFalse) class equals: ReflectiveMethod.
+	self assert: tag isNil.
+	self assert: ReflectivityExamples new exampleWhileFalse equals: 11.
+	self assert: tag equals: 'yes'.
+	self assert: (ReflectivityExamples >> #exampleWhileFalse) class equals: CompiledMethod
+]
+
+{ #category : #'tests - after' }
 ReflectivityControlTest >> testAfterBlockSequence [
 	| sequence |
 	sequence := (ReflectivityExamples >> #exampleBlock) ast statements first value receiver body.
@@ -493,6 +510,23 @@ ReflectivityControlTest >> testBeforeBlockSequenceNoValue [
 	ReflectivityExamples new exampleBlockNoValue.
 	self assert: tag isNil.
 	ReflectivityExamples new exampleBlockNoValue value.
+	self assert: tag equals: 'yes'.
+	self assert: (ReflectivityExamples >> #exampleBlockNoValue) class equals: CompiledMethod
+]
+
+{ #category : #'tests - before' }
+ReflectivityControlTest >> testBeforeBlockSequenceOptimized [
+	| sequence |
+	"we should be able to set a link on the sequence of an optimzied block with escaping vars"
+	sequence := (ReflectivityExamples >> #exampleBlockOptimized) ast blockNodes first body.
+	self assert: sequence isSequence.
+	link := MetaLink new
+		metaObject: self;
+		selector: #tagExec.
+	sequence link: link.
+	self assert: sequence hasMetalinkBefore.
+	self assert: tag isNil.
+	ReflectivityExamples new exampleBlockOptimized.
 	self assert: tag equals: 'yes'.
 	self assert: (ReflectivityExamples >> #exampleBlockNoValue) class equals: CompiledMethod
 ]
@@ -1020,13 +1054,12 @@ ReflectivityControlTest >> testInsteadClassVariable [
 		control: #instead.
 	classVar link: link.
 	self assert: classVar hasMetalinkInstead.
-	self
-		assert:
-			(ReflectivityExamples >> #exampleClassVarRead) class
-				equals: ReflectiveMethod.
 	self assert: tag isNil.
 	self
-		assert: ReflectivityExamples new exampleClassVarRead equals: #AClassVar.
+		assert: (ReflectivityExamples >> #exampleClassVarRead) class
+		equals: ReflectiveMethod.
+	self
+		assert: ReflectivityExamples new exampleClassVarRead class equals: self class.
 	self assert: tag equals: 'yes'.
 	self
 		assert: (ReflectivityExamples >> #exampleClassVarRead) class
@@ -1232,7 +1265,7 @@ ReflectivityControlTest >> testLinkOneShot [
 	self assert: tag isNil.
 	self assert: ReflectivityExamples new exampleMethod equals: 5.
 	self assert: tag equals: #yes.
-	self deny: sendNode hasMetalink.
+	self deny: sendNode hasMetalink.	
 	tag := nil.
 	self assert: ReflectivityExamples new exampleMethod equals: 5.
 	self assert: tag isNil

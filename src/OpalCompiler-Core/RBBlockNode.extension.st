@@ -43,6 +43,7 @@ RBBlockNode >> isInlined [
 
 { #category : #'*opalcompiler-core' }
 RBBlockNode >> isInlinedLoop [
+
 	parent isMessage ifFalse: [ ^ false ].
 	parent isInlineToDo ifTrue: [^ true].
 	parent isInlineWhile ifTrue: [^ true].

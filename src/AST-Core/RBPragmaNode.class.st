@@ -68,7 +68,7 @@ RBPragmaNode >> argumentAt: keywordSelector ifAbsent: absentBlock [
 
 { #category : #accessing }
 RBPragmaNode >> arguments [
-	^ arguments ifNil: [ #() ]
+	^ arguments
 ]
 
 { #category : #accessing }
@@ -79,7 +79,7 @@ RBPragmaNode >> arguments: aLiteralCollection [
 
 { #category : #accessing }
 RBPragmaNode >> children [
-	^ self arguments
+	^ arguments
 ]
 
 { #category : #matching }
@@ -127,7 +127,7 @@ RBPragmaNode >> isBinary [
 
 { #category : #testing }
 RBPragmaNode >> isFaulty [
-	^self arguments anySatisfy: #isFaulty
+	^self arguments anySatisfy: [:each | each isFaulty]
 ]
 
 { #category : #testing }
@@ -167,12 +167,12 @@ RBPragmaNode >> keywordsPositions: aPositionsList [
 	keywordsPositions := aPositionsList ifNotNil: [:list| list asIntegerArray ].
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBPragmaNode >> left [
 	^ left
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBPragmaNode >> left: anInteger [
 	left := anInteger
 ]
@@ -208,12 +208,12 @@ RBPragmaNode >> replaceNode: aNode withNode: anotherNode [
 			ifFalse: [ each ] ])
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBPragmaNode >> right [
 	^ right
 ]
 
-{ #category : #'accessing-token' }
+{ #category : #'accessing - token' }
 RBPragmaNode >> right: anInteger [
 	right := anInteger
 ]

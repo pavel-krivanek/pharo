@@ -2,12 +2,12 @@ Class {
 	#name : #CDClassDefinitionNode,
 	#superclass : #CDBehaviorDefinitionNode,
 	#instVars : [
-		'subclass',
 		'sharedSlotNodes',
 		'superclassNameNode',
 		'packageNameNode',
 		'sharedPools',
-		'superclassName'
+		'superclassName',
+		'tag'
 	],
 	#category : #'ClassParser-Model'
 }
@@ -32,6 +32,24 @@ CDClassDefinitionNode >> isClassDefinition [
 	^ true
 ]
 
+{ #category : #testing }
+CDClassDefinitionNode >> isClassSideDefinition [
+	"Pay attention that this is really to reflect that we have two class definitions node classes.
+	We named this method like that and not as isClassDefinition because it conflicts 
+	with other method."
+	
+	^ false
+]
+
+{ #category : #testing }
+CDClassDefinitionNode >> isInstanceSideDefinition [
+	"Pay attention that this is really to reflect that we have two class definitions node classes."
+	"We named this method like that because there is another method called isClassSideDefinition 
+	that cannot be name isClassDefinition (because of conflicts with other method)."
+	
+	^ true
+]
+
 { #category : #accessing }
 CDClassDefinitionNode >> packageName [
 	
@@ -49,6 +67,12 @@ CDClassDefinitionNode >> packageNameNode: aNode astNode: astNode [
 
 	packageNameNode := aNode.
 	self addChild: aNode.
+]
+
+{ #category : #testing }
+CDClassDefinitionNode >> selector [
+
+	^ tokens at: 2
 ]
 
 { #category : #accessing }
@@ -109,4 +133,16 @@ CDClassDefinitionNode >> superclassNameNode [
 { #category : #accessing }
 CDClassDefinitionNode >> superclassNameNode: anObject [
 	superclassNameNode := anObject
+]
+
+{ #category : #accessing }
+CDClassDefinitionNode >> tag [
+
+	^ tag 
+]
+
+{ #category : #accessing }
+CDClassDefinitionNode >> tag: aString [
+
+	tag := aString
 ]

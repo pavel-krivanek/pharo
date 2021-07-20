@@ -26,16 +26,15 @@ FreeTypeCache class >> cleanUp [
 
 { #category : #'system startup' }
 FreeTypeCache class >> clearCacheOnShutdown [
-	"answer true if the cache should be cleared on image shutdown"
+	"Answer true if the cache should be cleared on image shutdown"
 	
 	^true
 ]
 
-{ #category : #cleanup }
+{ #category : #'private - cleaning' }
 FreeTypeCache class >> clearCurrent [
-	"
-	self clearCurrent.
-	"
+	<script>
+	
 	current := nil
 ]
 
@@ -46,7 +45,8 @@ FreeTypeCache class >> current [
 
 { #category : #accessing }
 FreeTypeCache class >> defaultMaximumSize [
-	"answer the default maximumSize in bytes"
+	"Answer the default maximumSize in bytes"
+	
 	^1024*5000 "5 Megabytes"
 ]
 
@@ -155,17 +155,17 @@ FreeTypeCache >> cacheSize: anInteger [
 	self maximumSize: (anInteger * 1024)
 ]
 
-{ #category : #private }
+{ #category : #'private - accessing' }
 FreeTypeCache >> dictionaryClass [
 	^Dictionary
 ]
 
-{ #category : #private }
+{ #category : #'private - accessing' }
 FreeTypeCache >> fifoClass [
 	^FreeTypeCacheLinkedList
 ]
 
-{ #category : #private }
+{ #category : #'private - accessing' }
 FreeTypeCache >> fifoEntryClass [
 	^FreeTypeCacheEntry
 ]
@@ -200,8 +200,7 @@ FreeTypeCache >> maximumSize: anIntegerOrNil [
 FreeTypeCache >> removeAll [
 	fontTable := self dictionaryClass new: 100.
 	fifo := self fifoClass new.
-	used := 0.
-
+	used := 0
 	
 ]
 
@@ -240,9 +239,20 @@ FreeTypeCache >> removeAllForType: typeFlag [
 	
 ]
 
-{ #category : #public }
+{ #category : #generated }
 FreeTypeCache >> report [
+
 	"answer a description of the current state of the cache"
+
+	self
+		deprecated: 'Use #reportCacheState instead'
+		transformWith: '`@rec report' -> '`@rec reportCacheState'.
+	^ self reportCacheState
+]
+
+{ #category : #reporting }
+FreeTypeCache >> reportCacheState [
+	"Answer a description of the current state of the cache"
 	| usedPercent |
 	usedPercent := maximumSize 
 		ifNil: [0]
@@ -250,14 +260,14 @@ FreeTypeCache >> report [
 	^usedPercent asString,'% Full (maximumSize: ', maximumSize asString, ' , used: ', used asString,')'
 ]
 
-{ #category : #private }
+{ #category : #'private - sizing' }
 FreeTypeCache >> shrinkTo: newSize [
 	"if the used size is greater than newSize, then remove all the receiver's entries"
 	
 	used > newSize ifTrue:[self removeAll]
 ]
 
-{ #category : #public }
+{ #category : #'private - accessing' }
 FreeTypeCache >> sizeOf: anObject [
 	^(anObject isKindOf: Form)
 		ifTrue:[(anObject bitsSize * 4) + 32]

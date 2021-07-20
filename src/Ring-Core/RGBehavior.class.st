@@ -20,19 +20,19 @@ Class {
 	#category : #'Ring-Core-Kernel'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'private - accessing' }
 RGBehavior class >> badInstantiationError [
 
 	RGBadInstantiationError signal: 'I cannot be instantiated this way because every RGBehavior must know its proper behavior strategy. Please use a subclass of RGBehaviorFactory or my methods like #newClass'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> named: aString [
 
 	^ self badInstantiationError
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> named: aName behaviorStrategy: anRGBehaviorStrategy [
 
 	| aBehavior |
@@ -47,13 +47,13 @@ RGBehavior class >> named: aName behaviorStrategy: anRGBehaviorStrategy [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> named: aString parent: anRGObject [
 
 	^ self badInstantiationError
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> named: aName parent: anRGObject behaviorStrategy: anRGBehaviorStrategy [
 	
 	| aBehavior |
@@ -93,7 +93,7 @@ RGBehavior class >> newTrait [
 	^ self unnamedWithBehaviorStrategy: RGTrait newStrategy
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> parent: anRGObject behaviorStrategy: anRGBehaviorStrategy [
 	
 	| aBehavior |
@@ -107,7 +107,7 @@ RGBehavior class >> parent: anRGObject behaviorStrategy: anRGBehaviorStrategy [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> unnamedWithBehaviorStrategy: anRGBehaviorStrategy [
 
 	| aBehavior |
@@ -120,7 +120,7 @@ RGBehavior class >> unnamedWithBehaviorStrategy: anRGBehaviorStrategy [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> unresolvedNamed: aName withParent: anRGObject behaviorStrategy: anRGBehaviorStrategy [
 	
 	| aBehavior |
@@ -136,7 +136,7 @@ RGBehavior class >> unresolvedNamed: aName withParent: anRGObject behaviorStrate
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> unresolvedWithBehaviorStrategy: anRGBehaviorStrategy [
 
 	| aBehavior |
@@ -149,7 +149,7 @@ RGBehavior class >> unresolvedWithBehaviorStrategy: anRGBehaviorStrategy [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 RGBehavior class >> unresolvedWithParent: anRGObject behaviorStrategy: anRGBehaviorStrategy [
 	
 	| aBehavior |
@@ -231,7 +231,7 @@ RGBehavior >> announceDefinitionChangeDuring: aBlock [
 	
 ]
 
-{ #category : #asYetUnclassified }
+{ #category : #accessing }
 RGBehavior >> asYetUnclassifiedProtocolName [
 
 	^ 'as yet unclassified' asSymbol
@@ -432,10 +432,10 @@ RGBehavior >> defaultTraitComposition [
 	^ self defaultTraitCompositionStubIn: self.
 ]
 
-{ #category : #'accessing - definition' }
-RGBehavior >> definitionForNautilus [
+{ #category : #fileout }
+RGBehavior >> definitionStringFor: aConfiguredPrinter [
 
-	^ self definition
+	^ aConfiguredPrinter classDefinitionString 
 ]
 
 { #category : #'queries - methods' }
@@ -508,7 +508,7 @@ RGBehavior >> includesSelector: aString [
 	^ self selectors includes: aString
 ]
 
-{ #category : #'testing class hierarchy' }
+{ #category : #'testing - class hierarchy' }
 RGBehavior >> inheritsFrom: aClass [ 
 	"Answer whether the argument, aClass, is on the receiver's superclass 
 	chain."
@@ -549,6 +549,13 @@ RGBehavior >> initializeUnresolved [
 	tagsForMethods := self unresolvedValue: self defaultTagsForMethods.	
 	tags := self unresolvedValue: self defaultTags.	
 
+]
+
+{ #category : #'queries - testing' }
+RGBehavior >> isAccessedIn: anRGMethod [
+	^ (anRGMethod ast variableNodes select: [ :each | 
+		   each isGlobalVariable ]) anySatisfy: [ :each | 
+		  each name = self name ]
 ]
 
 { #category : #testing }
@@ -597,12 +604,6 @@ RGBehavior >> isImmediateClass [
 RGBehavior >> isPointers [
 
 	^ self isBits not
-]
-
-{ #category : #'queries - testing' }
-RGBehavior >> isReferencedIn: anRGMethod [ 
-
-	^ (anRGMethod ast variableNodes select: #isGlobal) anySatisfy: [ :each | each name = self name ] 
 ]
 
 { #category : #'queries - testing' }
@@ -671,6 +672,27 @@ RGBehavior >> localMethodsSet [
 RGBehavior >> localSelectors [
 
 	^ self localMethods collect: [ :each | each name ]
+]
+
+{ #category : #lookup }
+RGBehavior >> lookupVar: aName [
+	^ self layout 
+		resolveSlot: aName asSymbol 
+		ifFound: [:var | var] 
+		ifNone: [self bindingOf: aName]
+]
+
+{ #category : #lookup }
+RGBehavior >> lookupVar: aName declare: aBoolean [
+	^ self lookupVar: aName 
+]
+
+{ #category : #lookup }
+RGBehavior >> lookupVarForDeclaration: aName [
+
+	"This is a version of #lookupVar: that skips the OCRequestorScope, from here on it is the same as lookupVar:"
+
+	^ self lookupVar: aName
 ]
 
 { #category : #resolving }
@@ -750,6 +772,14 @@ RGBehavior >> name: aString [
 		self announcer behaviorDefinitionChangedFrom: assoc value to: assoc key.
 		self announcer behaviorModificationAppliedTo: assoc key.
 		self announcer behaviorParentRenamed: assoc key from: oldName ].
+]
+
+{ #category : #fileout }
+RGBehavior >> oldDefinition [
+	
+	^ ClassDefinitionPrinter legacy
+		for: self;
+		definitionString
 ]
 
 { #category : #printing }
@@ -1043,9 +1073,9 @@ RGBehavior >> slotDefinitionString [
 		str nextPutAll: '{ '.
 		self slots do: [:slot |
 				str nextPutAll: slot definitionString.
-				special := slot isSpecial]				
+				special := slot needsFullDefinition]				
 			separatedBy: [ 
-				str nextPutAll: '. '.  
+				str nextPutAll: ' . '.  
 				special ifTrue: [ str cr;tab;tab;tab;tab ]].
 		str nextPutAll: ' }'. ]
 
@@ -1057,7 +1087,13 @@ RGBehavior >> slots [
 	^ self layout slots 
 ]
 
-{ #category : #'accessing class hierarchy' }
+{ #category : #slots }
+RGBehavior >> slotsNeedFullDefinition [
+	"return true if we define something else than InstanceVariableSlots"
+	^self slots anySatisfy: [ :each | each needsFullDefinition ]
+]
+
+{ #category : #'accessing - class hierarchy' }
 RGBehavior >> subclasses [
 
 	| result |
@@ -1199,7 +1235,7 @@ RGBehavior >> untagFrom: aSymbol [
 	self backend forPackage untagClass: self from: aSymbol
 ]
 
-{ #category : #asYetUnclassified }
+{ #category : #accessing }
 RGBehavior >> usedTraits [
 
 	^ self traitComposition usedTraits
@@ -1210,8 +1246,14 @@ RGBehavior >> users [
 	^ #()
 ]
 
-{ #category : #slots }
+{ #category : #generated }
 RGBehavior >> usesSpecialSlot [
+
 	"return true if we define something else than InstanceVariableSlots"
-	^self slots anySatisfy: [ :each | each isSpecial ]
+
+	self
+		deprecated: 'Use #slotsNeedFullDefinition instead'
+		transformWith:
+		'`@rec usesSpecialSlot' -> '`@rec slotsNeedFullDefinition'.
+	^ self slotsNeedFullDefinition
 ]

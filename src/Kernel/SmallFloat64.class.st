@@ -219,6 +219,12 @@ SmallFloat64 >> identityHash [
 	^ self basicIdentityHash
 ]
 
+{ #category : #testing }
+SmallFloat64 >> isImmediateObject [
+	"This is needed for the boostrap"
+	^ true
+]
+
 { #category : #'mathematical functions' }
 SmallFloat64 >> ln [
 	"Answer the natural logarithm of the receiver.
@@ -258,6 +264,13 @@ SmallFloat64 >> ln [
 	^ n + sum
 
 	"2.718284 ln 1.0"
+]
+
+{ #category : #'memory scanning' }
+SmallFloat64 >> nextObject [
+	"SmallFloat64 are immediate objects, and, as such, do not have successors in object memory."
+
+	self shouldNotImplement 
 ]
 
 { #category : #copying }

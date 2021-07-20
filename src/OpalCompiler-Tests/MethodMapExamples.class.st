@@ -15,6 +15,14 @@ MethodMapExamples >> defineCopiedVarBecomeDeadContext [
 ]
 
 { #category : #examples }
+MethodMapExamples >> exampleAccessOuterFromCleanBlock [ 
+	<compilerOptions: #(+ optionCleanBlockClosure)>
+	| b |
+	b := 1. 
+	^[ thisContext tempNamed: 'b' ] value
+]
+
+{ #category : #examples }
 MethodMapExamples >> exampleCopiedVarFromDeadContext [
 	^ self defineCopiedVarBecomeDeadContext value
 ]
@@ -167,6 +175,13 @@ MethodMapExamples >> helperMethod13 [
 	i := 5.
 	[ i=0 ] whileFalse: [ i := i - 1 ].
 	^[ 1 + 2 ]
+]
+
+{ #category : #examples }
+MethodMapExamples >> helperMethod14: aVisitor [
+	 [ aVisitor ]
+		 on: Error
+		 do: [ aVisitor ]
 ]
 
 { #category : #examples }

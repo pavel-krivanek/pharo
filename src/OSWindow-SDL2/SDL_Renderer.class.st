@@ -40,8 +40,12 @@ SDL_Renderer >> copy: texture srcRect: srcRect dstRect: dstRect [
 
 { #category : #rendering }
 SDL_Renderer >> createTextureFormat: format access: access width: width height: height [
-	
-	^(self primCreateTextureFormat: format access: access width: width height: height) initialize.
+
+	^ self
+		  primCreateTextureFormat: format
+		  access: access
+		  width: width
+		  height: height
 ]
 
 { #category : #initialization }
@@ -49,6 +53,11 @@ SDL_Renderer >> destroy [
 	handle isNull ifTrue: [ ^ self ].
 	self primDestroy.
 	handle beNull
+]
+
+{ #category : #rendering }
+SDL_Renderer >> drawBlendMode: blendMode [
+	^ self ffiCall: #( int SDL_SetRenderDrawBlendMode ( self , SDL_BlendMode blendMode ) )
 ]
 
 { #category : #rendering }
@@ -76,6 +85,16 @@ SDL_Renderer >> fillRect: rect [
 	^ self ffiCall: #( int SDL_RenderFillRect ( self , SDL_Rect* rect ) )
 ]
 
+{ #category : #rendering }
+SDL_Renderer >> getLogicalSizeW: w h: h [
+	^ self ffiCall: #( int SDL_RenderGetLogicalSize ( self , int* w, int* h ) )
+]
+
+{ #category : #rendering }
+SDL_Renderer >> getOutputSizeW: w h: h [
+	^ self ffiCall: #( int SDL_GetRendererOutputSize ( self , int* w, int* h ) )
+]
+
 { #category : #accessing }
 SDL_Renderer >> info [
 	| info |
@@ -101,6 +120,14 @@ SDL_Renderer >> noRenderTarget [
 ]
 
 { #category : #rendering }
+SDL_Renderer >> outputExtent [
+
+	^ ExternalAddress allocate: 8 bytesDuring: [ :buffer | 
+		  self getOutputSizeW: buffer h: buffer + 4.
+		  (buffer unsignedLongAt: 1) @ (buffer unsignedLongAt: 5) ]
+]
+
+{ #category : #rendering }
 SDL_Renderer >> present [
 	^ self ffiCall: #( void SDL_RenderPresent ( self ) )
 ]
@@ -118,4 +145,19 @@ SDL_Renderer >> primDestroy [
 { #category : #private }
 SDL_Renderer >> primGetRendererInfo: info [
 	^ self ffiCall: #( int SDL_GetRendererInfo (self, SDL_RendererInfo* info) )
+]
+
+{ #category : #rendering }
+SDL_Renderer >> renderTargetSupported [
+	^ self ffiCall: #( bool SDL_RenderTargetSupported ( self ) )
+]
+
+{ #category : #rendering }
+SDL_Renderer >> setClipRect: rect [
+	^ self ffiCall: #( int SDL_RenderSetClipRect ( self , SDL_Rect* rect ) )
+]
+
+{ #category : #rendering }
+SDL_Renderer >> setRenderTarget: renderTarget [
+	^ self ffiCall: #( int SDL_SetRenderTarget ( self , SDL_Texture renderTarget ) )
 ]

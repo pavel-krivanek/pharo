@@ -60,7 +60,7 @@ Class {
 		'nextIndexAfterLineBreak',
 		'wantsColumnBreaks'
 	],
-	#category : #'Text-Scanning-Base'
+	#category : #'Text-Scanning'
 }
 
 { #category : #testing }

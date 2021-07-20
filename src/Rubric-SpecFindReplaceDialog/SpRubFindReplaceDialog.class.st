@@ -16,7 +16,6 @@ Class {
 		'replaceButton',
 		'replaceAllButton',
 		'cancelButton',
-		'updateFromModel',
 		'replaceTextInput',
 		'replaceLabel'
 	],
@@ -27,8 +26,7 @@ Class {
 SpRubFindReplaceDialog class >> defaultSpec [
 	<spec>
 	^ SpBoxLayout newVertical
-		add: #findInput
-			expand: false fill: false padding: 0;
+		add: #findInput expand: false;
 		add: (SpGridLayout new 
 			beColumnHomogeneous;
 			beRowHomogeneous;
@@ -42,7 +40,8 @@ SpRubFindReplaceDialog class >> defaultSpec [
 			borderWidth: 5;
 			spacing: 5;
 			add: #replaceLabel  expand: false fill: false padding: 0;
-			add: #replaceTextInput);
+			add: #replaceTextInput;
+			yourself);
 		"addLast: (SpBoxLayout newHorizontal 
 			borderWidth: 3;
 			spacing: 5;

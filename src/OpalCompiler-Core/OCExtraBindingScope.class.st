@@ -35,17 +35,8 @@ OCExtraBindingScope >> bindings: anObject [
 ]
 
 { #category : #lookup }
-OCExtraBindingScope >> lookupVar: name [
-	name = 'self' ifTrue: [ ^ outerScope lookupVar: name ].
-	name = 'super' ifTrue: [ ^ outerScope lookupVar: name ].
-	
+OCExtraBindingScope >> lookupVar: name declare: aBoolean [
 	^(bindings bindingOf: name asSymbol)
 		ifNotNil: [ :var | var ]
-		ifNil: [ outerScope lookupVar: name ]
-]
-
-{ #category : #'instance creation' }
-OCExtraBindingScope >> newMethodScope [
-	 
-	^ OCMethodScope new outerScope: (self outerScope: outerScope instanceScope) 
+		ifNil: [ outerScope lookupVar: name declare: aBoolean]
 ]

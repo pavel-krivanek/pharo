@@ -26,12 +26,13 @@ Class {
 		'name',
 		'interruptedContext',
 		'interruptedProcess',
-		'errorWasInUIProcess'
+		'errorWasInUIProcess',
+		'exception'
 	],
 	#classVars : [
 		'LogDebuggerStackToFile'
 	],
-	#category : #'Debugger-Model-Base'
+	#category : #'Debugger-Model-Core'
 }
 
 { #category : #settings }
@@ -56,6 +57,7 @@ DebugSession class >> named: aString on: aProcess startedAt: aContext [
 DebugSession >> clear [
 	"If after resuming the process the user does plan to reuse this session with
 	the same process, it should call this method."
+	exception := nil.
 	interruptedProcess := nil.
 	self updateContextTo: nil
 ]
@@ -104,6 +106,16 @@ DebugSession >> errorWasInUIProcess [
 DebugSession >> errorWasInUIProcess: aBoolean [
 
 	errorWasInUIProcess := aBoolean
+]
+
+{ #category : #accessing }
+DebugSession >> exception [ 
+	^ exception
+]
+
+{ #category : #accessing }
+DebugSession >> exception: anObject [
+	exception := anObject
 ]
 
 { #category : #evaluating }
@@ -293,11 +305,11 @@ DebugSession >> restart: aContext [
 	"Closing now depends on a setting (RestartAlsoProceeds class variable) --> not supported in this version"
 
 	(self isContextPostMortem: aContext) ifTrue: [^ self].
-	self unwindAndRestartToContext: aContext.
-	
+
 	"Issue 3015 - Hernan"
 	self isInterruptedContextATest ifTrue: [ self prepareTestToRunAgain ].
-	
+	self unwindAndRestartToContext: aContext.	
+
 	self triggerEvent: #restart		
 	
 ]
@@ -421,24 +433,12 @@ DebugSession >> shouldDisplayContext: aContext basedOnFilters: stackFilters [
 	
 ]
 
-{ #category : #context }
-DebugSession >> shouldDisplayOnTopContext: aContext [
-	
-	^ aContext method selector ~= #halt
-]
-
 { #category : #logging }
 DebugSession >> signalDebuggerError: anError [
 
-	self primitiveError:
-							'Original error: ' , name asString
-								,
-									'.
-	Smalltalk tools debugger error: '
-								,
-									([ anError description ]
-										on: Error
-										do: [ 'a ' , anError class printString ]) , ':' 
+	DebuggerSettings emergencyDebugger
+		debugError: anError
+		fromSession: self
 ]
 
 { #category : #accessing }
@@ -538,7 +538,7 @@ DebugSession >> stepOver: aContext [
 	after the invoked method returns."
 	
 	| newContext |
-	
+	aContext stepIntoQuickMethod: false.
 	(self isContextPostMortem: aContext) ifTrue: [^ self].
 	
 	newContext := interruptedProcess completeStep: aContext.
@@ -560,7 +560,7 @@ DebugSession >> stepThrough [
 DebugSession >> stepThrough: aContext [
 	"Send messages until you return to selectedContext.
 	 Used to step into a block in the method."
-	
+	aContext stepIntoQuickMethod: false.
 	(self isContextPostMortem: aContext) ifTrue: [^ self].
 	
 	interruptedProcess stepToHome: aContext.
@@ -602,15 +602,18 @@ DebugSession >> terminate [
 
 { #category : #evaluating }
 DebugSession >> unwindAndRestartToContext: aContext [
-	|ctx|
 
+	| ctx |
 	ctx := interruptedProcess popTo: aContext.
-	ctx == aContext ifTrue: [ 
-		"Only restart the process if the stack was unwind"
+	ctx == aContext ifTrue: [ "Only restart the process if the stack was unwind"
 		interruptedProcess restartTop.
-		self stepToFirstInterestingBytecodeIn: interruptedProcess ].
+
+		aContext method isQuick
+			ifTrue: [ aContext updatePCForQuickPrimitiveRestart ]
+			ifFalse: [ 
+			self stepToFirstInterestingBytecodeIn: interruptedProcess ] ].
 	self flag: 'Should a warning be displayed if the the unwind failed?'.
-	self updateContextTo:  aContext
+	self updateContextTo: aContext
 ]
 
 { #category : #context }

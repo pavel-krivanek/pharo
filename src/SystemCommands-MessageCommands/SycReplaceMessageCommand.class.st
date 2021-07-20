@@ -1,3 +1,6 @@
+"
+I am a command to replace senders of message selector.
+"
 Class {
 	#name : #SycReplaceMessageCommand,
 	#superclass : #SycChangeMessageSignatureCommand,
@@ -11,20 +14,20 @@ Class {
 SycReplaceMessageCommand class >> methodContextMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation 
-		byItemOf: ClyMoreRefactorsMenuGroup 
-		order: 1100 
-		for: ClyMethod asCalypsoItemContext
+	^ SycMethodMenuActivation byRootGroupItemOrder: 1100 for: ClyMethod asCalypsoItemContext
 ]
 
 { #category : #execution }
 SycReplaceMessageCommand >> createRefactoring [
-
-	^ RBReplaceMethodRefactoring
-		replaceCallMethod: originalMessage selector 
+	self flag: 'TODO'."Improve preview to add args when change the sender with empty args"
+	^ (RBReplaceMethodRefactoring
+		model: model
+		replaceMethod: originalMessage selector 
 		in: originalMessage contextUser origin
-		to: newSelector
-		permutation: (1 to: originalMessage argumentNames size)
+		to: newSelector selector
+		permutation: newSelector permutation
+		inAllClasses: self replaceInAllClasses)
+		initializers: newSelector newArgs values
 ]
 
 { #category : #accessing }
@@ -44,10 +47,19 @@ SycReplaceMessageCommand >> isComplexRefactoring [
 
 { #category : #execution }
 SycReplaceMessageCommand >> prepareFullExecutionInContext: aToolContext [
+	
+	| methodName dialog |
 	super prepareFullExecutionInContext: aToolContext.
 	
-	newSelector := UIManager default 
-		request: 'Update senders of ', originalMessage selector, ' with:' initialAnswer: originalMessage selector title: 'Replace senders of method'.
-		
-	newSelector isEmptyOrNil | (newSelector = originalMessage selector) ifTrue: [ CmdCommandAborted signal]
+	methodName := RBMethodName selector: originalMessage selector arguments: originalMessage argumentNames copy.
+	dialog := SycMethodNameEditorPresenter openOn: methodName.
+	dialog cancelled ifTrue: [  CmdCommandAborted signal ].
+	
+	originalMessage selector = methodName selector ifTrue: [ CmdCommandAborted signal].
+	newSelector := methodName.
+]
+
+{ #category : #execution }
+SycReplaceMessageCommand >> replaceInAllClasses [
+	^ self confirm: 'Do you want replace senders of method in the whole classes?'
 ]

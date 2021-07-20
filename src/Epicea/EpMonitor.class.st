@@ -9,7 +9,6 @@ Class {
 	#instVars : [
 		'systemAnnouncer',
 		'log',
-		'testAnnouncer',
 		'entryReferenceByEvent',
 		'jobAnnouncer',
 		'announcer',
@@ -212,8 +211,8 @@ EpMonitor >> behaviorRemoved: aClassRemovedAnnouncement [
 		"Fix category"
 		classRemoved definitionSource: 
 			(classRemoved definitionSource
-				copyReplaceAll: 'category: ', 'Unclassified' printString
-				with: 'category: ', aClassRemovedAnnouncement categoryName printString).
+				copyReplaceAll: 'package: ', 'Unclassified' printString
+				with: 'package: ', aClassRemovedAnnouncement categoryName printString).
 
 		classRemoved name: aClassRemovedAnnouncement classRemoved originalName.
 		classRemoved category: aClassRemovedAnnouncement categoryName.
@@ -349,7 +348,7 @@ EpMonitor >> disable [
 
 	self sessionStore flush.
 
-	{ systemAnnouncer. testAnnouncer. jobAnnouncer }
+	{ systemAnnouncer. jobAnnouncer }
 		do: [ :each | each ifNotNil: [ :a | a unsubscribe: self ] ].
 
 	self announceMonitorStateUpdated.
@@ -376,7 +375,6 @@ EpMonitor >> enable [
 	
 	self isEnabled ifFalse: [ 			
 		self subscribeToSystemAnnouncer.
-		self subscribeToTestAnnouncer.
 		self subscribeToJobAnnouncer. ].
 
 	self announceMonitorStateUpdated.
@@ -412,7 +410,6 @@ EpMonitor >> initializeWithLog: aLog [
 
 	log := aLog.
 	systemAnnouncer := SystemAnnouncer uniqueInstance.
-	testAnnouncer := TestCase historyAnnouncer.
 	jobAnnouncer := Job jobAnnouncer.
 	
 	entryReferenceByEvent := IdentityDictionary new.
@@ -602,16 +599,6 @@ EpMonitor >> subscribeToSystemAnnouncer [
 			send: pair value 
 			to: self ].
 
-]
-
-{ #category : #private }
-EpMonitor >> subscribeToTestAnnouncer [
-	"Hook method. Overriden in EpiceaSUnit."
-]
-
-{ #category : #accessing }
-EpMonitor >> testAnnouncer [
-	^ testAnnouncer
 ]
 
 { #category : #private }

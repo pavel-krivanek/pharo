@@ -21,6 +21,11 @@ Class {
 	#category : #'AST-Core-Visitors'
 }
 
+{ #category : #accessing }
+RBDumpVisitor >> contents [
+	^ stream contents
+]
+
 { #category : #initialization }
 RBDumpVisitor >> initialize [
 	stream := String new writeStream
@@ -79,6 +84,28 @@ RBDumpVisitor >> visitCascadeNode:aCascadeNode [
 			each acceptVisitor: self.
 			stream nextPutAll: '. ' ].
 	stream nextPut: $}
+]
+
+{ #category : #visiting }
+RBDumpVisitor >> visitEnglobingErrorNode: anEnglobingErrorNode [
+	stream
+		nextPutAll: '(';
+		nextPutAll: anEnglobingErrorNode class name;
+		nextPutAll: ' content: {'.
+	anEnglobingErrorNode content
+		do: [ :each | 
+			each acceptVisitor: self.
+			stream nextPutAll: '. ' ].
+	stream nextPut: $}.
+	stream nextPutAll: ' start: '.
+	anEnglobingErrorNode start printOn: stream.
+	stream nextPutAll: ' stop: '.
+	anEnglobingErrorNode stop printOn: stream.
+	stream nextPutAll: ' errorMessage: '.
+	anEnglobingErrorNode errorMessage printOn: stream.
+	stream
+		nextPutAll: ') value: ';
+		nextPutAll: anEnglobingErrorNode value printString.
 ]
 
 { #category : #visiting }

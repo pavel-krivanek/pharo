@@ -7,8 +7,14 @@ Class {
 	#instVars : [
 		'classFactory'
 	],
-	#category : #'ReleaseTests-Tests'
+	#category : #'ReleaseTests-CleanCode'
 }
+
+{ #category : #accessing }
+ObsoleteTest >> defaultTimeLimit [ 
+
+	^ 30 seconds
+]
 
 { #category : #running }
 ObsoleteTest >> setUp [

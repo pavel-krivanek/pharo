@@ -40,8 +40,19 @@ CDClassNameNode >> existingClassIfAbsent: aBlock [
 	^binding value
 ]
 
-{ #category : #testing }
+{ #category : #generated }
 CDClassNameNode >> isTemp [
+
+	"To be polymorphic to RB method nodes"
+
+	self
+		deprecated: 'Use #isTempVariable instead'
+		transformWith: '`@rec isTemp' -> '`@rec isTempVariable'.
+	^ self isTempVariable
+]
+
+{ #category : #testing }
+CDClassNameNode >> isTempVariable [
 	"To be polymorphic to RB method nodes"
 	^false
 ]

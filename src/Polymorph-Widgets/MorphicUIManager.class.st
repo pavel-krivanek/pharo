@@ -32,6 +32,21 @@ MorphicUIManager class >> isValidForCurrentSystemConfiguration [
 			and: [ Smalltalk isInteractiveGraphic ] ]
 ]
 
+{ #category : #cleanup }
+MorphicUIManager class >> restartMethods [
+   UIProcess ifNotNil: [
+	| process |
+	process := UIProcess.
+	self new spawnNewProcess.
+	process terminate. ]
+]
+
+{ #category : #'ui process' }
+MorphicUIManager class >> uiProcess [ 
+
+	^ UIProcess
+]
+
 { #category : #private }
 MorphicUIManager >> activate [
 
@@ -285,29 +300,11 @@ MorphicUIManager >> deactivate [
 
 { #category : #debug }
 MorphicUIManager >> debugProcess: process context: context label: title fullView: bool notification: notificationString [
-	"Open a notifier in response to an error, halt, or notify. A notifier view
-	just shows a short view of the sender stack and provides a menu that
-	lets the user open a full debugger."
 
-	| debugSession |
-
-	debugSession := process newDebugSessionNamed: title startedAt: context.
-	
-	debugSession logStackToFileIfNeeded.
-	debugSession isAboutUIProcess ifTrue: [ 
-		DefaultExecutionEnvironment beActiveDuring: [self spawnNewProcess]].
-		
-	self defer:	[ 
-			"schedule debugger in deferred UI message to address
-			redraw problems after opening a debugger e.g. from
-			the testrunner."
-		[ Smalltalk tools debugger 
-				openOn: debugSession withFullView: bool andNotification: notificationString.
-		] on: Error do: [ :ex | 	debugSession signalDebuggerError: ex] 
-	].
-
-	process suspend.
-
+	(OupsDebugRequest newForContext: context)
+		process: process;
+		label: title;
+		submit
 ]
 
 { #category : #'ui process' }
@@ -369,14 +366,23 @@ MorphicUIManager >> fontFromUser: priorFont [
 	^ StrikeFont fromUser: priorFont allowKeyboard: true
 ]
 
+{ #category : #'handle debug requests' }
+MorphicUIManager >> handleDebugRequest: aDebugRequest [
+	<debuggerCompleteToSender>
+	OupsDebuggerSystem new openDebuggerOnRequest: aDebugRequest
+]
+
 { #category : #'error handling' }
 MorphicUIManager >> handleError: anError log: shouldLog [
+	shouldLog
+		ifTrue: [ self logError: anError ].
+	(OupsDebugRequest newForException: anError) submit.
+]
 
-	shouldLog ifTrue: [ self logError: anError ].
-	self debugProcess: Processor activeProcess  
-		context: anError signalerContext
-		label: anError description 
-		fullView: false
+{ #category : #'handle debug requests' }
+MorphicUIManager >> handleWarningDebugRequest: aWarningDebugRequest [
+	<debuggerCompleteToSender>
+	OupsDebuggerSystem new openDebuggerOnRequest: aWarningDebugRequest
 ]
 
 { #category : #'ui requests' }
@@ -427,33 +433,6 @@ Here are some suggestions:
 
 '
 
-]
-
-{ #category : #debug }
-MorphicUIManager >> lowSpaceWatcherDefaultAction: theInterruptedProcess [
-	"Create a Notifier on the active scheduling process with the given label."
-	| preemptedProcess projectProcess debugSession |
-	ActiveWorld := self currentWorld. "reinstall active globals"
-	self currentWorld primaryHand interrupted.
-
-	projectProcess := self uiProcess.	"we still need the accessor for a while"
-	preemptedProcess := theInterruptedProcess ifNil: [Processor preemptedProcess].
-	"Only debug preempted process if its priority is >= projectProcess' priority"
-	preemptedProcess priority < projectProcess priority 
-		ifTrue:[preemptedProcess := projectProcess].
-	preemptedProcess suspend.
-	
-	debugSession := preemptedProcess 
-		newDebugSessionNamed: 'Space is low' 
-		startedAt: preemptedProcess suspendedContext.		
-	debugSession logStackToFileIfNeeded.
-	debugSession isAboutUIProcess ifTrue: [ 
-		DefaultExecutionEnvironment beActiveDuring: [self spawnNewProcess]].
-	
-	Smalltalk tools debugger 
-		openOn: debugSession 
-		withFullView: false 
-		andNotification: self lowSpaceWarningMessage
 ]
 
 { #category : #'ui requests' }
@@ -568,50 +547,10 @@ MorphicUIManager >> onPrimitiveError: aString [
 					20
 						timesRepeat: [context == nil
 								ifFalse: [s cr; print: (context := context sender)]]].
-	Transcripter askForEmergencyEvaluatorOrExitWithText: message.
+	Stdio stderr << message.
 	"init hands and redisplay" 
 	self currentWorld install
 
-]
-
-{ #category : #'ui requests' }
-MorphicUIManager >> openComparisonFrom: targetMethodSource
-					to: originalMethodSource
-					belongingTo: aClass
-					from: aChange 
-					labeled: aLabel 
-					inWindowLabeled: aWindowLabel [ 
-	| diffBuilder difference  |
-	PSMCPatchMorph usedByDefault 
-		ifTrue: [ ^ self openPolymorphComparisonFrom: originalMethodSource 
-					to: targetMethodSource
-					belongingTo: aClass
-					from: aChange
-					labeled: aLabel
-					inWindowLabeled: aWindowLabel   ].
-	diffBuilder :=  TextDiffBuilder
-			from: originalMethodSource 
-			to: targetMethodSource.
-	difference := diffBuilder buildDisplayPatch.
-	self edit: difference label: aLabel.
-				
-]
-
-{ #category : #private }
-MorphicUIManager >> openPolymorphComparisonFrom: targetMethodSource
-					to: originalMethodSource
-					belongingTo: aClass
-					from: aChange 
-					labeled: aLabel 
-					inWindowLabeled: aWindowLabel [ 
-	| diffMorph |
-	diffMorph := DiffChangeMorph
-		from: targetMethodSource
-		label: aChange stamp
-		to: originalMethodSource
-		label: (aClass compiledMethodAt: aChange methodSelector) timeStamp
-		contextClass: aClass.
-	diffMorph openInWindowLabeled: aWindowLabel.
 ]
 
 { #category : #accessing }
@@ -771,18 +710,11 @@ MorphicUIManager >> unhandledErrorDefaultAction: anException [
 	anException debug
 ]
 
-{ #category : #'ui requests' }
+{ #category : #'handle debug requests' }
 MorphicUIManager >> warningDefaultAction: anException [
+	"The user should be notified of the occurrence of an exceptional occurrence and given an option of continuing or aborting the computation. The description of the occurrence should include any text specified as the argument of the #signal: message."
 
-"The user should be notified of the occurrence of an exceptional occurrence and given an option of continuing or aborting the computation. The description of the occurrence should include any text specified as the argument of the #signal: message."
-	UIManager default
-				debugProcess: Processor activeProcess
-				context: anException signalerContext
-				label: 'Warning'
-				fullView: false 
-				notification: anException messageText, '\\Select Proceed to continue, or close this window to cancel the operation.' withCRs.
-				
-	anException resume.
+	(OupsWarningRequest newForException: anException) submit
 ]
 
 { #category : #'global state' }

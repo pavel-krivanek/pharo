@@ -15,11 +15,6 @@ OCUndeclaredVariable class >> isDeprecated [
 	^true
 ]
 
-{ #category : #accessing }
-OCUndeclaredVariable class >> semanticNodeClass [
-	^RBVariableNode
-]
-
 { #category : #emitting }
 OCUndeclaredVariable >> emitStore: methodBuilder [
 
@@ -35,10 +30,13 @@ OCUndeclaredVariable >> emitValue: methodBuilder [
 
 ]
 
-{ #category : #testing }
+{ #category : #generated }
 OCUndeclaredVariable >> isUndeclared [
 
-	^ true
+	self
+		deprecated: 'Use #isUndeclaredVariable instead'
+		transformWith: '`@rec isUndeclared' -> '`@rec isUndeclaredVariable'.
+	^ self isUndeclaredVariable
 ]
 
 { #category : #accessing }

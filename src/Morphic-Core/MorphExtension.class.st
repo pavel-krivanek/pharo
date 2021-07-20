@@ -40,9 +40,10 @@ MorphExtension >> actionMap: anObject [
 
 { #category : #'accessing - other properties' }
 MorphExtension >> assureOtherProperties [
+
 	"creates an otherProperties for the receiver if needed"
-	otherProperties ifNil: [self initializeOtherProperties].
-	^ otherProperties
+
+	^ otherProperties ifNil: [  otherProperties := SmallIdentityDictionary new ]
 ]
 
 { #category : #accessing }
@@ -83,7 +84,7 @@ MorphExtension >> clipSubmorphs: anObject [
 	clipSubmorphs := anObject
 ]
 
-{ #category : #'connectors-copying' }
+{ #category : #'connectors - copying' }
 MorphExtension >> copyWeakly [
 	"list of names of properties whose values should be weak-copied when veryDeepCopying a morph.  See DeepCopier."
 
@@ -144,14 +145,13 @@ MorphExtension >> fillStyle: anObject [
 ]
 
 { #category : #'accessing - other properties' }
-MorphExtension >> hasProperty: aSymbol [ 
+MorphExtension >> hasProperty: aSymbol [
+
 	"Answer whether the receiver has the property named aSymbol"
-	| property |
-	otherProperties ifNil: [^ false].
-	property := otherProperties at: aSymbol ifAbsent: [].
-	property ifNil: [^ false].
-	property == false ifTrue: [^ false].
-	^ true
+
+	^ otherProperties
+		  ifNil: [ false ]
+		  ifNotNil: [ :prop | prop includesKey: aSymbol ]
 ]
 
 { #category : #initialization }
@@ -162,12 +162,6 @@ MorphExtension >> initialize [
 	sticky := false.
 
 
-]
-
-{ #category : #'accessing - other properties' }
-MorphExtension >> initializeOtherProperties [
-	"private - initializes the receiver's otherProperties"
-	otherProperties :=  SmallIdentityDictionary new
 ]
 
 { #category : #other }
@@ -282,12 +276,14 @@ MorphExtension >> printOn: aStream [
 	externalName
 		ifNotNil: [ 
 			aStream
-				nextPutAll: ' [externalName = ' , externalName;
+				nextPutAll: ' [externalName = ' ; 
+					nextPutAll:  externalName;
 				nextPutAll: ' ] ' ].
 	eventHandler
 		ifNotNil: [ 
 			aStream
-				nextPutAll: ' [eventHandler = ' , eventHandler printString;
+				nextPutAll:  ' [eventHandler = ' ; 
+				print: eventHandler ;
 				nextPutAll: '] ' ].
 	(otherProperties isNil or: [ otherProperties isEmpty ])
 		ifTrue: [ ^ self ].
@@ -295,12 +291,13 @@ MorphExtension >> printOn: aStream [
 	self otherProperties
 		keysDo: [ :aKey | 
 			aStream
-				nextPutAll: ' (' , aKey , ' -> ' , (self otherProperties at: aKey) printString;
+				nextPutAll: ' (' ; 
+					nextPutAll:  aKey; nextPutAll:  ' -> ' ; print: (self otherProperties at: aKey) ;
 				nextPutAll: ')' ].
 	aStream nextPut: $]
 ]
 
-{ #category : #'connectors-copying' }
+{ #category : #'connectors - copying' }
 MorphExtension >> propertyNamesNotCopied [
 	"list of names of properties whose values should be deleted when veryDeepCopying a morph.
 	See DeepCopier."
@@ -366,12 +363,15 @@ MorphExtension >> valueOfProperty: aSymbol [
 ]
 
 { #category : #'accessing - other properties' }
-MorphExtension >> valueOfProperty: aSymbol ifAbsent: aBlock [ 
+MorphExtension >> valueOfProperty: aSymbol ifAbsent: aBlock [
+
 	"if the receiver possesses a property of the given name, answer  
 	its value. If not then evaluate aBlock and answer the result of  
 	this block evaluation"
-	otherProperties ifNil: [^ aBlock value].
-	^ otherProperties at: aSymbol ifAbsent: [^ aBlock value]
+
+	^ otherProperties
+		  ifNotNil: [ :prop | prop at: aSymbol ifAbsent: aBlock ]
+		  ifNil: [ aBlock value ]
 ]
 
 { #category : #'accessing - other properties' }
@@ -383,7 +383,7 @@ MorphExtension >> valueOfProperty: aSymbol ifAbsentPut: aBlock [
 	^self assureOtherProperties at: aSymbol ifAbsentPut: aBlock
 ]
 
-{ #category : #'connectors-copying' }
+{ #category : #'connectors - copying' }
 MorphExtension >> veryDeepFixupWith: deepCopier [ 
 	"If target and arguments fields were weakly copied, fix them here.
 	If they were in the tree being copied, fix them up, otherwise point to the originals!!"
@@ -399,7 +399,7 @@ MorphExtension >> veryDeepFixupWith: deepCopier [
 
 ]
 
-{ #category : #'connectors-copying' }
+{ #category : #'connectors - copying' }
 MorphExtension >> veryDeepInner: deepCopier [ 
 	"Copy all of my instance variables.
 	Some otherProperties need to be not copied at all, but shared. Their names are given by copyWeakly.

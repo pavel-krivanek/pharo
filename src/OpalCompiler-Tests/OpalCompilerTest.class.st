@@ -96,16 +96,33 @@ OpalCompilerTest >> testCompileWithNilClass [
 ]
 
 { #category : #'tests - bindings' }
+OpalCompilerTest >> testCompilerUsingCleanBlockClosureHasBlockAsLiteral [
+
+	| compiler method |
+	compiler := Smalltalk compiler.
+	compiler compilationContext encoderClass: EncoderForSistaV1.
+	compiler compilationContext compilerOptions:
+		#(+ optionCleanBlockClosure ).
+
+	method := compiler compile: 'test #(1 2 3) do: [:e | e + 1]'.
+
+	self assert: method literals second isEmbeddedBlock.
+	self assert: method literals second class equals: CleanBlockClosure
+]
+
+{ #category : #'tests - bindings' }
 OpalCompilerTest >> testCompilerUsingFullBlockClosureHasBlockAsLiteral [
 
-  	| compiler method |
- 	compiler := Smalltalk compiler.
- 	compiler compilationContext encoderClass: EncoderForSistaV1.
- 	compiler compilationContext compilerOptions: #(optionFullBlockClosure).
+	| compiler method |
+	compiler := Smalltalk compiler.
+	compiler compilationContext encoderClass: EncoderForSistaV1.
+	compiler compilationContext compilerOptions:
+		#(+ optionFullBlockClosure ).
 
-  	method := compiler compile: 'test #(1 2 3) do: [:e | e + 1]'.
+	method := compiler compile: 'test #(1 2 3) do: [:e | e + 1]'.
 
-  	self assert: method literals second isCompiledBlock 
+	self assert: method literals second isEmbeddedBlock.
+	self assert: method literals second class equals: CompiledBlock
 ]
 
 { #category : #'tests - bindings' }
@@ -114,6 +131,27 @@ OpalCompilerTest >> testEvaluateWithBindings [
 	result := Smalltalk compiler
 		bindings: {(#a -> 3)} asDictionary;
 		evaluate: '1+a'.
+	self assert: result equals: 4
+]
+
+{ #category : #'tests - bindings' }
+OpalCompilerTest >> testEvaluateWithBindingsSelfSuperThisContext [
+	| result |
+
+	"via #bindings: we can overwrite even self, super and thisContext"
+	result := Smalltalk compiler
+		bindings: {(#self -> 3)} asDictionary;
+		evaluate: '1+self'.
+	self assert: result equals: 4.
+	
+	result := Smalltalk compiler
+		bindings: {(#super -> 3)} asDictionary;
+		evaluate: '1+super'.
+	self assert: result equals: 4.
+	
+	result := Smalltalk compiler
+		bindings: {(#thisContext -> 3)} asDictionary;
+		evaluate: '1+thisContext'.
 	self assert: result equals: 4
 ]
 

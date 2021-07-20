@@ -9,6 +9,17 @@ Class {
 	#category : #'AST-Core-Visitors'
 }
 
+{ #category : #testing }
+RBProgramNodeVisitor class >> isAbstract [
+
+	^ self == RBProgramNodeVisitor
+]
+
+{ #category : #API }
+RBProgramNodeVisitor >> visit: aRBMessageNode [ 
+	^ aRBMessageNode acceptVisitor: self
+]
+
 { #category : #visiting }
 RBProgramNodeVisitor >> visitArgumentNode: anArgumentNode [
 	"Sent *each time* an argument node is found"
@@ -21,6 +32,12 @@ RBProgramNodeVisitor >> visitArgumentNodes: aNodeCollection [
 	"Sent *once* when visiting method and block nodes"
 
 	^ aNodeCollection do: [ :each | self visitArgumentNode: each ]
+]
+
+{ #category : #'visiting - variables' }
+RBProgramNodeVisitor >> visitArgumentVariableNode: anArgumentNode [
+
+	^ self visitLocalVariableNode: anArgumentNode
 ]
 
 { #category : #visiting }
@@ -45,9 +62,26 @@ RBProgramNodeVisitor >> visitCascadeNode: aCascadeNode [
 	aCascadeNode messages do: [ :each | self visitNode: each ]
 ]
 
+{ #category : #'visiting - variables' }
+RBProgramNodeVisitor >> visitClassVariableNode: aNode [
+
+	^ self visitLiteralVariableNode: aNode
+]
+
+{ #category : #visiting }
+RBProgramNodeVisitor >> visitEnglobingErrorNode: anEnglobingErrorNode [
+	anEnglobingErrorNode content do: [ :each | self visitNode: each ].
+]
+
 { #category : #visiting }
 RBProgramNodeVisitor >> visitGlobalNode: aSelfNode [
 	^ self visitVariableNode: aSelfNode
+]
+
+{ #category : #'visiting - variables' }
+RBProgramNodeVisitor >> visitGlobalVariableNode: aNode [
+
+	^ self visitLiteralVariableNode: aNode
 ]
 
 { #category : #visiting }
@@ -72,10 +106,24 @@ RBProgramNodeVisitor >> visitLiteralValueNode: aRBLiteralValueNode [
 	^ self visitLiteralNode: aRBLiteralValueNode
 ]
 
+{ #category : #'visiting - variables' }
+RBProgramNodeVisitor >> visitLiteralVariableNode: aNode [
+	"to be backward compatible, we visit for Gloabls here (there used to be no difference)"
+
+	^ self visitGlobalNode: aNode
+]
+
+{ #category : #visiting }
+RBProgramNodeVisitor >> visitLocalVariableNode: aNode [
+	"call visitTemporaryNode: for backward compatibility"
+	^ self visitTemporaryNode: aNode
+]
+
 { #category : #visiting }
 RBProgramNodeVisitor >> visitMessageNode: aMessageNode [
 	(aMessageNode isCascaded not or: [ aMessageNode isFirstCascaded ])
 		ifTrue: [ self visitNode: aMessageNode receiver ].
+	self visitNode: aMessageNode selectorNode.
 	aMessageNode arguments do: [ :each | self visitNode: each ]
 ]
 
@@ -120,6 +168,11 @@ RBProgramNodeVisitor >> visitReturnNode: aReturnNode [
 ]
 
 { #category : #visiting }
+RBProgramNodeVisitor >> visitSelectorNode: aSelectorNode [
+	
+]
+
+{ #category : #visiting }
 RBProgramNodeVisitor >> visitSelfNode: aSelfNode [
 	^ self visitVariableNode: aSelfNode
 ]
@@ -159,9 +212,21 @@ RBProgramNodeVisitor >> visitTemporaryNodes: aNodeCollection [
 		do: [ :each | self visitTemporaryDeclarationNode: each ]
 ]
 
+{ #category : #'visiting - variables' }
+RBProgramNodeVisitor >> visitTemporaryVariableNode: aNode [
+
+	^ self visitLocalVariableNode: aNode
+]
+
 { #category : #visiting }
 RBProgramNodeVisitor >> visitThisContextNode: aThisContextNode [
 	^ self visitVariableNode: aThisContextNode
+]
+
+{ #category : #visiting }
+RBProgramNodeVisitor >> visitUnreachableStatement: anUnreachableStatement [
+	
+	^ self visitEnglobingErrorNode: anUnreachableStatement
 ]
 
 { #category : #visiting }

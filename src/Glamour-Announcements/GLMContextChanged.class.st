@@ -14,6 +14,11 @@ Class {
 }
 
 { #category : #testing }
+GLMContextChanged class >> isDeprecated [
+	^ true
+]
+
+{ #category : #testing }
 GLMContextChanged >> announcesNewSelection [ 
 	"ContextChanged announces a new selection if 
 	the updated port is #selection and the new value is different from the current selection. 
@@ -53,13 +58,13 @@ GLMContextChanged >> printOn: aStream [
 	super printOn: aStream.
 	aStream 
 		nextPutAll: ' (presentation = ';
-		nextPutAll: self presentation printString;
+		print: self presentation ;
 		nextPutAll: ', property = #';
 		nextPutAll: self property;
 		nextPutAll: ', oldValue = ';
-		nextPutAll: self oldValue gtDisplayString;
+		nextPutAll: self oldValue displayString;
 		nextPutAll: ', value = ';
-		nextPutAll: self value gtDisplayString;
+		nextPutAll: self value displayString;
 		nextPutAll: ')'
 ]
 

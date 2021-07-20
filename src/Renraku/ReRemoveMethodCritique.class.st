@@ -4,9 +4,6 @@ I am a critique that will propose to the user to remove a method.
 Class {
 	#name : #ReRemoveMethodCritique,
 	#superclass : #ReAbstractCritique,
-	#instVars : [
-		'selector'
-	],
 	#category : #'Renraku-Critiques'
 }
 
@@ -19,7 +16,9 @@ ReRemoveMethodCritique class >> for: anEntity selector: aSelector by: aRule [
 
 { #category : #accessing }
 ReRemoveMethodCritique >> change [
-	^ RBRemoveMethodChange remove: self tinyHint from: self entity
+	^ (RBRefactoryChangeFactory instance)
+		removeMethod: self tinyHint 
+		from: self entity
 ]
 
 { #category : #testing }

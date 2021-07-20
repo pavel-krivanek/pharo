@@ -10,7 +10,8 @@ Class {
 	#classVars : [
 		'AllowDropFiles',
 		'CursorOwnerWorld',
-		'ExtraWorldList'
+		'ExtraWorldList',
+		'ExtraWorldListMutex'
 	],
 	#classInstVars : [
 		'displayScaleFactor'
@@ -20,7 +21,10 @@ Class {
 
 { #category : #'extra worlds' }
 WorldMorph class >> addExtraWorld: aWorld [
-	ExtraWorldList := self extraWorldList copyWith: aWorld
+	ExtraWorldListMutex critical: [
+		ExtraWorldList := self extraWorldList copyWith: aWorld
+	]
+
 ]
 
 { #category : #accessing }
@@ -35,7 +39,7 @@ WorldMorph class >> allowDropFiles: anObject [
 	AllowDropFiles := anObject
 ]
 
-{ #category : #'system startup' }
+{ #category : #'startup - shutdown' }
 WorldMorph class >> cleanUp [
 	self currentWorld cleanseOtherworldlySteppers
 ]
@@ -77,26 +81,31 @@ WorldMorph class >> displayScaleFactor: aNumber [
 WorldMorph class >> displayScaleFactorSettingsOn: aBuilder [ 
 	<systemsettings>
 	
-	(aBuilder range: #displayScaleFactor)
+	(aBuilder range: #scaleFactor)
 		parent: #appearance;
 		order: 3;
 		default: 1;
 		label: 'Display scale factor';
 		description: 'Specify scale factor for UI elements. This setting does not affect defined font sizes.';
 		target: self;
-		range: (0.3 to: 8 by: 0.1)
+		range: (0.5 to: 5 by: 0.5)
 	
 ]
 
 { #category : #'initialize-release' }
 WorldMorph class >> doOneCycle [
-	self extraWorldList do: [:world |
-		world doOneCycle.
+	WorldState doDrawCycleWith: [
+		| extraWorldsToDraw |
+		extraWorldsToDraw := ExtraWorldListMutex critical: [ self extraWorldList ].
+		extraWorldsToDraw do: [:world |
+			world doOneCycle.
+		].
+
+		(self currentWorld isNotNil and: [(extraWorldsToDraw includes: self currentWorld) not]) ifTrue: [
+			self currentWorld doOneCycle.
+		]
 	].
 
-	(self currentWorld isNotNil and: [(self extraWorldList includes: self currentWorld) not]) ifTrue: [
-		self currentWorld doOneCycle.
-	]
 ]
 
 { #category : #'extra worlds' }
@@ -105,11 +114,29 @@ WorldMorph class >> extraWorldList [
 	^ ExtraWorldList
 ]
 
+{ #category : #'initialize-release' }
+WorldMorph class >> initialize [
+	ExtraWorldListMutex := Semaphore forMutualExclusion.
+]
+
 { #category : #'extra worlds' }
 WorldMorph class >> removeExtraWorld: aWorld [
-	ExtraWorldList := self extraWorldList copyWithout: aWorld.
-	CursorOwnerWorld == aWorld ifTrue: [ CursorOwnerWorld := nil ]
+	ExtraWorldListMutex critical: [
+		ExtraWorldList := self extraWorldList copyWithout: aWorld.
+	].
+	CursorOwnerWorld == aWorld ifTrue: [ CursorOwnerWorld := nil ].	
+]
+
+{ #category : #setting }
+WorldMorph class >> scaleFactor [
 	
+	^ World scaleFactor 
+]
+
+{ #category : #setting }
+WorldMorph class >> scaleFactor: aValue [
+	
+	World scaleFactor: aValue
 ]
 
 { #category : #cursor }
@@ -144,13 +171,13 @@ WorldMorph >> actualScreenSize [
 	^ self worldState worldRenderer actualScreenSize
 ]
 
-{ #category : #'alarms-scheduler' }
+{ #category : #'alarms - scheduler' }
 WorldMorph >> addAlarm: aSelector withArguments: argArray for: aTarget at: scheduledTime [
 	"Add a new alarm with the given set of parameters"
 	worldState addAlarm: aSelector withArguments: argArray for: aTarget at: scheduledTime.
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #'submorphs - add/remove' }
 WorldMorph >> addAllMorphs: array [
 
 	super addAllMorphs: array.
@@ -174,7 +201,7 @@ WorldMorph >> addStandardHaloMenuItemsTo: aMenu hand: aHandMorph [
 	self addWorldHaloMenuItemsTo: aMenu hand: aHandMorph
 ]
 
-{ #category : #'submorphs-accessing' }
+{ #category : #'submorphs - accessing' }
 WorldMorph >> allMorphsDo: aBlock [
 	"Enumerate all morphs in the world, including those held in hands."
 
@@ -309,15 +336,13 @@ WorldMorph >> displayWorldSafely [
 
 { #category : #'world state' }
 WorldMorph >> doOneCycle [
-	"see the comment in doOneCycleFor:"
-
-	worldState doOneCycleFor: self
+	self doOneCycleNow
 ]
 
 { #category : #'interaction loop' }
 WorldMorph >> doOneCycleNow [
 	"see the comment in doOneCycleNowFor:"
-	worldState doOneCycleNowFor: self.
+	worldState doOneCycleFor: self.
 
 ]
 
@@ -333,7 +358,7 @@ WorldMorph >> firstHand [
 	^ worldState hands first
 ]
 
-{ #category : #'geometry testing' }
+{ #category : #'geometry - testing' }
 WorldMorph >> fullContainsPoint: pt [
 	^bounds containsPoint: pt
 
@@ -383,11 +408,8 @@ WorldMorph >> initialize [
 	worldState := WorldState new.
  	super initialize.
 	
-	SystemAnnouncer uniqueInstance weak when: FullscreenAnnouncement send: #fullscreenChanged: to: self.	
-	
-	"subscribe to the tools registry to update the world menu when needed"
-	Smalltalk tools whenToolRegistered: [ :tool :toolName | WorldState defaultWorldMenu ].
-	Smalltalk tools whenToolUnregistered: [ :tool :toolName | WorldState defaultWorldMenu ].
+	SystemAnnouncer uniqueInstance weak when: FullscreenAnnouncement send: #fullscreenChanged: to: self	
+
 ]
 
 { #category : #'change reporting' }
@@ -457,7 +479,7 @@ WorldMorph >> releaseCachedState [
 	self cleanseStepList.
 ]
 
-{ #category : #'alarms-scheduler' }
+{ #category : #'alarms - scheduler' }
 WorldMorph >> removeAlarm: aSelector for: aTarget [
 	"Remove the alarm with the given selector"
 	
@@ -473,13 +495,6 @@ WorldMorph >> removeHand: aHandMorph [
 	aHandMorph dropMorphs.
 	self invalidRect: aHandMorph fullBounds.
 	worldState removeHand: aHandMorph
-]
-
-{ #category : #'world menu' }
-WorldMorph >> resetWorldMenu [
-	
-	worldState resetWorldMenu
-
 ]
 
 { #category : #'world state' }
@@ -503,6 +518,17 @@ WorldMorph >> runStepMethods [
 
 ]
 
+{ #category : #accessing }
+WorldMorph >> scaleFactor: newScaleFactor [
+	self setProperty: #scaleFactor toValue: newScaleFactor
+]
+
+{ #category : #stepping }
+WorldMorph >> startStepping: aMorph [
+	"Add the given morph to the step list. Do nothing if it is already being stepped."
+	^self startStepping: aMorph at: Time millisecondClockValue selector: #stepAt: arguments: nil stepTime: nil
+]
+
 { #category : #stepping }
 WorldMorph >> startStepping: aMorph at: scheduledTime selector: aSelector arguments: args stepTime: stepTime [
 	worldState startStepping: aMorph at: scheduledTime selector: aSelector arguments: args stepTime: stepTime.
@@ -519,6 +545,13 @@ WorldMorph >> stepListSize [
 	^ worldState stepListSize
 
 "Transcript cr; show: self currentWorld stepListSize printString, ' items on steplist as of ', Date dateAndTimeNow printString"
+]
+
+{ #category : #'project state' }
+WorldMorph >> steppingMorphsNotInWorld [
+	| all |
+	all := self allMorphs.
+	^ self listOfSteppingMorphs reject: [ :m | all includes: m ]	"self currentWorld steppingMorphsNotInWorld do: [:m | m delete]"
 ]
 
 { #category : #stepping }

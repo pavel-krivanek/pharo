@@ -19,18 +19,27 @@ WebBrowser class >> isForCurrentSystem [
 	^self subclassResponsibility 
 ]
 
+{ #category : #testing }
+WebBrowser class >> isUsed [
+	"all my subclasses are used by me"
+	
+	^self name = #WebBrowser
+		ifTrue: [ super isUsed ]
+		ifFalse: [ true ]
+]
+
 { #category : #private }
-WebBrowser class >> openNativeWebBrowserOn: aURL [
+WebBrowser class >> openNativeWebBrowserOn: aURLString [
 
 	self subclassResponsibility
 ]
 
 { #category : #'instance creation' }
-WebBrowser class >> openOn: aURLString [
-	"Open the webbrowser on the given URL"
+WebBrowser class >> openOn: anURLOrString [
+	"Open the webbrowser on the given URL or String"
 	
 	^self webbrowserClassForPlatform 
-				openNativeWebBrowserOn: aURLString	
+				openNativeWebBrowserOn: anURLOrString asString
 
 ]
 

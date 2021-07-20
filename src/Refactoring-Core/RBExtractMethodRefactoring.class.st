@@ -57,7 +57,7 @@ RBExtractMethodRefactoring >> checkAssignments: variableNames [
 		in: extractedParseTree) ifNotEmpty: 
 			[self refactoringError: 'Cannot extract assignment if read before written.'].
 	removeAssigned do: [:each | (node whoDefines: each) removeTemporaryNamed: each].
-	self createTemporariesInExtractedMethodFor: variableNames
+	self updateTemporariesInExtractedMethodFor: variableNames
 ]
 
 { #category : #transforming }
@@ -122,24 +122,14 @@ RBExtractMethodRefactoring >> checkTemporaries [
 ]
 
 { #category : #transforming }
-RBExtractMethodRefactoring >> compiledMethod [
-	^ self compiledMethodIn: class realClass
-]
+RBExtractMethodRefactoring >> compileExtractedMethod [
 
-{ #category : #transforming }
-RBExtractMethodRefactoring >> compiledMethodIn: aClass [
-	^ [ aClass >> newExtractedSelector ]
-	on: Exception 
-	do: [ |aSuperClass|
-		aSuperClass := aClass superclass.
-		aSuperClass 
-			ifNil: [ ^ nil ]
-			ifNotNil: [ self compiledMethodIn: aSuperClass ]]
-]
-
-{ #category : #transforming }
-RBExtractMethodRefactoring >> createTemporariesInExtractedMethodFor: assigned [ 
-	assigned do: [:each | extractedParseTree body addTemporaryNamed: each]
+	| cls |
+	self renameAllParameters.
+	cls := self classObjectFor: self requestExtractionClass.
+	^ cls
+		  compile: extractedParseTree newSource
+		  withAttributesFrom: (class methodFor: selector)
 ]
 
 { #category : #transforming }
@@ -147,7 +137,7 @@ RBExtractMethodRefactoring >> existingSelector [
 	"Try to find an existing method instead of creating a new one"
 
 	^ self requestExistingSelector
-		ifNil: [ class allSelectors
+		ifNil: [ self selectorsToSearch
 				detect: [ :each | self isMethodEquivalentTo: each ]
 				ifNone: [ nil ] ]
 ]
@@ -234,7 +224,7 @@ RBExtractMethodRefactoring >> extractedParseTree [
 RBExtractMethodRefactoring >> getExtractedSource [
 	| source |
 	source := class sourceCodeFor: selector.
-	((extractionInterval first between: 1 and: source size) 
+	((extractionInterval first between: 1 and: (self startLimit: source size)) 
 		and: [extractionInterval last between: 1 and: source size]) 
 			ifFalse: [self refactoringFailure: 'Invalid interval'].
 	^source copyFrom: extractionInterval first to: extractionInterval last
@@ -259,6 +249,7 @@ RBExtractMethodRefactoring >> getNewMethodName [
 	newSelector isNil] 
 			whileTrue: [].
 	parameters := newMethodName arguments asOrderedCollection.
+	newMethodName renameMap ifNotEmpty: [parameterMap := newMethodName renameMap].
 	^newSelector asSymbol
 ]
 
@@ -281,6 +272,7 @@ RBExtractMethodRefactoring >> isParseTreeEquivalentTo: aSelector [
 	tree := definingClass parseTreeFor: aSelector.
 	tree ifNil: [^false].
 	tree isPrimitive ifTrue: [^false].
+	needsReturn ifFalse: [ tree := self removeReturnsOf: tree ].
 	(tree body equalTo: extractedParseTree body
 		exceptForVariables: (tree arguments collect: [:each | each name])) 
 			ifFalse: [^false].
@@ -323,7 +315,9 @@ RBExtractMethodRefactoring >> nameNewMethod: aSymbol [
 						nextPut: $ ;
 						nextPutAll: arg asString;
 						nextPut: $  ] ].
-	modifiedParseTree := RBParseTreeRewriter replace: self methodDelimiter with: newSend in: modifiedParseTree
+	modifiedParseTree := RBParseTreeRewriter replace: self methodDelimiter with: newSend in: modifiedParseTree.
+	self parameterMap do: [ :e |
+	(self parseTreeRewriterClass rename: e newName to: e name) executeTree: modifiedParseTree ]
 ]
 
 { #category : #transforming }
@@ -333,7 +327,7 @@ RBExtractMethodRefactoring >> newExtractedSelector [
 
 { #category : #accessing }
 RBExtractMethodRefactoring >> parameterMap [
-	^ parameterMap
+	^ parameterMap ifNil: [ parameterMap := { } ]
 ]
 
 { #category : #accessing }
@@ -379,10 +373,8 @@ RBExtractMethodRefactoring >> remainingTemporaries [
 
 { #category : #transforming }
 RBExtractMethodRefactoring >> renameAllParameters [
-	parameterMap ifNotNil: [
-		parameterMap keysAndValuesDo: [ :key : value | 
-			key ~= value ifTrue: [ self renameParameterWith: key to: value ]]
-	]
+	self parameterMap do: [ :each | 
+			self renameParameterWith: each name to: each newName ]
 ]
 
 { #category : #renaming }
@@ -400,6 +392,7 @@ RBExtractMethodRefactoring >> renameParameterWith: oldName to: newName [
 RBExtractMethodRefactoring >> reorderParametersToMatch: aSelector [ 
 	| tree dictionary |
 	tree := class parseTreeFor: aSelector.
+	needsReturn ifFalse: [ tree := self removeReturnsOf: tree ].
 	dictionary := Dictionary new.
 	tree body equalTo: extractedParseTree body withMapping: dictionary.
 	parameters := tree arguments collect: 
@@ -414,7 +407,22 @@ RBExtractMethodRefactoring >> reorderParametersToMatch: aSelector [
 RBExtractMethodRefactoring >> requestExistingSelector [ 
 	^ [(self options at: #existingSelector) value: self]
 			on: Exception 
-			do: [ nil ]
+			do: [ :e | nil ]
+]
+
+{ #category : #transforming }
+RBExtractMethodRefactoring >> requestExtractionClass [ 
+	^ (self options at: #extractionClass ifAbsent: [ [:ref | class ]]) value: self
+]
+
+{ #category : #transforming }
+RBExtractMethodRefactoring >> selectorsToSearch [
+	^ class allSelectors
+]
+
+{ #category : #transforming }
+RBExtractMethodRefactoring >> startLimit: aNumber [
+	^ aNumber 
 ]
 
 { #category : #printing }
@@ -438,16 +446,20 @@ RBExtractMethodRefactoring >> targetClass [
 
 { #category : #transforming }
 RBExtractMethodRefactoring >> transform [
+
 	| existingSelector |
 	existingSelector := self existingSelector.
-	self nameNewMethod: (existingSelector ifNil: [
-	newExtractedSelector ifNil: [ self getNewMethodName]]
-				ifNotNil: [existingSelector]).
-	existingSelector ifNil: 
-			[ self renameAllParameters.
-			class compile: extractedParseTree newSource
-				withAttributesFrom: (class methodFor: selector)].
+	self nameNewMethod: (existingSelector
+			 ifNil: [ newExtractedSelector ifNil: [ self getNewMethodName ] ]
+			 ifNotNil: [ existingSelector ]).
+	existingSelector ifNil: [ self compileExtractedMethod ].
 	class compileTree: modifiedParseTree
+]
+
+{ #category : #transforming }
+RBExtractMethodRefactoring >> updateTemporariesInExtractedMethodFor: assigned [ 
+	"Add temporaries in extract method"
+	assigned do: [:each | extractedParseTree body addTemporaryNamed: each]
 ]
 
 { #category : #renaming }
@@ -462,7 +474,7 @@ RBExtractMethodRefactoring >> validateRenameNode: aParseTree withOldName: oldNam
 			block
 				ifNotNil: [ self refactoringError: conditions errorString with: block ]
 				ifNil: [ self refactoringError: conditions errorString ] ].
-	(parameterMap values includes: newName) ifTrue: [
+	(self parameterMap values includes: newName) ifTrue: [
 		self refactoringError: newName asString , ' is already defined as parameter' ].
 	(aParseTree whoDefines: newName)
 		ifNotNil: [ self refactoringError: newName asString , ' is already defined' ].

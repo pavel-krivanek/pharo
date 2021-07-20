@@ -68,9 +68,7 @@ ClySourceCodeContext >> executeCommand: aCommand by: aCommandActivator [
 
 { #category : #testing }
 ClySourceCodeContext >> isArgOrTempVariableSelected [
-	| node |
-	node := self selectedSourceNode.
-	^node isVariable and: [ node isArgument or: [ node isTemp ] ]
+	^ self selectedSourceNode isLocalVariable
 ]
 
 { #category : #testing }
@@ -118,22 +116,17 @@ ClySourceCodeContext >> isMethodSelected [
 
 { #category : #testing }
 ClySourceCodeContext >> isTempVariableSelected [
-	| node |
-	node := self selectedSourceNode.
-	^node isVariable and: [ node isTemp ]
+	^ self selectedSourceNode isTempVariable
 ]
 
 { #category : #testing }
 ClySourceCodeContext >> isVariableSelected [
-	| node binding |
-	self isClassSelected ifTrue: [ ^false ].
-	
+	| node |
+	self isClassSelected ifTrue: [ ^ false ].
 	node := self selectedSourceNode.
-	node isVariable ifFalse: [ ^false ].
+	node isVariable ifFalse: [ ^ false ].
 	
-	binding := node binding.
-	
-	^binding isClassVariable | binding isInstance | binding isGlobalVariable | binding isUndeclared
+	^ node isLiteralVariable | node isInstanceVariable
 ]
 
 { #category : #selection }

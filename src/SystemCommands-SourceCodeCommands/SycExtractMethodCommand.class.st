@@ -3,7 +3,9 @@ I am a command to extract selected ast node into separate method
 "
 Class {
 	#name : #SycExtractMethodCommand,
-	#superclass : #SycSourceCodeCommand,
+	#superclass : #SycSourceCodeRefactoringCommand,
+	#traits : 'TRefactoringCommandSupport',
+	#classTraits : 'TRefactoringCommandSupport classTrait',
 	#instVars : [
 		'selectedTextInterval'
 	],
@@ -17,6 +19,20 @@ SycExtractMethodCommand class >> canBeExecutedInContext: aSourceCodeContext [
 	^aSourceCodeContext isMethodSelected not 
 ]
 
+{ #category : #converting }
+SycExtractMethodCommand >> asRefactorings [
+
+	| selectedInterval refactoring |
+	selectedInterval := selectedTextInterval ifEmpty: [ 
+		                    sourceNode sourceInterval ].
+	refactoring := RBExtractMethodAndOccurrences
+		               extract: selectedInterval
+		               from: method selector
+		               in: method origin.
+	self setUpOptionsOf: refactoring.
+	^ { refactoring }
+]
+
 { #category : #accessing }
 SycExtractMethodCommand >> defaultMenuIconName [ 
 	^ #glamorousRestart
@@ -28,52 +44,44 @@ SycExtractMethodCommand >> defaultMenuItemName [
 ]
 
 { #category : #execution }
-SycExtractMethodCommand >> execute [
-
-	| selectedInterval dialog refactoring|
-	selectedInterval := selectedTextInterval ifEmpty: [ sourceNode sourceInterval ].
-	refactoring := RBExtractMethodRefactoring	
-		extract: selectedInterval from: method selector in: method origin.
-	self setUpOptionToUseExistingMethodDuring: refactoring.
-	self setUpOptionToOverrideExistingMethodDuring: refactoring.
-	refactoring setOption: #methodName toUse: [ :ref :methodName |
-		dialog := SycMethodNameEditor openOn: methodName withRefactoring: ref.
-		dialog cancelled ifTrue: [  CmdCommandAborted signal ].
-		methodName].
-	
-	self executeRefactoring: refactoring.
-]
-
-{ #category : #private }
-SycExtractMethodCommand >> executeRefactoring: refactoring [
-
-	NautilusRefactoring new refactoringOptions: refactoring.
-	[ refactoring execute.
-	self findOcurrences: refactoring] 
-	on: RBRefactoringError 
-	do: [ :e | UIManager default alert: e messageText ].
-	
-]
-
-{ #category : #execution }
-SycExtractMethodCommand >> findOcurrences: aRefactoring [ 	
-	|refactoring ocurrences|
-	
-	refactoring := RBFindAndReplaceMethodRefactoring 
-		find: aRefactoring compiledMethod
-		andReplaceIn: { aRefactoring method }.
-	ocurrences := (refactoring findOcurrencesIn: method selector of: method origin).
-	ocurrences ifNotEmpty: [ 
-		(self confirm: ('We find <1s> ocurrence(s) of extracted method.
-Would you like review and replace them?' expandMacrosWith: ocurrences size asString))
-		 	ifTrue: [ refactoring transform ] ]
-]
-
-{ #category : #execution }
 SycExtractMethodCommand >> readParametersFromContext: aSourceCodeContext [
 	super readParametersFromContext: aSourceCodeContext.
-	
-	selectedTextInterval := aSourceCodeContext selectedTextInterval
+	self setUpModelFromContext: aSourceCodeContext.
+	selectedTextInterval := aSourceCodeContext selectedTextInterval.
+]
+
+{ #category : #execution }
+SycExtractMethodCommand >> setUpOptionToChangeExtractionClass: refactoring [
+
+	refactoring setOption: #extractionClass toUse: [ :ref | | cls superclasses |
+		cls := ref methodClass realClass.
+		superclasses := cls allSuperclasses reversed copyWithoutAll: { Object . ProtoObject }.
+		superclasses ifNotEmpty: [ 
+			cls := UIManager default
+				chooseFrom: ((superclasses, {cls}) collect: #name)
+				values: superclasses, {cls}
+				title: 'Choose the class where you want to extract the method'
+		].
+		cls ifNil: [ 
+			self inform: 'Command aborted, you must select a class.'.
+			CmdCommandAborted signal ].
+		cls ]
+]
+
+{ #category : #execution }
+SycExtractMethodCommand >> setUpOptionToChangeMethodNameDuring: refactoring [
+
+	| dialog |
+	refactoring setOption: #methodName toUse: [ :methodName | | invalidArgs |
+		invalidArgs := self computeInvalidArgNamesForSelector: method selector.
+		dialog := SycMethodNameEditorPresenter
+			openOn: methodName
+			withInvalidArgs: invalidArgs
+			canRenameArgs: true
+			canRemoveArgs: false
+			canAddArgs: false.
+		dialog cancelled ifTrue: [ CmdCommandAborted signal ].
+		methodName ]
 ]
 
 { #category : #execution }
@@ -88,7 +96,17 @@ SycExtractMethodCommand >> setUpOptionToUseExistingMethodDuring: aRefactoring [
 
 	aRefactoring setOption: #useExistingMethod toUse:  [ :ref :selector | 
 		UIManager default 
-			confirm: 'Do you want use existing method ', selector printString, '?'
+			confirm: 'Do you want to use existing method ', selector printString, '?'
 			label: 'Warninig']. 	
 	
+]
+
+{ #category : #execution }
+SycExtractMethodCommand >> setUpOptionsOf: refactoring [
+
+	self initializeDefaultOptionsOf: refactoring.
+	self setUpOptionToChangeExtractionClass: refactoring.
+	self setUpOptionToUseExistingMethodDuring: refactoring.
+	self setUpOptionToOverrideExistingMethodDuring: refactoring.
+	self setUpOptionToChangeMethodNameDuring: refactoring
 ]

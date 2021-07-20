@@ -76,6 +76,18 @@ ReflectivityExamples >> exampleBlockNoValue [
 ]
 
 { #category : #examples }
+ReflectivityExamples >> exampleBlockOptimized [
+	"block with temp vector inside a optized block"
+	^ 1==1 ifTrue: [ 
+		  | var1 var2 |
+		
+		  #( 1 2 ) collect: [ :each | 
+			  var1 := 1.
+			  var2 := 1.
+			  var1 + var2 ] ] 
+]
+
+{ #category : #examples }
 ReflectivityExamples >> exampleBlockWithArg [
 	^ [:a | a + 3] value: 2 
 ]
@@ -95,7 +107,7 @@ ReflectivityExamples >> exampleGlobalRead [
 	^GlobalForTesting
 ]
 
-{ #category : #examples }
+{ #category : #'examples - optimized' }
 ReflectivityExamples >> exampleIfTrueIfFalse [
 
 	| t |
@@ -184,6 +196,14 @@ ReflectivityExamples >> exampleSendTwoArgs [
 ReflectivityExamples >> exampleTwoSends [
 	3 + 4.
 	^ 2 + 3
+]
+
+{ #category : #'examples - optimized' }
+ReflectivityExamples >> exampleWhileFalse [
+	| t |
+	t := 1.
+	[ t > 10 ] whileFalse: [ t := t + 1].
+	^t
 ]
 
 { #category : #examples }

@@ -5,9 +5,6 @@ I'm an util to convert a shortcut into the representation used in a platform (th
 Class {
 	#name : #KMShortcutPrinter,
 	#superclass : #OSPlatformVisitor,
-	#instVars : [
-		'shortcut'
-	],
 	#classVars : [
 		'SymbolTable'
 	],
@@ -43,38 +40,30 @@ KMShortcutPrinter class >> symbolTableAt: anObject ifAbsent: aBlock [
 { #category : #'instance creation' }
 KMShortcutPrinter class >> toString: aShortcut [
 
-	^ self new
-		shortcut: aShortcut;
-		visit
-]
-
-{ #category : #visiting }
-KMShortcutPrinter >> genericSpecialCharacter: char [ 
-
-	char = Character cr ifTrue: [ ^ 'Enter' ].
-	char = Character space ifTrue: [ ^ 'Space' ].
-	^ char	 asUppercase
-]
-
-{ #category : #visiting }
-KMShortcutPrinter >> macSpecialCharacter: char [ 
-
-	char = Character cr ifTrue: [ ^ self class symbolTableAt: #Enter ifAbsent: [ 'Enter' ] ].	
-	char = Character space ifTrue: [ ^ self class symbolTableAt: #Space ifAbsent: [ 'Space' ] ].	
-	^ char	asUppercase
-]
-
-{ #category : #accessing }
-KMShortcutPrinter >> shortcut: aShortcut [
-
-	shortcut := aShortcut
+	^ aShortcut acceptVisitor: OSPlatform current shortcutPrinter
 ]
 
 { #category : #private }
-KMShortcutPrinter >> shortcutModifiers [
+KMShortcutPrinter >> basicModifierStringsOf: aShortcut [
+		
+	^ (aShortcut platformModifier asString substrings: '+') collect: [:each | each trimBoth]
+]
+
+{ #category : #visiting }
+KMShortcutPrinter >> mapSpecialCharacter: char [ 
+
+	char = KeyboardKey enter ifTrue: [ ^ 'Enter' ].
+	char = (KeyboardKey fromCharacter: Character space) ifTrue: [ ^ 'Space' ].
+	^ char	 name
+]
+
+{ #category : #private }
+KMShortcutPrinter >> shortcutModifiersOf: aShortcut [
 	| modifiers |
 	
-	modifiers := (shortcut platformModifier asString substrings: '+') collect: [:each | each trimBoth].
+	modifiers := self basicModifierStringsOf: aShortcut.
+	modifiers replaceAll: 'Meta' with: 'Ctrl'.
+	
 	"Ensure shift is first"
 	((modifiers includes: 'Shift') 
 		and: [ modifiers first ~= 'Shift' ])
@@ -84,29 +73,21 @@ KMShortcutPrinter >> shortcutModifiers [
 ]
 
 { #category : #visiting }
-KMShortcutPrinter >> visitGeneric: aPlatform [
-	| char |
-	
-	char := self genericSpecialCharacter: shortcut platformCharacter asUppercase.	
-	^ String streamContents: [ :stream |
-		self shortcutModifiers
-			do: [ :each | stream << each ]
-			separatedBy: [ stream << '+' ].
-		stream << '+'.
-		stream << char ]
-	
+KMShortcutPrinter >> visitCombinationShortcut: aShortcut [
+
+	^ (aShortcut sequence collect: [ :e | self visitSingleShortcut: e ]) joinUsing: ','
 ]
 
 { #category : #visiting }
-KMShortcutPrinter >> visitMacOS: aPlatform [
-	| keyParts symbols char |
+KMShortcutPrinter >> visitSingleShortcut: aShortcut [
 
-	keyParts := self shortcutModifiers.
-	symbols := keyParts 
-		inject: ''
-		into: [ :s :each | 
-			s, (self class symbolTableAt: each ifAbsent: [ each capitalized ]) ].
-	
-	char := self macSpecialCharacter: shortcut platformCharacter.
-	^ symbols, char asString
+	| char |
+	char := self mapSpecialCharacter: aShortcut platformCharacter.
+	^ String streamContents: [ :stream | 
+		(self shortcutModifiersOf: aShortcut) ifNotEmpty: [ :modifiers |  
+			modifiers
+			  do: [ :each | stream << each ]
+			  separatedBy: [ stream << '+' ].
+			stream << '+' ].
+		stream << char ]
 ]

@@ -29,14 +29,12 @@ ProcessTest >> testFork [
 
 { #category : #tests }
 ProcessTest >> testForkAtHigherPriority [
-
-	| hasBlockRun block return |
+	| hasBlockRun |
 	hasBlockRun := false.
-	block := [ hasBlockRun := true ].
-	return := block forkAt: Processor activeProcess priority + 1.
-	
+	[ hasBlockRun := true ] forkAt: Processor activeProcess priority + 1.
+
 	"Preempts current process"
-	self assert: hasBlockRun.
+	self assert: hasBlockRun
 ]
 
 { #category : #'tests - exception handlers' }
@@ -460,28 +458,43 @@ ProcessTest >> testTerminateActive [
 	self deny: lastStatementEvaluated.
 ]
 
+{ #category : #'tests - creation' }
+ProcessTest >> testTerminateAnswersSelf [
+
+	| process |
+
+	"verify #terminate returns a process that is terminated"
+	process := [] newProcess terminate.
+	self assert: (process isKindOf: Process).
+	self assert: process isTerminated.
+
+	"verify repeating #terminate still returns a terminated process"
+	process := process terminate.
+	self assert: (process isKindOf: Process).
+	self assert: process isTerminated.
+	
+
+]
+
 { #category : #'tests - termination' }
 ProcessTest >> testTerminationShouldProceedAllEnsureBlocksIfSomeWasFailed [
 
-	| ensureCalled process ensureFailure forkedFailures started |
+	| ensureCalled process ensureFailure started unwindError |
 	ensureFailure := Error new messageText: 'signalled inside ensure'.
 	ensureCalled := false.
 	started := false.
 	process := [ 
+		[ 
 		[[started := true. 10 seconds wait] 
 			ensure: [ ensureFailure signal ]]
 				ensure: [ ensureCalled := true ].
+		] on: UnwindError do: [ :err | unwindError := err ]
 	] fork.
 	[started] whileFalse: [ Processor yield ].
 	process terminate.	
 	Processor yield.
 	self assert: ensureCalled.
-	forkedFailures := TestExecutionEnvironment currentFailures.
-	self assert: forkedFailures size equals: 2.
-	self assert: forkedFailures first equals: ensureFailure.
-	self assert: forkedFailures last class equals: UnwindError.
-	self assert: forkedFailures last signalerContext exception equals: ensureFailure.
-	TestExecutionEnvironment resetFailures
+	self assert: unwindError signalerContext sender exception equals: ensureFailure
 ]
 
 { #category : #'tests - termination' }

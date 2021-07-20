@@ -336,12 +336,6 @@ UIManager >> deactivate [
 ]
 
 { #category : #debug }
-UIManager >> debugProcess: process context: context label: title fullView: bool [
-
-	self debugProcess: process context: context label: title fullView: bool notification: nil
-]
-
-{ #category : #debug }
 UIManager >> debugProcess: process context: context label: title fullView: bool notification: notificationString [
 
 	self subclassResponsibility
@@ -396,6 +390,17 @@ UIManager >> fontFromUser: priorFont [
 	self subclassResponsibility
 ]
 
+{ #category : #'debug requests' }
+UIManager >> handleDebugRequest: aDebugRequest [
+	"Provide a default handling for unhandled error. 
+	 We should never reach this code, because it should be overridden by subclasses. 
+	 (but we can't put 'self subclassResponsibility' , because it will cause infinite loop,
+	 in case if current ui manager having no override of this method).
+	 This method is only for documentation purposes."
+		
+	Smalltalk snapshot: false andQuit: true
+]
+
 { #category : #'error handling' }
 UIManager >> handleError: anError [
 	
@@ -405,6 +410,13 @@ UIManager >> handleError: anError [
 { #category : #'error handling' }
 UIManager >> handleError: anError log: shouldLog [
 
+	self subclassResponsibility
+]
+
+{ #category : #'debug requests' }
+UIManager >> handleWarningDebugRequest: aWarningDebugRequest [
+	"Handle warning notification. Should be overidden by subclass."
+		
 	self subclassResponsibility
 ]
 
@@ -462,6 +474,15 @@ UIManager >> logError: anError [
 
 { #category : #'default actions' }
 UIManager >> lowSpaceWatcherDefaultAction: preemptedProcess [
+
+	"When there is a signal from the VM, we signal an exception in the preempted process.
+	If we don't have preemptedProcess we are in an error state. We will throw an error"
+
+	preemptedProcess 
+		ifNotNil: [ preemptedProcess signalException: OutOfMemory new.
+						^ self ].
+
+	self error: 'We have a lowSpaceWatcher signal, but there is no ctx... how we arrive here'.
 ]
 
 { #category : #'ui requests' }
@@ -621,6 +642,68 @@ UIManager >> request: aStringOrText initialAnswer: defaultAnswer title: aTitle e
 	 string the user accepts. Answer the empty string if the user cancels."
 	
 	^self subclassResponsibility
+]
+
+{ #category : #'debug requests' }
+UIManager >> requestDebuggerOpeningFor: anException [
+
+	<debuggerCompleteToSender>
+	Smalltalk logError: anException printString inContext: anException signalerContext.	
+	
+	self class environment
+		at: #OupsDebugRequest
+		ifPresent: [ :requestClass | 
+			(requestClass newForException: anException) submit.
+			^ self ].
+
+]
+
+{ #category : #'debug requests' }
+UIManager >> requestDebuggerOpeningForProcess: aProcess named: title inContext: aContext [
+
+	<debuggerCompleteToSender>
+
+	Smalltalk logError: aContext printString inContext: aContext.
+	
+	self class environment
+		at: #OupsDebugRequest
+		ifPresent: [ :requestClass | 
+			(requestClass newForContext: aContext)
+				process: aProcess;
+				label: title;
+				submit.
+			^ self ].
+
+]
+
+{ #category : #'debug requests' }
+UIManager >> requestDebuggerOpeningForWarning: aWarning [
+
+	<debuggerCompleteToSender>
+	
+	Smalltalk logError: aWarning printString inContext: aWarning signalerContext.	
+	
+	self class environment
+		at: #OupsWarningRequest
+		ifPresent: [ :requestClass | 
+			(requestClass newForException:  aWarning)			
+				submit.
+			^ self ].
+]
+
+{ #category : #'debug requests' }
+UIManager >> requestDebuggerOpeningNamed: title inContext: aContext [
+
+	<debuggerCompleteToSender>
+	Smalltalk logError: aContext printString inContext: aContext.	
+
+	self class environment
+		at: #OupsDebugRequest
+		ifPresent: [ :requestClass | 
+			(requestClass newForContext: aContext)
+				label: title;
+				submit.
+			^ self ].
 ]
 
 { #category : #'ui requests' }

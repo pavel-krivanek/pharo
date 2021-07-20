@@ -11,40 +11,46 @@ Class {
 	#name : #SycAddMessageArgumentCommand,
 	#superclass : #SycChangeMessageSignatureCommand,
 	#instVars : [
-		'newSelector',
-		'argumentDefaultValue'
+		'newSelector'
 	],
 	#category : #'SystemCommands-MessageCommands'
 }
+
+{ #category : #testing }
+SycAddMessageArgumentCommand class >> canBeExecutedInContext: aToolContext [
+
+	"This method overrides the superclass definition to make appear this option only for methods.
+
+	Using the refactor from the method selection panel works fine.
+	Otherwise createValidNameArgument creates an argument name that is not already in use (for example: if anObject is used then it return anObject1).
+	However when we ask this refactoring from a message we don't know the method and cannot do those checks. (If there is only one)"
+	^aToolContext isMethodSelected
+]
 
 { #category : #activation }
 SycAddMessageArgumentCommand class >> methodContextMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation 
-		byItemOf: ClyMoreRefactorsMenuGroup 
-		order: 30 
-		for: ClyMethod asCalypsoItemContext
+	^ SycMethodMenuActivation
+		byRootGroupItemOrder: 30 for: ClyMethod asCalypsoItemContext
 ]
 
-{ #category : #accessing }
-SycAddMessageArgumentCommand >> argumentDefaultValue [
-	^ argumentDefaultValue
-]
-
-{ #category : #accessing }
-SycAddMessageArgumentCommand >> argumentDefaultValue: anObject [
-	argumentDefaultValue := anObject
+{ #category : #requesting }
+SycAddMessageArgumentCommand >> canRemoveArgs [ 
+	^ false
 ]
 
 { #category : #execution }
 SycAddMessageArgumentCommand >> createRefactoring [
 
-	^RBAddParameterRefactoring
+	^(RBAddParameterRefactoring
+		model: model
 		addParameterToMethod: originalMessage selector
 		in: (SycMessageOriginHack of: originalMessage) "look at SycMessageOriginHack comment"
-		newSelector: newSelector
-		initializer: argumentDefaultValue
+		newSelector: newSelector selector
+		permutation: newSelector permutation
+		newArgs: newSelector newArgs)
+		renameMap: newSelector renameMap
 ]
 
 { #category : #accessing }
@@ -71,13 +77,8 @@ SycAddMessageArgumentCommand >> newSelector: anObject [
 { #category : #execution }
 SycAddMessageArgumentCommand >> prepareFullExecutionInContext: aToolContext [
 	super prepareFullExecutionInContext: aToolContext.
-	newSelector := UIManager default
-		request: 'Enter new selector:' initialAnswer: originalMessage selector.
-	newSelector isEmptyOrNil ifTrue:  [ CmdCommandAborted signal ].
 	
-	argumentDefaultValue := UIManager default
-		request: 'Enter default value for argument' initialAnswer: 'nil'.
-	argumentDefaultValue isEmptyOrNil ifTrue:  [ CmdCommandAborted signal ]
+	newSelector := self requestNewMessageIn: aToolContext.
 ]
 
 { #category : #execution }

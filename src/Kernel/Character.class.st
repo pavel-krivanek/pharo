@@ -185,19 +185,6 @@ Character class >> insert [
 	^ self value: 5
 ]
 
-{ #category : #'instance creation' }
-Character class >> leadingChar: leadChar code: code [
-
-	code >= 16r400000 ifTrue: [
-		self error: 'code is out of range'.
-	].
-	leadChar >= 256 ifTrue: [
-		self error: 'lead is out of range'.
-	].
-	code < 256 ifTrue: [ ^self value: code ].
-	^self value: (leadChar bitShift: 22) + code
-]
-
 { #category : #'accessing untypeable characters' }
 Character class >> lf [
 	"Answer the Character representing a linefeed."
@@ -380,18 +367,8 @@ Character >> asSymbol [
 
 { #category : #converting }
 Character >> asUnicode [
-	| table charset value |
-	self leadingChar = 0
-		ifTrue: [ ^ self asInteger ].
-	charset := self characterSet.
-	charset isCharset
-		ifFalse: [ ^ self charCode ].
-	table := charset ucsTable.
-	table ifNil: [ ^ 65533 ].
-	value := table at: self charCode + 1.
-	value = -1
-		ifTrue: [ ^ 65533 ].
-	^ value
+
+	^ self asInteger
 ]
 
 { #category : #converting }
@@ -624,7 +601,14 @@ Character >> isDigit [
 
 ]
 
-{ #category : #'testing unicode' }
+{ #category : #testing }
+Character >> isDoubleQuote [
+	"Returns whether the receiver is a Double Quote"
+
+	^ self = $"
+]
+
+{ #category : #'testing - unicode' }
 Character >> isEnclosingMark [
 	"Return whether the receiver is ... one of these https://www.compart.com/en/unicode/category/Me"
 	"$' isEnclosingMark >>> false"
@@ -633,7 +617,7 @@ Character >> isEnclosingMark [
 	^ self characterSet isEnclosingMark: self
 ]
 
-{ #category : #'testing unicode' }
+{ #category : #'testing - unicode' }
 Character >> isFinalQuote [
 	"Return whether the receiver is https://www.compart.com/en/unicode/category/Pf"
 	"$' isFinalQuote >>> false"
@@ -641,13 +625,19 @@ Character >> isFinalQuote [
 	^ self characterSet isFinalQuote: self
 ]
 
-{ #category : #'testing unicode' }
+{ #category : #'testing - unicode' }
 Character >> isFormatOther [
 	"Return whether the receiver in this category: https://www.compart.com/en/unicode/category/Cf"
 	^ self characterSet isFormatOther: self
 ]
 
-{ #category : #'testing unicode' }
+{ #category : #testing }
+Character >> isImmediateObject [
+	"This is needed for the boostrap"
+	^ true
+]
+
+{ #category : #'testing - unicode' }
 Character >> isInitialQuote [
 	"Return whether the receiver is https://www.compart.com/en/unicode/category/Pi"
 	"$' isInitialQuote >>> false"
@@ -666,27 +656,27 @@ Character >> isLetter [
 
 ]
 
-{ #category : #'testing unicode' }
+{ #category : #'testing - unicode' }
 Character >> isLetterModifier [
 	"Return whether the receiver is https://www.compart.com/en/unicode/category/Lm"
 	
 	^ self characterSet isLetterModifier: self
 ]
 
-{ #category : #'testing unicode' }
+{ #category : #'testing - unicode' }
 Character >> isLetterNumber [
 	"Return whether the receiver is part of https://www.compart.com/en/unicode/category/Nl"
 	^ self characterSet isLetterNumber: self
 ]
 
-{ #category : #'testing unicode' }
+{ #category : #'testing - unicode' }
 Character >> isLineSeparator [
 	"Return whether the receiver is https://www.compart.com/en/unicode/category/Zl"
 	
 	^ self characterSet isLineSeparator: self
 ]
 
-{ #category : #'testing kind' }
+{ #category : #'testing - kind' }
 Character >> isLiteral [
 
 	^ true
@@ -715,7 +705,7 @@ Character >> isNonspacingMark [
 ^ self characterSet isNonspacingMark: self
 ]
 
-{ #category : #'testing kind' }
+{ #category : #'testing - kind' }
 Character >> isOctetCharacter [
 	^ self asInteger < 256
 ]
@@ -822,14 +812,16 @@ Character >> isVowel [
 	^'AEIOU' includes: self asUppercase
 ]
 
-{ #category : #accessing }
-Character >> leadingChar [
-	^ (self asInteger bitAnd: 1069547520) bitShift: -22
-]
-
 { #category : #converting }
 Character >> lowercase [
 	^ self asLowercase
+]
+
+{ #category : #'memory scanning' }
+Character >> nextObject [
+	"Characters are immediate objects, and, as such, do not have successors in object memory."
+
+	self shouldNotImplement 
 ]
 
 { #category : #printing }
@@ -869,7 +861,7 @@ Character >> shallowCopy [
 	^self
 ]
 
-{ #category : #'testing kind' }
+{ #category : #'testing - kind' }
 Character >> shouldBePrintedAsLiteral [
 	^ self asInteger between: 33 and: 255
 ]

@@ -59,6 +59,11 @@ LiteralVariable >> = anAssociation [
 	^ super = anAssociation and: [value = anAssociation value]
 ]
 
+{ #category : #visiting }
+LiteralVariable >> acceptVisitor: aProgramNodeVisitor node: aNode [
+	^ aProgramNodeVisitor visitLiteralVariableNode: aNode
+]
+
 { #category : #testing }
 LiteralVariable >> analogousCodeTo: anAssociation [
 	^ self = anAssociation
@@ -89,7 +94,7 @@ LiteralVariable >> emitStore: aMethodBuilder [
 		addTemp: tempName;
 		storeTemp: tempName;
 		popTop;
-		pushLiteralVariable: (AdditionalBinding key: #global value: self);
+		pushLiteral: self;
 		pushTemp: tempName;
 		send: #write:
 ]
@@ -97,7 +102,7 @@ LiteralVariable >> emitStore: aMethodBuilder [
 { #category : #'code generation' }
 LiteralVariable >> emitValue: aMethodBuilder [
 	aMethodBuilder
-		pushLiteralVariable: (AdditionalBinding key: #global value: self);
+		pushLiteral: self;
 		send: #read
 ]
 
@@ -114,15 +119,24 @@ LiteralVariable >> installingIn: aClass [
 ]
 
 { #category : #testing }
+LiteralVariable >> isAccessedIn: aMethod [ 
+	
+	^aMethod accessesRef: self
+]
+
+{ #category : #generated }
 LiteralVariable >> isGlobal [
 
-	^ true
+	self
+		deprecated: 'Use #isGlobalVariable instead'
+		transformWith: '`@rec isGlobal' -> '`@rec isGlobalVariable'.
+	^ self isGlobalVariable
 ]
 
 { #category : #testing }
 LiteralVariable >> isGlobalClassNameBinding [
-	^ (self value isClass or: [ self value isTrait ])
-		and: [ name == self value name ]
+	^ self value isClassOrTrait
+		and: [ (name == self value name) or: [ self value isObsolete ] ]
 ]
 
 { #category : #testing }
@@ -137,14 +151,10 @@ LiteralVariable >> isReadIn: aCompiledCode [
 
 { #category : #testing }
 LiteralVariable >> isReferenced [
-	"my subclasses override this if they can be referenced in code"
-	^false
-]
+	"my subclasses override this if they know better"
 
-{ #category : #queries }
-LiteralVariable >> isReferencedIn: aMethod [ 
-	
-	^(self isReadIn: aMethod) or: [ self isWrittenIn: aMethod ]
+	^ Smalltalk globals allBehaviors anySatisfy: [ :behavior | 
+		  behavior hasMethodAccessingVariable: self ]
 ]
 
 { #category : #testing }
@@ -154,6 +164,7 @@ LiteralVariable >> isSelfEvaluating [
 
 { #category : #testing }
 LiteralVariable >> isVariableBinding [
+	"Maybe we should deprecate this and use isLiteralVariable instead"
 	^true
 ]
 
@@ -201,13 +212,6 @@ LiteralVariable >> name: aString [
 	self key: aString asSymbol
 ]
 
-{ #category : #testing }
-LiteralVariable >> needsFullDefinition [
-	"only ClassVariable can use a simplified definition"
-
-	^ self class ~= ClassVariable
-]
-
 { #category : #printing }
 LiteralVariable >> printOn: aStream [
 
@@ -224,6 +228,11 @@ LiteralVariable >> read [
 { #category : #debugging }
 LiteralVariable >> readInContext: aContext [
 	^self value
+]
+
+{ #category : #accessing }
+LiteralVariable >> scope [
+	^self definingClass
 ]
 
 { #category : #printing }
@@ -262,5 +271,5 @@ LiteralVariable >> write: aValue inContext: aContext [
 	self isWritable ifFalse: [ 
 		^self error: 'Variable ' , name, ' is read only'].
 
-	value := aValue
+	^value := aValue
 ]

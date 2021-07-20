@@ -27,10 +27,7 @@ SycMoveMethodsToPackageCommand class >> for: methods to: aPackage [
 SycMoveMethodsToPackageCommand class >> methodContextMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation 
-		byItemOf: ClyMoreRefactorsMenuGroup 
-		order: 70 
-		for: ClyMethod asCalypsoItemContext
+	^ SycMethodMenuActivation byRootGroupItemOrder: 70 for: ClyMethod asCalypsoItemContext
 ]
 
 { #category : #accessing }
@@ -47,8 +44,8 @@ SycMoveMethodsToPackageCommand >> defaultMenuItemName [
 SycMoveMethodsToPackageCommand >> execute [
 	
 	methods do: [ :each | 
-		self moveMethod: each toPackage: package]
-
+		self moveMethod: each toPackage: package.
+		each origin organization removeEmptyCategories ]
 ]
 
 { #category : #accessing }

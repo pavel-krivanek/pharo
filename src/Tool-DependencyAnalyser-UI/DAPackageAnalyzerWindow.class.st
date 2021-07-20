@@ -1,5 +1,5 @@
 "
-A PDPackageAnalyzerWindow class is an abstract class.
+A DAPackageAnalyzerWindow class is an abstract class.
 It represents the UI merging the SpecTreeModel (package dependencies or cycles) and browser.
 
 The main feature is to browse automatically in the browser when you click on a node (package or dependency).
@@ -15,6 +15,12 @@ Class {
 	#category : #'Tool-DependencyAnalyser-UI-Core'
 }
 
+{ #category : #testing }
+DAPackageAnalyzerWindow class >> isAbstract [
+
+	^ self == DAPackageAnalyzerWindow
+]
+
 { #category : #'instance creation' }
 DAPackageAnalyzerWindow class >> onPackagesNamed: aCollection [
 	^ self new 
@@ -22,7 +28,7 @@ DAPackageAnalyzerWindow class >> onPackagesNamed: aCollection [
 		yourself
 ]
 
-{ #category : #accesing }
+{ #category : #accessing }
 DAPackageAnalyzerWindow class >> selectedPackagesFrom: aBuilder [
 	| target selectedPackages |
 	target := aBuilder model.
@@ -62,7 +68,7 @@ DAPackageAnalyzerWindow >> buildMorphWindowForTreeModel [
 	^ specWindow
 ]
 
-{ #category : #'initialization-filter' }
+{ #category : #'initialization - filter' }
 DAPackageAnalyzerWindow >> buildandAddAllMorph [
 	browser := packageAnalyzerTreeModel browser.
 	self addAllMorph

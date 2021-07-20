@@ -11,7 +11,7 @@ Class {
 	#category : #'Kernel-Tests-Methods'
 }
 
-{ #category : #example }
+{ #category : #examples }
 SimulationMock >> exampleClosure [
 	<sampleInstance>
 	"This is a pathological case where the method has no arguments, no temporaries, and the instance variable store is followed by the creation of a closure with no copied values."
@@ -21,7 +21,16 @@ SimulationMock >> exampleClosure [
 
 ]
 
-{ #category : #example }
+{ #category : #examples }
+SimulationMock >> exampleSelfReturnCall [
+
+	"A simple case where a yourself message is sent to an object"
+
+	<sampleInstance>
+	self yourself
+]
+
+{ #category : #examples }
 SimulationMock >> exampleSend [
 	<sampleInstance>
 	"This is a pathological case where the method has no arguments, no temporaries, and the instance variable store is followed by the creation of a closure with no copied values."
@@ -31,7 +40,7 @@ SimulationMock >> exampleSend [
 
 ]
 
-{ #category : #example }
+{ #category : #examples }
 SimulationMock >> exampleStore [
 	<sampleInstance>
 	"This is a pathological case where the method has no arguments, no temporaries, and the instance variable store is followed by the creation of a closure with no copied values."

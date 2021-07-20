@@ -9,34 +9,44 @@ Class {
 
 { #category : #utilities }
 ProperMethodCategorizationTest >> assureAll: selector areCategorizedIn: protocol whenSubclassOf: aClass [
+
 	| violating |
 	violating := OrderedCollection new.
 	aClass allSubclassesDo: [:cls | cls methods do: [:m |
 			(m selector = selector and: [ m protocol ~= protocol ])
-				ifTrue: [ violating add: m -> m protocol ]
-			]
-		 ].
+				ifTrue: [ violating add: m -> m protocol ] ] ].
 	self 
 		assert: violating isEmpty 
-		description: ('Subclasses of {1} should have #{2} methods in protocol {3}' format: { aClass asString. selector. protocol })
+		description: ('Violations: {1}.
+		Reason: {1} subclasses should have #{2} in protocol {3}' 
+			format: { self explanationFrom: violating . aClass asString. selector. protocol })
 
 ]
 
 { #category : #utilities }
 ProperMethodCategorizationTest >> assureAll: selector areCategorizedInProtocols: protocols whenSubclassOf: aClass [
 	"Test whether the selector is categorized in at least the collection of protocols"
+	
 	| violating |
 	violating := OrderedCollection new.
 	aClass allSubclassesDo: [:cls | cls methods do: [:m |
-			
-			(m selector = selector and: [ (protocols includes: (m protocol)) not ])
-				ifTrue: [ violating add: m -> m protocol ]
-			]
-		 ].
+			(m selector = selector 
+				and: [ (protocols includes: m protocol) not ])
+					ifTrue: [ violating add: m -> m protocol ] ] ].
 	self 
 		assert: violating isEmpty 
-		description: ('Subclasses of {1} should have #{2} methods in one of the following protocols {3}' format: { aClass asString. selector. protocols })
+		description: ('Violations are: {1}. 
+		Reason: {2} subclasses should have #{3} in protocols: {4}' 
+			format: { self explanationFrom: violating . aClass asString. selector. protocols })
 
+]
+
+{ #category : #utilities }
+ProperMethodCategorizationTest >> explanationFrom: aCol [
+
+	^ (String streamContents: [:str | 
+				aCol do: [:p | p key printOn: str]
+					separatedBy: [ str nextPutAll: ' ,'] ]).
 ]
 
 { #category : #'tests - object' }
@@ -107,6 +117,31 @@ ProperMethodCategorizationTest >> testNoEmptyProtocols [
 			protocolsWithoutMethods notEmpty ifTrue: [ violating at: cls put: protocolsWithoutMethods ] ].
 
 	self assertEmpty: violating
+]
+
+{ #category : #tests }
+ProperMethodCategorizationTest >> testNoUncategorizedMethods [
+
+	"Check that we have no #'as yet unclassified' protocols left"
+
+	| violating |
+	violating := Smalltalk globals allBehaviors select: [ :class | 
+		             class protocols includes: #'as yet unclassified' ].
+
+	"we lock in the number of problematic classes, this way it can only improve"
+	self assert: violating size <= 74
+]
+
+{ #category : #tests }
+ProperMethodCategorizationTest >> testNoUtilsMethods [
+	"Check that we have no #'utils' protocols left, the protocol should be 'utilities' "
+
+	| violating |
+	violating := Smalltalk globals allBehaviors select: [ :class | 
+		             class protocols includes: #'utils' ].
+
+	"we lock in the number of problematic classes, this way it can only improve"
+	self assert: violating size <= 10
 ]
 
 { #category : #'tests - object' }

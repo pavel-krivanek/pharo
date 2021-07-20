@@ -50,7 +50,7 @@ Class {
 		'resizable',
 		'selectionModeStrategy'
 	],
-	#category : #'Morphic-Widgets-FastTable'
+	#category : #'Morphic-Widgets-FastTable-Base'
 }
 
 { #category : #accessing }
@@ -183,7 +183,7 @@ FTTableMorph >> beCellSelection [
 
 { #category : #accessing }
 FTTableMorph >> beMultipleSelection [
-	selectionStrategy := FTMultipleSelection table: self
+	selectionStrategy := FTMultipleSelectionStrategy table: self
 ]
 
 { #category : #accessing }
@@ -217,7 +217,7 @@ FTTableMorph >> beRowSelection [
 
 { #category : #accessing }
 FTTableMorph >> beSingleSelection [
-	selectionStrategy := FTSimpleSelection table: self
+	selectionStrategy := FTSimpleSelectionStrategy table: self
 ]
 
 { #category : #'event handling' }
@@ -228,7 +228,7 @@ FTTableMorph >> click: event [
 		ifTrue: [ self showMenuForPosition: event cursorPoint ]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 FTTableMorph >> colorForSelection: primarySelection [
 	
 	^primarySelection 
@@ -283,7 +283,7 @@ FTTableMorph >> denyDeselection [
 	self allowsDeselection: false
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> deselectAll [ 
 	self selectIndexes: #()
 ]
@@ -431,7 +431,7 @@ FTTableMorph >> hasSelection [
 	^ self selectedIndexes isNotEmpty
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 FTTableMorph >> headerColor [
 	^ headerColor ifNil: [ self class defaultHeaderColor ]
 ]
@@ -443,12 +443,12 @@ FTTableMorph >> hideColumnHeaders [
 	self refresh
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> highlightIndex: aNumber [
 	self highlightIndexes: { aNumber }
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> highlightIndexes: anArray [
 	anArray = self highlightedIndexes ifTrue: [ ^ self ].
 
@@ -465,35 +465,35 @@ FTTableMorph >> highlightIndexes: anArray [
 	self refresh
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> highlightRowIndex: aNumber [
 	self deprecated: 'Use #highlightIndex: instead' transformWith: '`@receiver highlightRowIndex: `@statements1' -> '`@receiver highlightIndex: `@statements1'.
 	self highlightIndex: aNumber
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> highlightRowIndexes: anArray [
 	self deprecated: 'Use #highlightIndexes: instead' transformWith: '`@receiver highlightRowIndexes: `@statements1' -> '`@receiver highlightIndexes: `@statements1'.
 	self highlightIndexes: anArray
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> highlightedIndex [
 	^ self highlightedIndexes ifNotEmpty: #first ifEmpty: [ 0 ]
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> highlightedIndexes [
 	^ highlightedIndexes
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> highlightedRowIndex [
 	self deprecated: 'Use #highlightedIndex instead' transformWith: '`@receiver highlightedRowIndex' -> '`@receiver highlightedIndex'.
 	^ self highlightedIndex
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> highlightedRowIndexes [
 	self deprecated: 'Use #highlightedIndexes instead' transformWith: '`@receiver highlightedRowIndexes' -> '`@receiver highlightedIndexes'.
 	^ self highlightedIndexes
@@ -681,6 +681,20 @@ FTTableMorph >> isYellowButtonReallyPressed: anEvent [
 ]
 
 { #category : #'event handling' }
+FTTableMorph >> keyDown: event [
+	self flag: #pharoTodo. "If the function is explicit this should be redirect to the function widget."
+	((super keyDown: event) or: [ self navigationKey: event ])
+		ifTrue: [ ^ true ].
+		
+	^ self keyDownSearch: event
+]
+
+{ #category : #'event handling' }
+FTTableMorph >> keyDownSearch: event [
+	^ function keyDown: event
+]
+
+{ #category : #'event handling' }
 FTTableMorph >> keyStroke: event [
 	self flag: #pharoTodo. "If the function is explicit this should be redirect to the function widget."
 	((super keyStroke: event) or: [ self navigationKey: event ])
@@ -741,7 +755,9 @@ FTTableMorph >> minHeight [
 	"Ceiling is required because there is strange behavior when this method return float.
 	In that case table stop respond to any events like clicks"
 	
-	^ self class defaultRowHeight ceiling
+	^ self 
+		valueOfProperty: #minHeight
+		ifAbsent:[ self class defaultRowHeight ceiling ]
 ]
 
 { #category : #layout }
@@ -1006,35 +1022,35 @@ FTTableMorph >> scrollToIndex: anIndex [
 		ifFalse: [ self moveShowIndexTo: (self selectionModeStrategy indexForRow: anIndex - self container calculateMinVisibleRows + 1) ]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 FTTableMorph >> secondarySelectionColor [ 
 	^ secondarySelectionColor ifNil: [ self class defaultSecondarySelectionColor ]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 FTTableMorph >> secondarySelectionColor: aColor [
 	secondarySelectionColor := aColor
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectAll [
 	self isMultipleSelection ifFalse: [ ^ self ].
 
 	self selectionModeStrategy selectAll
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectAllRowIndexes [
 	self deprecated: 'Use #selectAll instead' transformWith: '`@receiver selectAllRowIndexes' -> '`@receiver selectAll'.
 	^ self selectAll
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectFirst [
 	self selectionModeStrategy selectFirst
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectIndex: anArray [
 	self selectIndexes: {anArray}
 ]
@@ -1046,12 +1062,12 @@ FTTableMorph >> selectIndex: index event: event [
 		ifNil: [ self deselectAll ]
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectIndexes: anArray [
 	self selectIndexes: anArray andMakeVisibleIf: true
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection [
 	| oldSelectedIndexes |
 	anArray = self selectedIndexes ifTrue: [ ^ self ].
@@ -1066,12 +1082,12 @@ FTTableMorph >> selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSele
 				yourself)
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectLast [
 	self selectionModeStrategy selectLast
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectRowIndex: aNumber [
 	self deprecated: 'Use #selectIndex: instead' transformWith: '`@receiver selectRowIndex: `@statements1' -> '`@receiver selectIndex: `@statements1'.
 	self selectIndex: aNumber
@@ -1083,13 +1099,13 @@ FTTableMorph >> selectRowIndex: rowIndex event: event [
 	self selectIndex: rowIndex event: event
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectRowIndexes: anArray [
 	self deprecated: 'Use #selectIndexes: instead' transformWith: '`@receiver selectRowIndexes: `@statements1' -> '`@receiver selectIndexes: `@statements1'.
 	self selectIndexes: anArray
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectRowIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection [
 	self
 		deprecated: 'Use #selectIndexes:andMakeVisibleIf: instead'
@@ -1097,34 +1113,34 @@ FTTableMorph >> selectRowIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleS
 	self selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectedIndex [
 	^ self selectedIndexes ifNotEmpty: #first ifEmpty: [ self selectionModeStrategy nullIndex ]
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectedIndexes [
 	^ selectedIndexes
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectedRowIndex [
 	self deprecated: 'Use #selectedIndex instead' transformWith: '`@receiver selectedRowIndex' -> '`@receiver selectedIndex'.
 	^ self selectedIndex
 ]
 
-{ #category : #'accessing selection' }
+{ #category : #'accessing - selection' }
 FTTableMorph >> selectedRowIndexes [
 	self deprecated: 'Use #selectedIndexes instead' transformWith: '`@receiver selectedRowIndexes' -> '`@receiver selectedIndexes'.
 	^ self selectedIndexes
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 FTTableMorph >> selectionColor [
 	^ selectionColor ifNil: [ self class defaultSelectionColor ]
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 FTTableMorph >> selectionColor: aColor [
 	selectionColor := aColor
 ]

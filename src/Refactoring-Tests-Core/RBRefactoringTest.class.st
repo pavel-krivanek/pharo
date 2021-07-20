@@ -2,10 +2,9 @@ Class {
 	#name : #RBRefactoringTest,
 	#superclass : #RBRefactoringBrowserTest,
 	#instVars : [
-		'manager',
 		'model'
 	],
-	#category : #'Refactoring-Tests-Core'
+	#category : #'Refactoring-Tests-Core-Refactorings'
 }
 
 { #category : #private }
@@ -135,6 +134,111 @@ RBRefactoringTest >> childrenToSiblingTestData [
 		each last do: [:meth | class compile: meth first classified: meth last]].
 m
 '
+]
+
+{ #category : #private }
+RBRefactoringTest >> extractMethodTestData [
+	| newModel classEnvironment classes |
+	classes := #(#MyClassA #MyClassB #MyClassC ) 
+		inject: OrderedCollection new 
+		into: [ :sum :each | 
+			testingEnvironment at: each ifPresent: [ :class | 
+				sum add: class; add: class class ].
+			sum ].
+	classEnvironment := RBClassEnvironment classes: classes.
+	newModel := RBClassModelFactory rbNamespace onEnvironment: classEnvironment not.
+	newModel name: 'Test'.
+	
+	#('Object subclass: #MyClassA
+		instanceVariableNames: ''instVarName1 instVarName2''
+		classVariableNames: ''ClassVarName1 ClassVarName2 ''
+		poolDictionaries: ''''
+		category: ''Testing'' '
+	'MyClassA subclass: #MyClassB
+		instanceVariableNames: ''''
+		classVariableNames: ''''
+		poolDictionaries: ''''
+		category: ''Testing'' '
+	'MyClassB subclass: #MyClassC
+		instanceVariableNames: ''''
+		classVariableNames: ''''
+		poolDictionaries: ''''
+		category: ''Testing'' '
+	) do: [ :each | 
+		newModel defineClass: each ].
+	
+	#(#(#MyClassA #(
+		#('bar
+			^ self' #tests)
+		#('name
+			^ ''SomeString''' #tests)
+		#('methodWithArg: anArg
+			^ anArg not' #tests) 
+		#('methodWithArg: anArg1 andArg: anArg2
+			^ (anArg1 > anArg2) not' #tests) 
+		#('problemCount
+			^ 435' #tests)
+		#('string: aString stream: aStream
+			nil')
+		#('myMethod
+			| token |
+			token := (String new: 100) writeStream.
+			[ currentChar isLetter ] whileTrue: [ 
+				token nextPut: currentChar.
+				self methodWithArg: currentChar isLetter.
+				self bar ].
+			currentChar isLetter.
+			$3 isLetter.
+	 		currentChar isLetter.
+			token :=  currentChar isLetter.
+			token := ( currentChar isLetter) example.
+			^ token contents' #tests)
+		#('displayName
+			| nameStream string|
+			string := self name.
+			nameStream := WriteStream on: (String new: 64).
+		nameStream nextPutAll: string;
+			nextPutAll: '' (''.
+		self problemCount printOn: nameStream.
+		nameStream nextPut: $).
+		^nameStream contents' #tests)))
+	#(#MyClassB #(
+		#('someMethod
+			^ instVarName2 := 3' #tests)
+		#('exampleMethod
+			^ (currentChar isLetter) not' #tests) 
+		#('dummyMethod
+			(3 > self someMethod) not' #tests)
+		#('anotherMethod
+			|aStream|
+			aStream := WriteStream on: (String new: 128).
+			aStream nextPutAll: ''dfgdf'';
+				nextPutAll: '' (''.
+			self problemCount printOn: aStream.
+			aStream nextPut: $).' #tests)))
+	#(#MyClassC #(
+		#('methodWithArg: anArg
+			(currentChar isLetter and: [anArg isDecimal])
+			ifTrue: [^ self].
+			^ nil' #tests)
+		#('visitMonospace: aFormat
+			aFormat children do: [ :each | each accept: self ].
+			self fixBlockWithoutMicText: aFormat' #tests)
+		#('visitStrike: aFormat
+			aFormat children do: [ :each | each accept: self ].
+			self fixBlockWithoutMicText: aFormat.
+			#( 4 5 2 ) do: [ :val | val children do: [ :each | each accept: self ] ]' #tests)
+		#('visitParagraph: aParagraph
+			^ aParagraph children do: [:each | each accept: self ]' #tests)
+		)))
+		do: [:each | 
+			| class |
+			class := newModel classNamed: each first.
+			each last do: [ :methodPair | 
+				class 
+					compile: methodPair first
+					classified: methodPair last]].
+	^ newModel
 ]
 
 { #category : #private }
@@ -354,6 +458,15 @@ RBRefactoringTest >> setUp [
 ]
 
 { #category : #'set up' }
+RBRefactoringTest >> setupExtractionClassFor: aRefactoring toReturn: aClass [ 
+	| options |
+	options := aRefactoring options copy.
+	options at: #extractionClass
+		put: [:ref | aClass].
+	aRefactoring options: options
+]
+
+{ #category : #'set up' }
 RBRefactoringTest >> setupImplementorToInlineFor: aRefactoring toReturn: anObject [ 
 	| options |
 	options := aRefactoring options copy.
@@ -375,7 +488,7 @@ RBRefactoringTest >> setupMethodNameFor: aRefactoring toReturn: aSelector [
 	options := aRefactoring options copy.
 	options at: #methodName
 		put: 
-			[:ref :aMethodName | 
+			[:aMethodName | 
 			aMethodName
 				selector: aSelector;
 				yourself].
@@ -388,7 +501,7 @@ RBRefactoringTest >> setupMethodNameFor: aRefactoring toReturn: aSelector withAr
 	options := aRefactoring options copy.
 	options at: #methodName
 		put: 
-			[:ref :aMethodName | 
+			[ :aMethodName | 
 			aMethodName
 				selector: aSelector;
 				arguments: stringCollection;
@@ -397,10 +510,26 @@ RBRefactoringTest >> setupMethodNameFor: aRefactoring toReturn: aSelector withAr
 ]
 
 { #category : #'set up' }
+RBRefactoringTest >> setupSearchInAllHierarchyFor: aRefactoring toReturn: aBoolean [ 
+	| options |
+	options := aRefactoring options copy.
+	options at: #searchInWholeHierarchy put: [ :ref :cls | aBoolean ].
+	aRefactoring options: options
+]
+
+{ #category : #'set up' }
 RBRefactoringTest >> setupSelfArgumentNameFor: aRefactoring toReturn: aString [ 
 	| options |
 	options := aRefactoring options copy.
 	options at: #selfArgumentName put: [:ref | aString].
+	aRefactoring options: options
+]
+
+{ #category : #'set up' }
+RBRefactoringTest >> setupShouldUseExistingMethodFor: aRefactoring toReturn: aBoolean [ 
+	| options |
+	options := aRefactoring options copy.
+	options at: #useExistingMethod put: [ :ref :cls | aBoolean ].
 	aRefactoring options: options
 ]
 

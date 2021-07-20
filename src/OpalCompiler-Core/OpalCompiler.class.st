@@ -276,6 +276,11 @@ OpalCompiler >> addPlugin: aClass [
 	compilationContext addASTTransformationPlugin: aClass
 ]
 
+{ #category : #private }
+OpalCompiler >> allowParseErrorsNonInteractive [
+	^self compilationContext optionParseErrorsNonInteractiveOnly and: [ self isInteractive not ]
+]
+
 { #category : #accessing }
 OpalCompiler >> bindings: aDictionary [
 	"allows to define additional binding, note: Globals are not shadowed"
@@ -317,22 +322,10 @@ OpalCompiler >> compilationContextClass: aClass [
 
 { #category : #'public access' }
 OpalCompiler >> compile [
-	| cm |
-	[ 	[	self parse.
-			self transformDoit.
-			self doSemanticAnalysis. 
-			self callPlugins.  
-		] 	on: ReparseAfterSourceEditing 
-			do: 
-			[  	:notification | 
-				self source: notification newSource. 
-				notification retry. 
-			]. 
-		cm := compilationContext optionEmbeddSources
-			ifTrue: [ ast generateWithSource ]
-			ifFalse: [ast generate: self compilationContext compiledMethodTrailer   ]
-		
-	]	on: SyntaxErrorNotification 
+	^[compilationContext noPattern 
+		ifTrue: [ self compileDoit ]
+		ifFalse: [ self compileMethod ]]
+		on: SyntaxErrorNotification 
 		do: [ :exception | 
 			self compilationContext requestor
                 ifNotNil: [
@@ -342,7 +335,6 @@ OpalCompiler >> compile [
 							in: exception errorCode.
                     ^ self compilationContext failBlock value ]
                 ifNil: [ exception pass ]].
-	^cm
 ]
 
 { #category : #'public access' }
@@ -351,6 +343,36 @@ OpalCompiler >> compile: textOrString [
 	^self
 		source: textOrString;
 		compile.
+]
+
+{ #category : #private }
+OpalCompiler >> compileDoit [
+	| cm |
+	"We need to first compile with the AST having the text 
+	offset of the original selected code. This way the #location 
+	will be correct regarding the requestor"
+	self parseDoIt.
+	self callPlugins.
+	cm := ast generateWithSource.
+	"We need to re-parse so that the AST is in sync with the 
+	bytecode to be able to debug the doit. Recompile not needed"
+	ast := RBParser parseMethod: ast formattedCode.
+	ast compilationContext: self compilationContext.
+	self doSemanticAnalysis.
+	"we store the ast in the doit method so that the debugger can read variables from the requestor"
+	cm propertyAt: #ast put: ast.
+	^cm
+]
+
+{ #category : #'public access' }
+OpalCompiler >> compileMethod [
+	| cm |
+	self parse.
+	self callPlugins.  
+		cm := compilationContext optionEmbeddSources
+			ifTrue: [ ast generateWithSource ]
+			ifFalse: [ast generate: self compilationContext compiledMethodTrailer   ].
+	^cm
 ]
 
 { #category : #accessing }
@@ -406,7 +428,17 @@ OpalCompiler >> evaluate [
 	self noPattern: true.
 	self getSourceFromRequestorSelection.
 	self class: (context ifNil: [ receiver class ] ifNotNil: [ context compiledCode methodClass ]).
-	value := receiver withArgs: (context ifNil: [ #() ] ifNotNil: [ {context} ]) executeMethod: self compile.
+	value := [ receiver withArgs: (context ifNil: [ #() ] ifNotNil: [ {context} ]) executeMethod: self compileDoit]
+		on: SyntaxErrorNotification 
+		do: [ :exception | 
+			self compilationContext requestor
+                ifNotNil: [
+						self compilationContext requestor 
+							notify: exception errorMessage , ' ->'
+							at: exception location
+							in: exception errorCode.
+                    self compilationContext failBlock value ]
+                ifNil: [ exception pass ]].
 	self logDoIt.
 	^ value
 ]
@@ -448,11 +480,17 @@ OpalCompiler >> getSourceFromRequestorSelection [
     self source: selectionString.
 ]
 
+{ #category : #testing }
+OpalCompiler >> isInteractive [
+	^self isInteractiveFor: compilationContext requestor
+]
+
 { #category : #private }
 OpalCompiler >> isInteractiveFor: aRequestor [
 	"the requester can override if the compiler is interactive or not"
 	aRequestor ifNil: [^ false ].
-	^(aRequestor respondsTo: #interactive)
+	
+	^ (aRequestor respondsTo: #interactive)
 		ifTrue: [ aRequestor interactive ]
 		ifFalse: [ true ]
 ]
@@ -486,10 +524,17 @@ OpalCompiler >> options: anOptionsArray [
 
 { #category : #'public access' }
 OpalCompiler >> parse [
-	ast := self compilationContext noPattern 
+	[ast := self compilationContext noPattern 
 		ifTrue: [ self parseExpression ]
 		ifFalse: [ self parseMethod ].
 	ast methodNode compilationContext: self compilationContext.
+	self doSemanticAnalysis]
+	on: ReparseAfterSourceEditing 
+			do: 
+			[  	:notification | 
+				self source: notification newSource. 
+				notification retry.  
+			]. 
 	^ast
 ]
 
@@ -502,8 +547,15 @@ OpalCompiler >> parse: textOrString [
 ]
 
 { #category : #private }
+OpalCompiler >> parseDoIt [
+	"we parse doits without doing name analysis here, it is done in #transformDoit"
+	ast := self parseExpression.
+	^self transformDoit
+]
+
+{ #category : #private }
 OpalCompiler >> parseExpression [
-	^self compilationContext optionParseErrors 
+	^ (self compilationContext optionParseErrors or: [ self allowParseErrorsNonInteractive ])
 		ifTrue: [self parserClass parseFaultyExpression: source contents]
 		ifFalse: [self parserClass parseExpression: source contents]
 ]
@@ -515,8 +567,7 @@ OpalCompiler >> parseLiterals: aString [
 
 { #category : #private }
 OpalCompiler >> parseMethod [
-	
-	^self compilationContext optionParseErrors 
+	^ (self compilationContext optionParseErrors or: [ self allowParseErrorsNonInteractive ])
 		ifTrue: [self parserClass parseFaultyMethod: source contents]
 		ifFalse: [self parserClass parseMethod: source contents]
 ]
@@ -564,9 +615,13 @@ OpalCompiler >> source: aString [
 OpalCompiler >> transformDoit [
 	"if we compile an expression, we wrap it in a method here"
 	self compilationContext noPattern ifFalse: [ ^ast ].
+		
 	ast := context 
 		ifNil: [ast asDoit] 
 		ifNotNil: [ast asDoitForContext: context].
 	"we need to set the compilation context in the new method node"
-	^ast compilationContext: self compilationContext
+	ast compilationContext: self compilationContext.
+	context ifNotNil: [ast methodClass: context receiver class].
+	self doSemanticAnalysis.
+	^ast
 ]

@@ -68,25 +68,41 @@ PharoDarkTheme class >> veryLightSelectionColor [
 	^ self lightSelectionColor muchLighter
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> backgroundColor [
 	^ Color r: 0.130 g: 0.130 b: 0.130
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> balloonBackgroundColor [
 
 	^ self darkBaseColor lighter
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> borderColor [ 
 	^ Color darkGray darker darker darker
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> buttonColor [
 	^ self backgroundColor lighter lighter
+]
+
+{ #category : #'fill-styles-buttons' }
+PharoDarkTheme >> buttonDisabledBorderStyleFor: aButton [
+	"Return the disabled button fillStyle for the given color."
+
+	^ BorderStyle
+		width: 0
+		color: Color transparent
+]
+
+{ #category : #'fill-styles-buttons' }
+PharoDarkTheme >> buttonDisabledFillStyleFor: aButton [
+	"Return the disabled button fillStyle for the given color."
+
+	^ SolidFillStyle color: Color transparent
 ]
 
 { #category : #'border-styles-buttons' }
@@ -95,11 +111,11 @@ PharoDarkTheme >> buttonNormalBorderStyleFor: aButton [
 	
 	(aButton valueOfProperty: #noBorder ifAbsent: [ false ]) 
 		ifTrue: [ 
-			^ SimpleBorder new 
+			^ SimpleBorderStyle new 
 				width: 0; 
 				baseColor: Color transparent ].
 	
-	^ SimpleBorder new
+	^ SimpleBorderStyle new
 		width: 1;
 		baseColor: self buttonColor lighter
 ]
@@ -121,12 +137,12 @@ PharoDarkTheme >> buttonSelectedFillStyleFor: aButton [
 	
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> caretColor [
 	^ Color lightBlue
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> classExtensionColor [
 	^ Color gray lighter lighter
 ]
@@ -167,7 +183,7 @@ PharoDarkTheme >> configureTextMorph: textMorph [
 PharoDarkTheme >> configureWindowBorderFor: aWindow [
 
 	| aStyle |
-	aStyle := SimpleBorder new 
+	aStyle := SimpleBorderStyle new 
 					color: self borderColor;
 					width: 1.
 	aWindow borderStyle: aStyle
@@ -181,7 +197,7 @@ PharoDarkTheme >> controlButtonNormalFillStyleFor: aButton [
 	^self buttonNormalFillStyleFor: aButton
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> dangerTextColor [
 	^ Color 
 		r: 239	
@@ -224,7 +240,7 @@ PharoDarkTheme >> diffRemovedLinesBackgroundColor [
 	^ Color r: 0.84 g: 0.0 b: 0.0 alpha: 0.2
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> disabledColor [ 
 	^ Color gray lighter
 ]
@@ -252,7 +268,7 @@ PharoDarkTheme >> dropListNormalListFillStyleFor: aDropList [
 	^ self backgroundColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> enabledColor [ 
 	^ self textColor
 ]
@@ -270,19 +286,30 @@ PharoDarkTheme >> initialize [
 	self settings preferGradientFill: false.
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'label-styles' }
+PharoDarkTheme >> labelDisabledColorFor: aLabel [
+	"Answer the color to use for a label when disabled."
+
+	^aLabel owner
+		ifNil: [aLabel paneColor muchDarker]
+		ifNotNil: [aLabel owner color isTransparent
+			ifTrue: [ aLabel owner paneColor muchLighter ]
+			ifFalse: [ aLabel owner color muchLighter ] ]
+]
+
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> lessConspicuousColorFrom: aColor [
 
 	^	aColor slightlyLighter
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> lightBackgroundColor [
 
 	^ Color r: 0.218 g: 0.217 b: 0.217
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> lineNumberColor [ 
 	^ Color gray lighter lighter
 ]
@@ -294,19 +321,19 @@ PharoDarkTheme >> listNormalFillStyleFor: aList [
 	^ self backgroundColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> listTextColor [
 	"Answer the list text color to use."
 
 	^ self textColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> menuBorderColor [
 	^ self borderColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> menuBorderWidth [
 	^ self borderWidth * self displayScaleFactor
 ]
@@ -324,7 +351,7 @@ PharoDarkTheme >> newRadioMarkerForm [
 	^Form extent: 12@12 depth: 32
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> scrollbarColor [ 
 	^ self buttonColor
 ]
@@ -343,17 +370,17 @@ PharoDarkTheme >> scrollbarPressedThumbFillStyleFor: aScrollbar [
 	^ self buttonSelectedFillStyleFor: aScrollbar
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> secondarySelectionColor [
 	^ Color r: 0.31 g: 0.31 b: 0.36 alpha: 1.0
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> selectionColor [
 	^ Color r: 16r07 g: 16r63 b: 16rAD range: 255
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> selectionTextColor [
 	^ Color r: 16rE0 g: 16rE2 b: 16rE4 range: 255
 ]
@@ -370,12 +397,12 @@ PharoDarkTheme >> sliderNormalFillStyleFor: aSlider [
 	^ self backgroundColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> spotlightWindowColor [ 
 	^ self windowColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> successTextColor [
 	^ Color green darker darker darker 
 ]
@@ -413,7 +440,7 @@ PharoDarkTheme >> taskbarItemLabelColorForExpanded: aButton [
 
 { #category : #'border-styles-taskbar' }
 PharoDarkTheme >> taskbarItemMouseOverBorderStyleFor: aButton [
-	^ BottomBorder new
+	^ BottomBorderStyle new
 		color: Color white;
 		width: 2;
 		yourself
@@ -426,7 +453,7 @@ PharoDarkTheme >> taskbarItemMouseOverFillStyleFor: aButton [
 
 { #category : #'border-styles-taskbar' }
 PharoDarkTheme >> taskbarItemNormalBorderStyleFor: aButton [
-	^ BottomBorder new
+	^ BottomBorderStyle new
 		color: Color white;
 		width: 1;
 		trimSize: 2;
@@ -488,12 +515,12 @@ PharoDarkTheme >> taskbarItemSelectedPressedFillStyleFor: aButton [
 	^ SolidFillStyle color: (Color white alpha: 0.35)
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> textColor [
 	^ Color white
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> textColorForNonStandardBackground [
 	^ Color black
 ]
@@ -503,12 +530,12 @@ PharoDarkTheme >> textEditorNormalFillStyleFor: aTextEditor [
 	^ self backgroundColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> unfocusedSelectionColor [
 	^ self secondarySelectionColor
 ]
 
-{ #category : #'accessing colors' }
+{ #category : #'accessing - colors' }
 PharoDarkTheme >> warningTextColor [
 	^ Color yellow darker darker
 ]

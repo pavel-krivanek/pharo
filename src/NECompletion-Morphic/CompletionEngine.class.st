@@ -53,6 +53,19 @@ CompletionEngine >> closeMenu [
 	menuMorph := nil.
 ]
 
+{ #category : #replacement }
+CompletionEngine >> completionToken [
+
+	"Return the word just before the caret"
+	^ (self editor text copyFrom: self completionTokenStart to: self editor caret - 1) asString
+]
+
+{ #category : #replacement }
+CompletionEngine >> completionTokenStart [
+	"This is the position in the editor where the completion token starts"
+	^ self editor previousWord: self editor caret - 1
+]
+
 { #category : #accessing }
 CompletionEngine >> context [
 	^context
@@ -87,15 +100,81 @@ CompletionEngine >> editor [
 ]
 
 { #category : #keyboard }
-CompletionEngine >> handleKeystrokeAfter: aKeyboardEvent editor: aParagraphEditor [ 
-	(aParagraphEditor isNil or: [ self isMenuOpen not ])
-		ifTrue: [ ^ self ].
-		
-	aParagraphEditor atCompletionPosition 
-		ifFalse: [ ^ self closeMenu ].
+CompletionEngine >> handleKeyDownAfter: aKeyboardEvent editor: aParagraphEditor [
+
+	^ self updateCompletionAfterEdition: aParagraphEditor
+]
+
+{ #category : #keyboard }
+CompletionEngine >> handleKeyDownBefore: aKeyboardEvent editor: anEditor [
+	"I return a boolean. 
+	true when I have handled the event and no futher processing is needed by the caller.
 	
-	context narrowWith: aParagraphEditor wordAtCaret.
-	menuMorph refreshSelection.
+	This method would be cleaner if splitted."
+
+	| key controlKeyPressed commandKeyPressed |
+	self setEditor: anEditor.
+	key := aKeyboardEvent key.
+	controlKeyPressed := aKeyboardEvent controlKeyPressed.
+	commandKeyPressed := aKeyboardEvent commandKeyPressed.
+	
+	(self isMenuOpen not and: [
+		self editor atCompletionPosition and: [
+			NECPreferences popupShowWithShortcut matches: {aKeyboardEvent}]])
+				ifTrue: [ 
+					aKeyboardEvent supressNextKeyPress: true.
+					self openMenu. ^ true ].
+	
+	key = KeyboardKey backspace
+		ifTrue: [ 
+			self smartBackspace ifTrue: [ ^ true ]].	
+	
+	self isMenuOpen ifFalse: [ ^ false ].
+	
+	({ KeyboardKey left . KeyboardKey right.
+		KeyboardKey keypadLeft . KeyboardKey keypadRight }
+			includes: key) ifTrue: [ "just move the caret" ^ false ].
+	
+	({ KeyboardKey up . KeyboardKey keypadUp } includes: key)
+		ifTrue: [ 
+			menuMorph moveUp.
+			^ true ].
+	({ KeyboardKey down . KeyboardKey keypadDown } includes: key)
+		ifTrue: [ 
+			menuMorph moveDown.
+			^ true ].
+	(key = KeyboardKey pageUp)
+		ifTrue: [ 
+			menuMorph pageUp.
+			^ true ].
+	(key = KeyboardKey pageDown)
+		ifTrue: [ 
+			menuMorph pageDown.
+			^ true ].
+	((key = KeyboardKey enter or:[key = KeyboardKey keypadEnter]) and: [ NECPreferences useEnterToAccept ])
+		ifTrue: [ 
+			menuMorph insertSelected
+				ifTrue: [ ^ true ] ].
+	key = KeyboardKey tab
+		ifTrue: [ 
+			menuMorph insertSelected
+						ifTrue: [ ^ true ] ].
+	key = KeyboardKey backspace
+		ifTrue: [ 
+			editor isCaretBehindChar
+				ifFalse: [ self closeMenu ].
+			^ false ].
+	(controlKeyPressed or: [ commandKeyPressed or: [ key = KeyboardKey escape ] ])
+		ifTrue: [ 
+			self closeMenu.
+			^ true ].
+	^ false
+]
+
+{ #category : #keyboard }
+CompletionEngine >> handleKeystrokeAfter: aKeyboardEvent editor: aParagraphEditor [
+
+	^ self updateCompletionAfterEdition: aParagraphEditor
 ]
 
 { #category : #keyboard }
@@ -105,63 +184,18 @@ CompletionEngine >> handleKeystrokeBefore: aKeyboardEvent editor: anEditor [
 	
 	This method would be cleaner if splitted."
 
-	| keyCharacter controlKeyPressed commandKeyPressed |
+	| keyCharacter controlKeyPressed |
 	self setEditor: anEditor.
 	keyCharacter := aKeyboardEvent keyCharacter.
 	controlKeyPressed := aKeyboardEvent controlKeyPressed.
-	commandKeyPressed := aKeyboardEvent commandKeyPressed.
+	
+	(self smartInputWithEvent: aKeyboardEvent )
+		ifNotNil: [ ^ true ].
+	
 	self isMenuOpen
 		ifFalse: [ ^ self handleKeystrokeWithoutMenu: aKeyboardEvent ].
-	(keyCharacter = Character home and: [ self captureNavigationKeys ])
-		ifTrue: [ 
-			menuMorph home.
-			^ true ].
-	(keyCharacter = Character end and: [ controlKeyPressed not and: [ self captureNavigationKeys ] ])
-		ifTrue: [ 
-			menuMorph end.
-			^ true ].
-	(keyCharacter = Character arrowRight and: [commandKeyPressed and: [ self captureNavigationKeys ]])
-		ifTrue: [ 
-			menuMorph showDetail.
-			^ true ].
-
-	(keyCharacter = Character arrowLeft  and: [commandKeyPressed and: [ self captureNavigationKeys ]])
-		ifTrue: [ ^ self leftArrow ].
 	
-	(keyCharacter = Character arrowLeft or: [ keyCharacter = Character arrowRight ])
-		ifTrue: [ "just move the caret" ^ false ].
-	
-	keyCharacter = Character arrowUp
-		ifTrue: [ 
-			menuMorph moveUp.
-			^ true ].
-	keyCharacter = Character arrowDown
-		ifTrue: [ 
-			menuMorph moveDown.
-			^ true ].
-	keyCharacter = Character pageUp
-		ifTrue: [ 
-			menuMorph pageUp.
-			^ true ].
-	keyCharacter = Character pageDown
-		ifTrue: [ 
-			menuMorph pageDown.
-			^ true ].
-	(keyCharacter = Character cr and: [ NECPreferences useEnterToAccept ])
-		ifTrue: [ 
-			menuMorph insertSelected
-				ifTrue: [ ^ true ] ].
-	keyCharacter = Character tab
-		ifTrue: [ 
-			menuMorph insertSelected
-						ifTrue: [ ^ true ] ].
-	keyCharacter = Character backspace
-		ifTrue: [ 
-			editor isCaretBehindChar
-				ifFalse: [ self closeMenu ].
-			^ false ].
-	(controlKeyPressed not & aKeyboardEvent commandKeyPressed not
-		and: [ aKeyboardEvent keyCharacter isCompletionCharacter ])
+	(controlKeyPressed not and: [ aKeyboardEvent keyCharacter isCompletionCharacter ])
 		ifFalse: [ 
 			self closeMenu.
 			^ keyCharacter = Character escape ].
@@ -172,18 +206,7 @@ CompletionEngine >> handleKeystrokeBefore: aKeyboardEvent editor: anEditor [
 CompletionEngine >> handleKeystrokeWithoutMenu: aKeyboardEvent [
 	"I handle resetting the completion menu, and I return true when I handle an event."
 	
-	self editor atCompletionPosition ifFalse: [ 
-		^ (self smartInputWithEvent: aKeyboardEvent ) notNil ].	
-	
 	self stopCompletionDelay.
-
-	(NECPreferences popupShowWithShortcut matches: {aKeyboardEvent})
-		 ifTrue: [
-			self openMenu.
-			^true ].
-		
-	(self smartInputWithEvent: aKeyboardEvent )
-		ifNotNil: [ ^true ].
 
 	NECPreferences popupShowAutomatic ifTrue: [
 		(aKeyboardEvent anyModifierKeyPressed not 
@@ -443,10 +466,6 @@ CompletionEngine >> smartInputWithEvent: anEvent [
 	self smartCharacters 
 		ifFalse: [ ^ nil ].
 	
-	anEvent keyCharacter = Character backspace
-		ifTrue: [ self smartBackspace ifTrue: [ ^ true ]].
-		
-	
 	^ self smartCharacterWithEvent: anEvent
 ]
 
@@ -531,4 +550,16 @@ CompletionEngine >> stopCompletionDelay [
 
     completionDelay ifNotNil: [ 
         completionDelay isTerminating ifFalse: [ completionDelay terminate ] ]
+]
+
+{ #category : #keyboard }
+CompletionEngine >> updateCompletionAfterEdition: aParagraphEditor [
+
+	(aParagraphEditor isNil or: [ self isMenuOpen not ]) ifTrue: [ 
+		^ self ].
+
+	aParagraphEditor atCompletionPosition ifFalse: [ ^ self closeMenu ].
+
+	context narrowWith: aParagraphEditor wordAtCaret.
+	menuMorph refreshSelection
 ]

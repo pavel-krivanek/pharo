@@ -17,11 +17,6 @@ LayoutAbstractScope >> allSlotsDo: aBlock [
 	self subclassResponsibility
 ]
 
-{ #category : #enumerating }
-LayoutAbstractScope >> allSlotsReverseDo: aBlock [
-	self subclassResponsibility
-]
-
 { #category : #extending }
 LayoutAbstractScope >> extend [
 	^ self extend: { }
@@ -93,7 +88,7 @@ LayoutAbstractScope >> indexOf: anElement [
 
 { #category : #enumerating }
 LayoutAbstractScope >> indexOf: anElement ifAbsent: exceptionBlock [
-	"Answer the index of the first occurence of anElement within the  
+	"Answer the index of the first occurrence of anElement within the  
 	receiver. If the receiver does not contain anElement, answer the 
 	result of evaluating the argument, exceptionBlock."
 
@@ -106,11 +101,6 @@ LayoutAbstractScope >> indexOf: anElement ifAbsent: exceptionBlock [
 { #category : #accessing }
 LayoutAbstractScope >> ownFieldSize [
 	self subclassResponsibility
-]
-
-{ #category : #reshaping }
-LayoutAbstractScope >> rebase: originalScope to: newScope [
-	self error: 'Should not happen'
 ]
 
 { #category : #accessing }
@@ -135,10 +125,5 @@ LayoutAbstractScope >> visibleSlotNames [
 
 { #category : #accessing }
 LayoutAbstractScope >> visibleSlots [
-	self subclassResponsibility
-]
-
-{ #category : #enumerating }
-LayoutAbstractScope >> withParentScopesDo: aBlock [
 	self subclassResponsibility
 ]

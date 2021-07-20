@@ -1,7 +1,7 @@
 "
 I am a refactoring for replacing method calls by the method implementation.
 
-Just like RBInlineMethodRefactoring,  I replace a message send by the implementation of that  message , but you can provide the component
+Just like `RBInlineMethodRefactoring`,  I replace a message send by the implementation of that  message , but you can provide the component
 where this implementation is taken from or choose one if there are move than one implementors.
 If the method implementation has some direct variable references, accessor for this variable are created (just as by the generate accessor refactoring).
 "
@@ -17,9 +17,9 @@ RBInlineMethodFromComponentRefactoring >> abstractVariableReferences [
 	refactoring := RBAbstractVariablesRefactoring 
 				model: self model
 				abstractVariablesIn: inlineParseTree
-				from: inlineClass
+				from: self inlineClass
 				toAll: (Array with: class).
-	self performComponentRefactoring: refactoring.
+	self performCompositeRefactoring: refactoring.
 	inlineParseTree := refactoring parseTree
 ]
 
@@ -33,6 +33,7 @@ RBInlineMethodFromComponentRefactoring >> addArgumentToSelector: aSymbol [
 { #category : #transforming }
 RBInlineMethodFromComponentRefactoring >> addSelfReferenceToInlineParseTree [
 	| variableName rewriter newArguments |
+	
 	variableName := self newNameForSelf.
 	rewriter := self parseTreeRewriterClass rename: 'self' to: variableName.
 	(rewriter executeTree: inlineParseTree) 
@@ -48,6 +49,7 @@ RBInlineMethodFromComponentRefactoring >> addSelfReferenceToInlineParseTree [
 { #category : #transforming }
 RBInlineMethodFromComponentRefactoring >> addSelfReferenceToSourceMessage [
 	| newArguments |
+
 	newArguments := sourceMessage arguments asOrderedCollection.
 	newArguments addFirst: sourceMessage receiver copy.
 	sourceMessage renameSelector: (self addArgumentToSelector: sourceMessage selector) andArguments: newArguments
@@ -90,6 +92,12 @@ RBInlineMethodFromComponentRefactoring >> inlineClass [
 	^ inlineClass
 ]
 
+{ #category : #transforming }
+RBInlineMethodFromComponentRefactoring >> inlineClassName [
+
+	^ self inlineClass instanceSide name
+]
+
 { #category : #testing }
 RBInlineMethodFromComponentRefactoring >> isOverridden [
 	| selector| 
@@ -102,17 +110,21 @@ RBInlineMethodFromComponentRefactoring >> isOverridden [
 
 { #category : #transforming }
 RBInlineMethodFromComponentRefactoring >> newNameForSelf [
+
 	| variableName index originalName nonMetaClass |
-	nonMetaClass := inlineClass instanceSide.
-	variableName := originalName := (nonMetaClass name first isVowel 
-		ifTrue: [ 'an' ]
-		ifFalse: [ 'a' ]) , nonMetaClass name.
+	nonMetaClass := self inlineClassName.
+	variableName := originalName := (nonMetaClass first isVowel
+		                                 ifTrue: [ 'an' ]
+		                                 ifFalse: [ 'a' ])
+	                                , nonMetaClass.
 	index := 1.
-	
-	[ variableName := self safeVariableNameBasedOn: variableName.
-	inlineParseTree allDefinedVariables includes: variableName ] whileTrue: 
-		[ variableName := originalName , index printString.
-		index := index + 1 ].
+
+	[ 
+	variableName := self safeVariableNameBasedOn: variableName.
+	inlineParseTree allDefinedVariables includes: variableName ] 
+		whileTrue: [ 
+			variableName := originalName , index printString.
+			index := index + 1 ].
 	^ variableName
 ]
 
@@ -126,15 +138,17 @@ RBInlineMethodFromComponentRefactoring >> renameSelfReferences [
 RBInlineMethodFromComponentRefactoring >> safeVariableNameBasedOn: aString [ 
 	"Creates an unused variable name containing aString"
 
-	| baseString newString i allTempVars |
-	allTempVars := inlineParseTree allTemporaryVariables.
+	| baseString newString i allTempsInline allTempsSource |
+	allTempsInline := inlineParseTree allTemporaryVariables.
+	allTempsSource := sourceParseTree allDefinedVariables.
 	baseString := aString copy.
 	baseString at: 1 put: baseString first asLowercase.
 	newString := baseString.
 	i := 0.
 	
-	[(allTempVars includes: newString) 
-		or: [class definesInstanceVariable: newString]] 
+	[(allTempsInline includes: newString) 
+		or: [ (allTempsSource includes: newString) 
+			or: [class definesInstanceVariable: newString]]] 
 			whileTrue: 
 				[i := i + 1.
 				newString := baseString , i printString].

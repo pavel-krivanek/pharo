@@ -49,13 +49,14 @@ ClapContext class >> defaultRoot [
 
 { #category : #accessing }
 ClapContext class >> pragmaCommands [
-	^ (PragmaCollector filter: [:prg | prg selector = #commandline]) reset
-		collect: [ :pragma |
+	^ (Pragma allNamed: #commandline) collect: [ :pragma |
 			| theClass theSelector |
 			theClass := pragma method methodClass.
 			theSelector := pragma method selector.
 			self assert: [ theSelector isUnary ].
-			theClass instanceSide perform: theSelector ]
+			
+			theClass instanceSide
+				perform: theSelector ]
 ]
 
 { #category : #'instance creation' }

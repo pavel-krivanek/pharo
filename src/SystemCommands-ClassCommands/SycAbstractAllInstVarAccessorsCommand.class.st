@@ -18,16 +18,18 @@ SycAbstractAllInstVarAccessorsCommand class >> browserShortcutActivation [
 SycAbstractAllInstVarAccessorsCommand class >> fullBrowserMenuActivation [
 	<classAnnotation>
 	
-	^CmdContextMenuActivation byRootGroupItemOrder: 2.1 for: ClyClassContextOfFullBrowser 
+	^CmdContextMenuActivation byRootGroupItemOrder: 2.1 for: ClyFullBrowserClassContext 
 ]
 
 { #category : #accessing }
 SycAbstractAllInstVarAccessorsCommand >> asRefactorings [
-
-	| refactorings |
-	refactorings := classes flatCollect: [:eachClass |
-		eachClass	 slots collect: [:var | 
-			var createRefactoring: RBAbstractInstanceVariableRefactoring for: eachClass]].
+	| refactorings env |
+	refactorings := classes flatCollect: [:each |
+		each value collect: [:var | | refactoring |
+			env ifNil: [ refactoring := var createRefactoring: RBAbstractInstanceVariableRefactoring for: each key.
+				env := refactoring model ]
+				ifNotNil: [refactoring := var createRefactoring: RBAbstractInstanceVariableRefactoring for: each key in: env ].
+			refactoring ]].
 	^ refactorings
 ]
 
@@ -41,20 +43,28 @@ SycAbstractAllInstVarAccessorsCommand >> defaultMenuItemName [
 	^'Abstract instance variables'
 ]
 
-{ #category : #execution }
-SycAbstractAllInstVarAccessorsCommand >> execute [
-
-	self executeRefactorings
-]
-
 { #category : #testing }
-SycAbstractAllInstVarAccessorsCommand >> isComplexRefactoring [
-	^true
+SycAbstractAllInstVarAccessorsCommand >> isComplexRefactoring [ 
+	^ true
 ]
 
 { #category : #testing }
 SycAbstractAllInstVarAccessorsCommand >> prepareFullExecutionInContext: aToolContext [
 	super prepareFullExecutionInContext: aToolContext.
 	
-	classes := classes collect: [:each | aToolContext currentMetaLevelOf: each]
+	classes := classes collect: [:each | aToolContext currentMetaLevelOf: each].
+	self selectVariables.
+]
+
+{ #category : #execution }
+SycAbstractAllInstVarAccessorsCommand >> selectVariables [ 
+	classes := classes collect: [:aClass | | vars dialog |
+		vars := aClass slots asOrderedCollection.
+		dialog := RBVariablesSelectionPresenter 
+		   label: aClass name,' - Select all variables to convert abstract'
+			withItems: vars 
+			selecting: vars. 
+		dialog cancelled ifTrue: [ CmdCommandAborted signal ].
+		aClass -> dialog presenter selectedItems
+		]
 ]
