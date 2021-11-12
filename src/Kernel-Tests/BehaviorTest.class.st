@@ -209,6 +209,21 @@ BehaviorTest >> testMethodsWritingSlot [
 	self assert: numberViaSlot equals: numberViaIVar
 ]
 
+{ #category : #tests }
+BehaviorTest >> testNonObsoleteClass [
+	"Does it work on not-obsolete classes?"
+	self assert: Object nonObsoleteClass equals: Object.
+	"The case for obsolete classes (obtaining the #originalName) is tested 
+	in ObsoleteTest>>#testClassObsolete"
+]
+
+{ #category : #tests }
+BehaviorTest >> testOriginalName [
+	"Does it work on not-obsolete classes?"
+	self assert: Object originalName equals: #Object.
+	"The case for obsolete classes is tested in ObsoleteTest>>#testClassObsolete"
+]
+
 { #category : #'tests - properties' }
 BehaviorTest >> testPropertyValueAtPut [
 	| testValue |
@@ -292,4 +307,18 @@ BehaviorTest >> testthoroughWhichMethodsReferTo [
 	self assert: (self class thoroughWhichMethodsReferTo: array first) notEmpty.
 	"and we are false for non existing symbols"
 	self assert: (self class thoroughWhichMethodsReferTo: ('this', 'doesNotExist') asSymbol) isEmpty.
+]
+
+{ #category : #'tests - queries' }
+BehaviorTest >> testthoroughWhichMethodsReferToSpecialIndex [
+	| array |
+	array := #(thisIsOnlyHereIntestthoroughWhichMethodsReferTo).
+	"normal case"
+	self assert: (Point thoroughWhichMethodsReferTo: #x specialIndex: ( Smalltalk specialSelectorIndexOrNil: #+)) notEmpty.
+	"we understand send bytecodes for special selectors"
+	self assert: (Point thoroughWhichMethodsReferTo: #+ specialIndex: ( Smalltalk specialSelectorIndexOrNil: #+)) notEmpty.
+	"we dive into literal arrays"
+	self assert: (self class thoroughWhichMethodsReferTo: array first specialIndex: nil) notEmpty.
+	"and we are false for non existing symbols"
+	self assert: (self class thoroughWhichMethodsReferTo: ('this', 'doesNotExist') asSymbol specialIndex: nil) isEmpty.
 ]

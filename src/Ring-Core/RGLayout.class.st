@@ -4,6 +4,14 @@ Class {
 	#category : #'Ring-Core-Kernel'
 }
 
+{ #category : #description }
+RGLayout class >> subclassDefiningSymbol [
+	"Answer a keyword that describes the receiver's kind of subclass
+	Note: this is for printing the ST80 style class definiton."
+	
+	^ #subclass:
+]
+
 { #category : #'managing container' }
 RGLayout >> addoptToParentStub [
 
@@ -105,6 +113,11 @@ RGLayout >> isWeakLayout [
 RGLayout >> isWordLayout [
 
 	^ false
+]
+
+{ #category : #accessing }
+RGLayout >> layoutName [
+	^ (self class name allButFirst: 2) asSymbol
 ]
 
 { #category : #accessing }

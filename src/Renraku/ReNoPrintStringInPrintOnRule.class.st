@@ -8,13 +8,13 @@ Class {
 	#category : #'Renraku-Rules'
 }
 
-{ #category : #'testing-interest' }
+{ #category : #'testing - interest' }
 ReNoPrintStringInPrintOnRule class >> checksMethod [
 
 	^ true
 ]
 
-{ #category : #'testing-interest' }
+{ #category : #'class initialization' }
 ReNoPrintStringInPrintOnRule class >> initialize [
     ReRuleManager cleanUp 
 ]
@@ -46,9 +46,4 @@ ReNoPrintStringInPrintOnRule >> name [
 { #category : #accessing }
 ReNoPrintStringInPrintOnRule >> rationale [
 	^ 'Use the stream argument to #printOn: e.g.( stream print: anObject ) instead of creating an extra stream by using printString. e.g.( stream nextPutAll: anObject printString ).'
-]
-
-{ #category : #accessing }
-ReNoPrintStringInPrintOnRule >> severity [
-	^ #warning
 ]

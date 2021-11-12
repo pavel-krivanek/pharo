@@ -4,14 +4,16 @@ Class {
 	#category : #'Ring-Core-Kernel'
 }
 
+{ #category : #description }
+RGByteLayout class >> subclassDefiningSymbol [
+	"Answer a keyword that describes the receiver's kind of subclass
+	Note: this is for printing the ST80 style class definiton."
+	
+	^ #variableByteSubclass:
+]
+
 { #category : #'testing - types' }
 RGByteLayout >> isByteLayout [
 
 	^ true
-]
-
-{ #category : #accessing }
-RGByteLayout >> layoutName [
-
-	^ #ByteLayout
 ]

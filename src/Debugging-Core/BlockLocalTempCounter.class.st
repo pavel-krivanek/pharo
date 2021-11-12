@@ -127,17 +127,6 @@ BlockLocalTempCounter >> pushActiveContext [
 ]
 
 { #category : #'instruction decoding' }
-BlockLocalTempCounter >> pushClosureCopyNumCopiedValues: numCopied numArgs: numArgs blockSize: blockSize [
-	"Push Closure bytecode.  Either compute the end of the block if this is
-	 the block we're analysing, or skip it, adjusting the stack as appropriate."
-	blockEnd
-		ifNil: [blockEnd := scanner pc + blockSize]
-		ifNotNil:
-			[stackPointer := stackPointer - numCopied + 1.
-			 scanner pc: scanner pc + blockSize]
-]
-
-{ #category : #'instruction decoding' }
 BlockLocalTempCounter >> pushConsArrayWithElements: numElements [
 	"Push Cons Array of size numElements popping numElements items from the stack into the array bytecode."
 	stackPointer := stackPointer - numElements + 1
@@ -214,9 +203,9 @@ BlockLocalTempCounter >> tempCountForBlockAt: pc in: method [
 	scanner interpretNextInstructionFor: self.
 	blockEnd ifNil:
 		[self error: 'pc is not that of a block'].
-	scanner nextByte = method encoderClass pushNilByte ifTrue:
-		[joinOffsets := Dictionary new.
-		 [scanner pc < blockEnd] whileTrue:
-			[scanner interpretNextInstructionFor: self]].
+	scanner peekByte = method encoderClass pushNilByte ifTrue: [
+		joinOffsets := Dictionary new.
+		[scanner pc < blockEnd] whileTrue: [
+			scanner interpretNextInstructionFor: self ] ].
 	^stackPointer
 ]

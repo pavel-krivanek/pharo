@@ -10,6 +10,12 @@ RGTraitDescriptionStrategy >> allSharedPoolNames [
 	^#()
 ]
 
+{ #category : #'private - backend access' }
+RGTraitDescriptionStrategy >> bindingOf: varName [
+
+	^ self environment bindingOf: varName
+]
+
 { #category : #variables }
 RGTraitDescriptionStrategy >> initialize [
 
@@ -23,6 +29,18 @@ RGTraitDescriptionStrategy >> initialize [
 RGTraitDescriptionStrategy >> isTrait [
 
 	^true
+]
+
+{ #category : #accessing }
+RGTraitDescriptionStrategy >> layout [
+
+	self incompatibleBehaviorType
+]
+
+{ #category : #accessing }
+RGTraitDescriptionStrategy >> layout: anRGLayout [
+
+	self incompatibleBehaviorType
 ]
 
 { #category : #variables }

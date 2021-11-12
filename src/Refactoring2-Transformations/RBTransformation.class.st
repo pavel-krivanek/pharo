@@ -13,6 +13,8 @@ My main API is
 Class {
 	#name : #RBTransformation,
 	#superclass : #Object,
+	#traits : 'RBTRefactoringBuilder',
+	#classTraits : 'RBTRefactoringBuilder classTrait',
 	#instVars : [
 		'model',
 		'options',
@@ -31,13 +33,13 @@ RBTransformation class >> cleanUp [
 	self initializeRefactoringOptions.
 ]
 
-{ #category : #initialization }
+{ #category : #'class initialization' }
 RBTransformation class >> initialize [
 
 	self initializeRefactoringOptions
 ]
 
-{ #category : #initialization }
+{ #category : #'private - initialization' }
 RBTransformation class >> initializeRefactoringOptions [
 
 	RefactoringOptions := IdentityDictionary new.
@@ -85,6 +87,30 @@ RBTransformation >> asRefactoring [
 	^ self 
 		checksPreconditions;
 		yourself
+]
+
+{ #category : #private }
+RBTransformation >> buildSelectorString: aSelector [ 
+	aSelector numArgs = 0 ifTrue: [^aSelector].
+	^self buildSelectorString: aSelector
+		withPermuteMap: (1 to: aSelector numArgs)
+]
+
+{ #category : #private }
+RBTransformation >> buildSelectorString: aSelector withPermuteMap: anIntegerCollection [ 
+	| stream keywords |
+	aSelector numArgs == 0 ifTrue: [^aSelector asString].
+	stream := WriteStream on: String new.
+	keywords := aSelector keywords.
+	keywords with: anIntegerCollection
+		do: 
+			[:each :i | 
+			stream
+				nextPutAll: each;
+				nextPutAll: ' ``@arg';
+				nextPutAll: i printString;
+				nextPut: $ ].
+	^stream contents
 ]
 
 { #category : #accessing }
@@ -170,7 +196,7 @@ RBTransformation >> model: aRBNamespace [
 { #category : #initialize }
 RBTransformation >> newModel [
 
-	^ (RBNamespace2
+	^ (RBNamespace
 		onEnvironment: self defaultEnvironment)
 		name: self printString;
 		yourself
@@ -195,24 +221,21 @@ RBTransformation >> options: aDictionary [
 	options := aDictionary
 ]
 
-{ #category : #parsing }
-RBTransformation >> parseTreeRewriter [
-	^ self parseTreeRewriterClass new
+{ #category : #accessing }
+RBTransformation >> poolVariableNamesFor: aClass [
+	| pools |
+	pools := Set new.
+	aClass withAllSuperclasses do: 
+			[:each | 
+			each allPoolDictionaryNames do: 
+					[:pool |
+					pools addAll: (self poolVariableNamesIn: pool asSymbol) ] ].
+	^pools
 ]
 
-{ #category : #preconditions }
-RBTransformation >> parseTreeRewriterClass [
-	^ RBParseTreeRewriter
-]
-
-{ #category : #private }
-RBTransformation >> parseTreeSearcher [
-	^ self parseTreeSearcherClass new
-]
-
-{ #category : #private }
-RBTransformation >> parseTreeSearcherClass [
-	^ RBParseTreeSearcher
+{ #category : #accessing }
+RBTransformation >> poolVariableNamesIn: poolName [
+	^(model classNamed: poolName) classPool keys
 ]
 
 { #category : #preconditions }
@@ -243,18 +266,6 @@ RBTransformation >> primitiveExecute [
 RBTransformation >> privateTransform [
 
 	self subclassResponsibility
-]
-
-{ #category : #preconditions }
-RBTransformation >> refactoringError: aString [
-
-	^ RBRefactoringError signal: aString
-]
-
-{ #category : #preconditions }
-RBTransformation >> refactoringError: aString with: aBlock [
-
-	^ RBRefactoringError signal: aString with: aBlock
 ]
 
 { #category : #accessing }

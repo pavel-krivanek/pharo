@@ -49,8 +49,7 @@ Class {
 		'backendWindow'
 	],
 	#classVars : [
-		'TraceEvents',
-		'VMWindow'
+		'TraceEvents'
 	],
 	#category : #'OSWindow-Core-Base'
 }
@@ -80,7 +79,7 @@ OSWindow class >> finalizeResourceData: windowHandle [
 	windowHandle destroy.
 ]
 
-{ #category : #initialization }
+{ #category : #'class initialization' }
 OSWindow class >> initialize [ 
 
 	self traceEvents: false
@@ -442,6 +441,12 @@ OSWindow >> toggleBorderOff [
 OSWindow >> toggleBorderOn [
 
 	self validHandle toggleBorderOn.
+]
+
+{ #category : #events }
+OSWindow >> updateToNewResolution [
+	
+	self backendWindow updateToNewResolution
 ]
 
 { #category : #private }

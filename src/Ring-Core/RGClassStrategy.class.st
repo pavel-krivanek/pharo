@@ -405,6 +405,12 @@ RGClassStrategy >> package: anRGPackage [
 		newPackage: anRGPackage)
 ]
 
+{ #category : #accessing }
+RGClassStrategy >> parent [
+	
+	^ owner
+]
+
 { #category : #'private - backend access' }
 RGClassStrategy >> privAddClassVariable: anRGInstanceVariableDefinition [ 
 
@@ -588,10 +594,4 @@ RGClassStrategy >> sibling [
 RGClassStrategy >> storeName [
 
 	^ 'RGClass'
-]
-
-{ #category : #'accessing - deprecated parallel hierarchy' }
-RGClassStrategy >> theMetaClass [
-
-	^ self owner metaclass
 ]

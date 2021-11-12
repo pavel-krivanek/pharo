@@ -4,14 +4,16 @@ Class {
 	#category : #'Ring-Core-Kernel'
 }
 
+{ #category : #description }
+RGVariableLayout class >> subclassDefiningSymbol [
+	"Answer a keyword that describes the receiver's kind of subclass
+	Note: this is for printing the ST80 style class definiton."
+	
+	^ #variableSubclass:
+]
+
 { #category : #'testing - types' }
 RGVariableLayout >> isVariableLayout [
 
 	^ true
-]
-
-{ #category : #accessing }
-RGVariableLayout >> layoutName [
-
-	^ #VariableLayout
 ]

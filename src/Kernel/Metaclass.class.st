@@ -120,17 +120,6 @@ Metaclass >> classVariables [
 		ifNotNil: [ :class | class classVariables ]
 ]
 
-{ #category : #generated }
-Metaclass >> definition [
-
-	"Refer to the comment in ClassDescription|definition."
-
-	self
-		deprecated: 'Use #definitionString instead'
-		transformWith: '`@rec definition' -> '`@rec definitionString'.
-	^ self definitionString
-]
-
 { #category : #fileout }
 Metaclass >> definitionStringFor: aConfiguredPrinter [
 
@@ -202,7 +191,7 @@ Metaclass >> isMetaclassOfClassOrNil [
 { #category : #testing }
 Metaclass >> isObsolete [
 	"Return true if the receiver is obsolete"
-	^self soleInstance == nil "Either no thisClass"
+	^self soleInstance isNil "Either no thisClass"
 		or:[self soleInstance classSide ~~ self "or I am not the class of thisClass"
 			or:[self soleInstance isObsolete]] "or my instance is obsolete"
 ]
@@ -287,11 +276,6 @@ Metaclass >> removeSubclass: aClass [
 { #category : #'pool variables' }
 Metaclass >> sharedPoolNames [
 	^#()
-]
-
-{ #category : #'pool variables' }
-Metaclass >> sharedPools [
-	^OrderedCollection new.
 ]
 
 { #category : #initialization }

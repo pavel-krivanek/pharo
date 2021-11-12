@@ -72,8 +72,7 @@ SymbolicBytecodeBuilder >> decode [
 	scanner := InstructionStream on: method.
 	end := method endPC.
 	oldPC := scanner pc.
-	[scanner pc <= end] whileTrue:
-		[scanner interpretNextInstructionFor: self].
+	scanner interpretWithClient: self.
 	^symbolicBytecodes
 ]
 
@@ -189,15 +188,6 @@ SymbolicBytecodeBuilder >> pushActiveContext [
 SymbolicBytecodeBuilder >> pushActiveProcess [
 
 	self addBytecode: 'pushThisProcess'
-]
-
-{ #category : #'instruction decoding' }
-SymbolicBytecodeBuilder >> pushClosureCopyNumCopiedValues: numCopied numArgs: numArgs blockSize: blockSize [
-
-	self addBytecode: 'closureNumCopied: ', numCopied printString
-			, ' numArgs: ', numArgs printString
-			, ' bytes ', scanner pc printString
-			, ' to ', (scanner pc + blockSize - 1) printString
 ]
 
 { #category : #'instruction decoding' }

@@ -19,16 +19,17 @@ CDClassDefinitionParser class >> fromASTNode: aNode [
 ]
 
 { #category : #parsing }
-CDClassDefinitionParser class >> parse: aString [ 
-	
-	^ self new parse: aString
-]
-
-{ #category : #parsing }
 CDClassDefinitionParser >> handleClassName: aNode withType: aSymbol [
-	
+	| layoutClass |
 	self handleClassName: aNode.
-	classDefinition classKind: aSymbol
+	layoutClass := ObjectLayout layoutForSubclassDefiningSymbol: aSymbol.
+	
+	"if we get back CompiledMethodLayout or ByteLayout, we need to check the class name"
+	(layoutClass = CompiledMethodLayout or: [ layoutClass = ByteLayout ]) ifTrue: [ 
+		layoutClass := (classDefinition className = 'CompiledMethod') 
+					ifTrue:  [  CompiledMethodLayout ]
+					ifFalse: [  ByteLayout ]].
+	classDefinition layoutClass: (layoutClass)
 ]
 
 { #category : #parsing }
@@ -76,32 +77,16 @@ CDClassDefinitionParser >> isInstanceSideDefinition: aRBMessageNode [
 	^ aRBMessageNode receiver isMessage not
 ]
 
-{ #category : #generated }
-CDClassDefinitionParser >> parseClassName: aNode [
-
-	self
-		deprecated: 'Use #handleClassName: instead'
-		transformWith:
-		'`@rec parseClassName: `@arg' -> '`@rec handleClassName: `@arg'.
-	^ self handleClassName: aNode
-]
-
 { #category : #parsing }
 CDClassDefinitionParser >> parseSelectorPart: aString withArgument: aNode [ 
 	
 	"We could do this with reflection, or with a dictionary and closures.
 	I chose to use a series of if for readability only."
 	
-	(#(variableWordSubclass: ephemeronSubclass: weakSubclass: variableByteSubclass: variableSubclass: immediateSubclass: #subclass:) includes: aString)
+	(ObjectLayout allSubclassDefiningSymbols includes: aString)
 		ifTrue: [ ^ self handleClassName: aNode withType: aString  ].
 	aString =	 #instanceVariableNames:
 		ifTrue: [ ^ self handleInstanceVariablesFromNode: aNode ].
-	aString =	 #slots:
-		ifTrue: [ ^ self handleSlotsNodesFromArrayNode: aNode ].
-	self flag: #todo. 
-	"there is no such definition anymore in a non fluid definition
-	So we should clean also the test CDSlotParserArgumenting. They should use 
-	the fluid parser. Period."
 	aString =	 #classVariableNames:
 		ifTrue: [ ^ self handleSharedVariableNames: aNode ].
 	aString =	 #category:
@@ -117,16 +102,6 @@ CDClassDefinitionParser >> parseSelectorPart: aString withArgument: aNode [
 		classDefinition: self; 
 		unrecognizedPart: aString;
 		signal
-]
-
-{ #category : #generated }
-CDClassDefinitionParser >> parseSuperclassNode: aSuperclassNode [
-
-	self
-		deprecated: 'Use #handleSuperclassNode: instead'
-		transformWith: '`@rec parseSuperclassNode: `@arg'
-			-> '`@rec handleSuperclassNode: `@arg'.
-	^ self handleSuperclassNode: aSuperclassNode
 ]
 
 { #category : #parsing }

@@ -36,7 +36,6 @@ BaselineOfMorphicCore >> baseline: spec [
 		spec baseline: 'Display' with: [spec repository: repository].
 		spec baseline: 'UnifiedFFI' with: [spec repository: repository].
 
-		spec package: 'System-VMEvents'.
 		spec package: 'System-Object Events'.
 		spec package: 'Collections-DoubleLinkedList'.
 		spec package: 'System-Caching'.
@@ -61,8 +60,6 @@ BaselineOfMorphicCore >> postload: loader package: packageSpec [
 
 	IdentityTransform initialize.
 
-	EventSensorConstants initialize.
-
 	RealEstateAgent initialize.
 	WorldState initialize.
 	Morph initialize.
@@ -83,12 +80,7 @@ BaselineOfMorphicCore >> postload: loader package: packageSpec [
 	Smalltalk at: #ActiveWorld put: world.
 
 	world viewBox: Display boundingBox.
-
-	Smalltalk at: #Sensor put: InputEventSensor new.
-	InputEventSensor installEventSensorFramework.
-	InputEventSensor installMouseDecodeTable.
 	
-	(Smalltalk at: #Sensor) flushAllButDandDEvents.
 	world handsDo: [:h | h initForEvents].
 	world borderWidth: 0.
 	

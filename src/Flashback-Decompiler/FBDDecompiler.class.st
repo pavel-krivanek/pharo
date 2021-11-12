@@ -84,11 +84,11 @@ FBDDecompiler >> decodeConditionalLoop: loop nextLoops: loops [
 	self interpret: loop exitCondition - 1 nextLoops: loops.
 	self doPop.
 	boolean := instructionStream willJumpIfFalse.
-	instructionStream nextInstruction. "skip the conditional jump exiting the loop"
+	instructionStream advanceToFollowingPc. "skip the conditional jump exiting the loop"
 	
 	currentSequence := builder codeEmptySequence.
 	self interpret: loop backjump - 1.
-	instructionStream nextInstruction. "skip the backjump"
+	instructionStream advanceToFollowingPc. "skip the backjump"
 	
 	simulatedStack addLast:  (builder 
 		codeLoopNode: boolean
@@ -120,7 +120,7 @@ FBDDecompiler >> decodeRepeatLoop: loop nextLoops: loops [
 	
 	currentSequence := builder codeEmptySequence.
 	self interpret: loop backjump - 1 nextLoops: loops.
-	instructionStream nextInstruction. "skip backjump"
+	instructionStream advanceToFollowingPc. "skip backjump"
 	
 	simulatedStack addLast:  (builder codeRepeatNode:  currentSequence).
 	currentSequence := pastSequence.
@@ -215,21 +215,6 @@ FBDDecompiler >> errorCodeNameFor: cm [
 	^ primitivePragma argumentAt: (selectorParts indexOf: 'error:')
 ]
 
-{ #category : #'data flow instructions' }
-FBDDecompiler >> extractBlockWith: copied numArgs: numArgs blockSize: blockSize [
-	| startPC numTemps |
-	numTemps := instructionStream method encoderClass 
-		numLocalTempsForBlockAt: self pc 
-		in: instructionStream method.
-	self initializeStackNumArgs: numArgs copied: copied numTemps: numTemps.
-	startPC := self pc.
-	self skipTemps: numTemps.
-	self interpret: startPC + blockSize - 1.
-	^ builder 
-		codeBlock: currentSequence 
-		arguments: (simulatedStack first: numArgs)
-]
-
 { #category : #'closure support' }
 FBDDecompiler >> extractFullBlock: aCompiledBlock numCopied: numCopied [
 
@@ -274,7 +259,7 @@ FBDDecompiler >> generateNativeBoostCallErrorMethodFrom: aCompiledMethod [
 
 { #category : #'data flow instructions' }
 FBDDecompiler >> goToNextInstruction [
-	instructionStream nextInstruction
+	instructionStream advanceToFollowingPc
 ]
 
 { #category : #private }
@@ -294,7 +279,7 @@ FBDDecompiler >> initializeErrorCode: cm [
 		ifFalse: [ ^ self ].
 	instructionStream willStore
 		ifFalse: [ ^ self ].
-	index := instructionStream nextInstruction arguments first.
+	index := instructionStream decodeNextInstruction arguments first.
 	currentSequence removeTemporaryNamed: (simulatedStack at: index + 1) name.
 	simulatedStack at: index + 1 put: (builder codeTemp: (self errorCodeNameFor: cm))
 ]
@@ -349,9 +334,11 @@ FBDDecompiler >> interpret: endPC nextLoops: loops [
 { #category : #'control flow instructions' }
 FBDDecompiler >> interpret: seq1 then: seq2 distance: distance [
 	| hasPopped hasPopped2 jmpSz topValue stackSize |
+	"If next instruction will pop, skip it and pop the element from the stack"
 	instructionStream willJustPop ifTrue: [ 
 			topValue := simulatedStack removeLast.
-			instructionStream nextInstruction ].
+			instructionStream advanceToFollowingPc ].
+
 	stackSize := simulatedStack size.
 	hasPopped := self interpretSeq: seq1 baseStackSize: stackSize distance: distance - topValue notNil asBit.
 	jmpSz := jumpSize.
@@ -415,8 +402,8 @@ FBDDecompiler >> jump: distance if: boolean [
 FBDDecompiler >> maybeSkipCallPrimitiveBytecode: aCompiledMethod [
 	"If the method's bytecode set uses the callPrimitive bytecode, ignore it.
 	The primitive is handled specifically before bytecode interpretation."
-	instructionStream nextByte = aCompiledMethod encoderClass callPrimitiveCode 
-		ifTrue: [ instructionStream nextInstruction ]
+	instructionStream peekByte = aCompiledMethod encoderClass callPrimitiveCode 
+		ifTrue: [ instructionStream advanceToFollowingPc ]
 ]
 
 { #category : #'instruction decoding forward' }
@@ -511,19 +498,6 @@ FBDDecompiler >> pushCleanClosure: aCompiledBlock [
 	simulatedStack := savedSimStack.
 	currentSequence := savedSequence.
 
-]
-
-{ #category : #'data flow instructions' }
-FBDDecompiler >> pushClosureCopyNumCopiedValues: numCopied numArgs: numArgs blockSize: blockSize [
-	| savedSimStack savedSequence |
-	savedSimStack := simulatedStack.
-	savedSequence := currentSequence.
-	savedSimStack addLast: (self
-		extractBlockWith: (self popFromStack: numCopied)
-		numArgs: numArgs
-		blockSize: blockSize).
-	simulatedStack := savedSimStack.
-	currentSequence := savedSequence.
 ]
 
 { #category : #'data flow instructions' }

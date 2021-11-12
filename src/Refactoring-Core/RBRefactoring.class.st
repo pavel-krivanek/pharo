@@ -27,6 +27,8 @@ A RBRefactoringManager  is used to collect the executed refactorings and provide
 Class {
 	#name : #RBRefactoring,
 	#superclass : #Object,
+	#traits : 'RBTRefactoringBuilder',
+	#classTraits : 'RBTRefactoringBuilder classTrait',
 	#instVars : [
 		'model',
 		'options'
@@ -43,12 +45,12 @@ RBRefactoring class >> cleanUp [
 	self initializeRefactoringOptions.
 ]
 
-{ #category : #initialization }
+{ #category : #'class initialization' }
 RBRefactoring class >> initialize [
 	self initializeRefactoringOptions
 ]
 
-{ #category : #initialization }
+{ #category : #'private - initialization' }
 RBRefactoring class >> initializeRefactoringOptions [
 	RefactoringOptions := IdentityDictionary new.
 	RefactoringOptions
@@ -86,6 +88,12 @@ RBRefactoring class >> initializeRefactoringOptions [
 		put: [ self error: #searchInWholeHierarchy ]
 ]
 
+{ #category : #testing }
+RBRefactoring class >> isAbstract [
+
+	^ self == RBRefactoring
+]
+
 { #category : #'accessing signal' }
 RBRefactoring class >> preconditionSignal [
 	^ RBRefactoringError , RBRefactoringWarning
@@ -99,6 +107,11 @@ RBRefactoring class >> refactoringOptions [
 { #category : #accessing }
 RBRefactoring class >> setDefaultOption: aSymbol to: aBlock [ 
 	self refactoringOptions at: aSymbol put: aBlock
+]
+
+{ #category : #converting }
+RBRefactoring >> asRefactoring [
+	^ self
 ]
 
 { #category : #utilities }
@@ -129,16 +142,6 @@ RBRefactoring >> checkClass: aRBClass selector: aSelector using: aMatcher [
 	^aMatcher answer
 ]
 
-{ #category : #utilities }
-RBRefactoring >> checkInstanceVariableName: aName in: aClass [ 
-	^RBCondition checkInstanceVariableName: aName in: aClass
-]
-
-{ #category : #utilities }
-RBRefactoring >> checkMethodName: aName in: aClass [ 
-	^RBCondition checkMethodName: aName in: aClass
-]
-
 { #category : #preconditions }
 RBRefactoring >> checkPreconditions [
 	| conditions block |
@@ -151,10 +154,13 @@ RBRefactoring >> checkPreconditions [
 ]
 
 { #category : #private }
-RBRefactoring >> classObjectFor: anObject [ 
-	(anObject isBehavior or: [anObject isTrait]) ifTrue: [^self model classFor: anObject].
-	anObject isSymbol ifTrue: [^self model classNamed: anObject].
-	^anObject
+RBRefactoring >> classObjectFor: anObject [
+
+	(anObject isBehavior or: [ anObject isTrait ]) ifTrue: [ 
+		^ self model classFor: anObject ].
+	anObject isString ifTrue: [ 
+		^ self model classNamed: anObject asSymbol ].
+	^ anObject
 ]
 
 { #category : #support }
@@ -236,11 +242,6 @@ RBRefactoring >> defaultEnvironment [
 	^RBBrowserEnvironment new
 ]
 
-{ #category : #utilities }
-RBRefactoring >> emptyCondition [
-	^ RBCondition empty
-]
-
 { #category : #transforming }
 RBRefactoring >> execute [
 	self primitiveExecute.
@@ -290,31 +291,6 @@ RBRefactoring >> options: aDictionary [
 	options := aDictionary
 ]
 
-{ #category : #parsing }
-RBRefactoring >> parseTreeRewriter [
-	^ self parseTreeRewriterClass new
-]
-
-{ #category : #parsing }
-RBRefactoring >> parseTreeRewriterClass [
-	^ RBParseTreeRewriter
-]
-
-{ #category : #utilities }
-RBRefactoring >> parseTreeSearcher [
-	^ self parseTreeSearcherClass new
-]
-
-{ #category : #transforming }
-RBRefactoring >> parseTreeSearcherClass [
-	^ RBParseTreeSearcher
-]
-
-{ #category : #refactoring }
-RBRefactoring >> parserClass [
-	^ RBParser
-]
-
 { #category : #transforming }
 RBRefactoring >> performCompositeRefactoring: aRefactoring [ 
 	aRefactoring copyOptionsFrom: self options.
@@ -356,38 +332,6 @@ RBRefactoring >> preconditions [
 RBRefactoring >> primitiveExecute [
 	self checkPreconditions.
 	self transform
-]
-
-{ #category : #private }
-RBRefactoring >> refactoringConfirmWarning: aString [
-	| ret |
-	ret := self uiManager confirm: aString orCancel: [ ^ RBRefactoringFailure signal: 'aborted' ].
-	^ ret
-]
-
-{ #category : #private }
-RBRefactoring >> refactoringError: aString [ 
-	^ RBRefactoringError signal: aString
-]
-
-{ #category : #private }
-RBRefactoring >> refactoringError: aString with: aBlock [ 
-	^ RBRefactoringError signal: aString with: aBlock
-]
-
-{ #category : #private }
-RBRefactoring >> refactoringFailure: aString [ 
-	^ RBRefactoringFailure signal: aString
-]
-
-{ #category : #private }
-RBRefactoring >> refactoringFailure: aString with: aBlock [
-	^ RBRefactoringFailure signal: aString with: aBlock
-]
-
-{ #category : #private }
-RBRefactoring >> refactoringWarning: aString [ 
-	^ RBRefactoringWarning signal: aString
 ]
 
 { #category : #removing }

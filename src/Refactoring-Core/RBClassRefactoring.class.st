@@ -19,7 +19,13 @@ Class {
 
 { #category : #'instance creation' }
 RBClassRefactoring class >> className: aName [
-	^self new className: aName
+	^ self new className: aName
+]
+
+{ #category : #testing }
+RBClassRefactoring class >> isAbstract [
+
+	^ self == RBClassRefactoring
 ]
 
 { #category : #'instance creation' }

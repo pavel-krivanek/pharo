@@ -17,9 +17,11 @@ MethodContexts must only be created using the method newForMethod:.  Note that i
 "
 Class {
 	#name : #Context,
-	#superclass : #InstructionStream,
+	#superclass : #Object,
 	#type : #variable,
 	#instVars : [
+		'sender',
+		'pc',
 		'stackp',
 		'method',
 		'closureOrNil',
@@ -82,6 +84,12 @@ Context class >> carefullyPrint: anObject on: aStream [
 	aStream nextPutAll: ([anObject printString]
 		on: Error
 		do: ['unprintable ' , anObject class name])
+]
+
+{ #category : #compiler }
+Context class >> compiler [
+	"The JIT compiler needs to trap all reads to instance variables of contexts. As this check is costly, it is only done in the long form of the bytecodes, which are not used often. In this hierarchy we force the compiler to alwasy generate long bytecodes"
+	^super compiler options: #(+ optionLongIvarAccessBytecodes)
 ]
 
 { #category : #'special context creation' }
@@ -163,11 +171,6 @@ Context class >> initializeTryNamedPrimitiveTemplateMethod [
 
 
 	
-]
-
-{ #category : #testing }
-Context class >> isContextClass [
-	^true
 ]
 
 { #category : #'instance creation' }
@@ -443,24 +446,6 @@ Context >> closure [
 	^closureOrNil
 ]
 
-{ #category : #controlling }
-Context >> closureCopy: numArgs copiedValues: anArray [
-	"Distinguish a block of code from its enclosing method by 
-	creating a BlockClosure for that block. The compiler inserts into all 
-	methods that contain blocks the bytecodes to send the message 
-	closureCopy:copiedValues:. Do not use closureCopy:copiedValues: in code that you write! Only the 
-	compiler can decide to send the message closureCopy:copiedValues:. Fail if numArgs is 
-	not a SmallInteger. Optional. No Lookup. See Object documentation 
-	whatIsAPrimitive."
-
-	<primitive: 200>
-	^BlockClosure 
-		outerContext: self
-		startpc: pc + 2
-		numArgs: numArgs
-		copiedValues: anArray
-]
-
 { #category : #accessing }
 Context >> compiledCode [
 
@@ -499,7 +484,6 @@ Context >> copyTo: aContext [
 
 	| copy |
 	self == aContext ifTrue: [^ nil].
-	self pc. "this is a workaround, see https://github.com/pharo-project/pharo/issues/2949"
 	copy := self copy.
 	self sender ifNotNil: [
 		copy privSender: (self sender copyTo: aContext)].
@@ -661,12 +645,7 @@ Context >> doPrimitive: primitiveIndex method: meth receiver: aReceiver args: ar
 		].
 	"Closure primitives"
 	(primitiveIndex = 200 and: [self == aReceiver]) ifTrue:
-		"ContextPart>>closureCopy:copiedValues:; simulated to get startpc right"
-		[^self push: (BlockClosure
-						outerContext: aReceiver
-						startpc: pc + 2
-						numArgs: arguments first
-						copiedValues: arguments last)].
+		[^self error: 'embedded block not supported'].
 
 	primitiveIndex = 118 ifTrue: "tryPrimitive:withArgs:; avoid recursing in the VM"
 		[(arguments size = 2
@@ -858,31 +837,6 @@ Context >> findNextUnwindContextUpTo: aContext [
 	^nil
 ]
 
-{ #category : #query }
-Context >> findSecondToOldestSimilarSender [
-	"Search the stack for the second-to-oldest occurance of self's method.  Very useful for an infinite recursion.  Gets back to the second call so you can see one complete recursion cycle, and how it was called at the beginning."
-
-	| secondContext context lastContext |
-	secondContext := self.
-	context := self.
-	[	lastContext := context findSimilarSender.
-		lastContext isNil
-	] whileFalse: [
-		secondContext := context.
-		context := lastContext.
-	].
-	^ secondContext
-
-]
-
-{ #category : #query }
-Context >> findSimilarSender [
-	"Return the closest sender with the same method, return nil if none found"
-
-	^ self sender findContextSuchThat: [ :context | 
-		context compiledCode == method ]
-]
-
 { #category : #'private - exceptions' }
 Context >> handleSignal: exception [
 	"Sent to handler (on:do:) contexts only.  If my exception class (first arg) handles exception then execute my handle block (second arg), otherwise forward this message to the next handler context.  If none left, execute exception's defaultAction (see nil>>handleSignal:)."
@@ -1048,15 +1002,7 @@ Context >> jump [
 ]
 
 { #category : #'instruction decoding' }
-Context >> jump: distance [ 
-	"Simulate the action of a 'unconditional jump' bytecode whose offset is 
-	the argument, distance."
-
-	pc := pc + distance
-]
-
-{ #category : #'instruction decoding' }
-Context >> jump: distance if: condition [ 
+Context >> jump: distance if: condition withInterpreter: anInterpreter [
 	"Simulate the action of a 'conditional jump' bytecode whose offset is the 
 	argument, distance, and whose condition is the argument, condition."
 
@@ -1068,7 +1014,16 @@ Context >> jump: distance if: condition [
 			to: bool
 			with: {}
 			super: false].
-	(bool eqv: condition) ifTrue: [self jump: distance]
+	(bool eqv: condition) ifTrue: [self jump: distance withInterpreter: anInterpreter]
+]
+
+{ #category : #'instruction decoding' }
+Context >> jump: distance withInterpreter: anInterpreter [
+	"Simulate the action of a 'unconditional jump' bytecode whose offset is 
+	the argument, distance."
+
+	pc := pc + distance.
+	anInterpreter pc: pc.
 ]
 
 { #category : #'debugger access' }
@@ -1285,6 +1240,16 @@ Context >> outerMostContext [
 		ifNotNil: [ self outerContext ]
 ]
 
+{ #category : #accessing }
+Context >> pc [ 
+	^ pc
+]
+
+{ #category : #accessing }
+Context >> pc: anInteger [ 
+	pc := anInteger
+]
+
 { #category : #controlling }
 Context >> pop [
 	"Answer the top of the receiver's stack and remove the top of the stack."
@@ -1351,7 +1316,7 @@ Context >> printDebugOn: aStream [
 	aStream 
 		nextPutAll: ' in Block: '.
 	
-	blockSource := closureOrNil printStringLimitedTo: 50.
+	blockSource := [closureOrNil printStringLimitedTo: 50] on:Exception do: ['Cannot print the closure'].
 	blockSourceSize := blockSource size.
 	blockSource := blockSource copyUpTo: Character cr.
 	
@@ -1436,7 +1401,7 @@ Context >> printOn: aStream [
 					(self tempAt: 1) selector printOn: aStream ] ]
 		ifNotNil:
 			[ :outerContext | 
-			closureOrNil printOn: aStream.
+			[closureOrNil printOn: aStream] on:Exception do: [aStream nextPutAll: 'Error printing the compiledBlock'].
 			aStream nextPutAll: ' in '.
 			outerContext printOn: aStream ]
 ]
@@ -1517,25 +1482,6 @@ Context >> pushArgs: arguments from: senderContext [
 	1 to: closureOrNil numArgs do: [:i |
 		self at: i put: (arguments at: i)].
 	sender := senderContext
-]
-
-{ #category : #'instruction decoding' }
-Context >> pushClosureCopyNumCopiedValues: numCopied numArgs: numArgs blockSize: blockSize [
-	"Simulate the action of a 'closure copy' bytecode whose result is the
-	 new BlockClosure for the following code"
-	| copiedValues |
-	numCopied > 0
-		ifTrue: [
-			copiedValues := Array new: numCopied.
-			numCopied to: 1 by: -1 do: [ :i |
-				copiedValues at: i put: self pop ]]
-		ifFalse: [ copiedValues := nil ].
-	self push: (BlockClosure
-				outerContext: self
-				startpc: pc
-				numArgs: numArgs
-				copiedValues: copiedValues).
-	self jump: blockSize
 ]
 
 { #category : #'instruction decoding' }
@@ -1812,15 +1758,6 @@ Context >> runUntilErrorOrReturnFrom: aSender [
 
 ]
 
-{ #category : #query }
-Context >> secondFromBottom [
-	"Return the second from bottom of my sender chain"
-
-	self sender ifNil: [ ^ nil ].
-	^ self findContextSuchThat: [ :context |
-		context sender sender isNil]
-]
-
 { #category : #'debugger access' }
 Context >> selector [
 	"Answer the selector of the method that created the receiver."
@@ -2071,19 +2008,10 @@ Context >> startpc [
 Context >> step [
 	"Simulate the execution of the receiver's next bytecode. Answer the 
 	context that would be the active context after this bytecode."
-
-	^self interpretNextInstructionFor: self
-]
-
-{ #category : #'debugger access' }
-Context >> stepIntoQuickMethod [
-	^self compiledCode stepIntoQuickMethods
-]
-
-{ #category : #'debugger access' }
-Context >> stepIntoQuickMethod: aBoolean [
-
-	self compiledCode stepIntoQuickMethods: aBoolean
+	| stream result |
+	stream := InstructionStream on: method pc: pc.
+	result := stream interpretNextInstructionFor: self.
+	^ result
 ]
 
 { #category : #controlling }

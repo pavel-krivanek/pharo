@@ -7,15 +7,6 @@ Class {
 	#category : #'Collections-Abstract-Base'
 }
 
-{ #category : #'stream creation' }
-SequenceableCollection class >> << blockWithArg [
-	"An alias to #streamContents:"
-	
-	"Array << [ :stream | 0 to: 100 by: 25 do: [ :each | stream nextPut: each ] ] >>> #(0 25 50 75 100)"
-	
-	^ self streamContents: blockWithArg
-]
-
 { #category : #testing }
 SequenceableCollection class >> isAbstract [
 
@@ -566,6 +557,17 @@ SequenceableCollection >> combinations [
 		streamContents: [ :stream | 
 			1 to: self size do:
 				[ :take | self combinations: take atATimeDo: [ :combination | stream nextPut: combination copy ] ] ]
+]
+
+{ #category : #enumerating }
+SequenceableCollection >> combinations: aNumber [
+
+	"Take the items in the receiver, aNumber at a time, return all the combinations"
+
+	^ Array streamContents: [ :stream | 
+		  self
+			  combinations: aNumber
+			  atATimeDo: [ :combination | stream nextPut: combination copy ] ]
 ]
 
 { #category : #enumerating }

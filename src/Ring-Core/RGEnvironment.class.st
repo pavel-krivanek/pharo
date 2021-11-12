@@ -90,8 +90,11 @@ RGEnvironment >> behaviorsDo: aBlock [
 { #category : #binding }
 RGEnvironment >> bindingOf: aSymbol [
 	
-	| behavior result |
-	
+	| behavior result |	
+
+	(ReservedVariable nameIsReserved: aSymbol)
+		ifTrue: [ ^ ReservedVariable lookupDictionary at: aSymbol ].
+
 	self globalVariablesBindings at: aSymbol ifPresent: [ :val | ^ val ].
 	
 	self ask globalVariables detect: [ :each | each name = aSymbol  ] ifFound: [ :found | 
@@ -566,7 +569,7 @@ RGEnvironment >> ensureTraitNamed: aSymbol [
 	
 ]
 
-{ #category : #'unpackaged ' }
+{ #category : #unpackaged }
 RGEnvironment >> ensureUnpackagedPackage [
 
 	^ self unpackagedPackageOrNil
@@ -838,7 +841,7 @@ RGEnvironment >> removePackage: anRGPackage [
 
 ]
 
-{ #category : #'unpackaged ' }
+{ #category : #unpackaged }
 RGEnvironment >> removeUnusedPackages [
 
 	"remove all packages that are not used in the system. It cannot be done automatically
@@ -922,7 +925,7 @@ RGEnvironment >> unifyTrait [
 
 ]
 
-{ #category : #'unpackaged ' }
+{ #category : #unpackaged }
 RGEnvironment >> unpackagedPackage [
 
 	| aProtocol |
@@ -933,13 +936,13 @@ RGEnvironment >> unpackagedPackage [
 
 ]
 
-{ #category : #'unpackaged ' }
+{ #category : #unpackaged }
 RGEnvironment >> unpackagedPackageName [
 
 	^ '_UnpackagedPackage' asSymbol
 ]
 
-{ #category : #'unpackaged ' }
+{ #category : #unpackaged }
 RGEnvironment >> unpackagedPackageOrNil [
 
 	self packagesDo: [ :each |

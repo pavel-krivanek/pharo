@@ -1104,16 +1104,6 @@ RubTextEditor >> findAndSelect: aRegex startingAt: anIndex searchBackwards: sear
 	^ where
 ]
 
-{ #category : #generated }
-RubTextEditor >> findAndSelectNextOccurenceOf: aRegex [
-
-	self
-		deprecated: 'Use #findAndSelectPreviousOccurrenceOf: instead'
-		transformWith: '`@rec findAndSelectNextOccurenceOf: `@arg'
-			-> '`@rec findAndSelectPreviousOccurrenceOf: `@arg'.
-	^ self findAndSelectPreviousOccurrenceOf: aRegex
-]
-
 { #category : #'find-select' }
 RubTextEditor >> findAndSelectNextOccurrenceOf: aRegex [
 	| where |
@@ -1671,14 +1661,6 @@ RubTextEditor >> offerFontMenu: aKeyboardEvent [
 	self closeTypeIn.
 	self offerFontMenu.
 	^ true
-]
-
-{ #category : #deprecated }
-RubTextEditor >> offerMenuFromEsc: aKeyboardEvent [
-	"The escape key was hit while the receiver has the keyboard focus; take action"
- 	textArea activeHand lastEvent shiftPressed 
-		ifFalse: [ self raiseContextMenu: aKeyboardEvent].
-	^ false 	
 ]
 
 { #category : #'typing support' }

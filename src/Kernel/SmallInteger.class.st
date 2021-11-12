@@ -27,7 +27,7 @@ SmallInteger class >> guideToDivision [
 	quo:  truncated division, rounded towards zero."
 ]
 
-{ #category : #'initialize-release' }
+{ #category : #'class initialization' }
 SmallInteger class >> initialize [
 	SessionManager default
 		registerSystemClassNamed: self name
@@ -473,7 +473,7 @@ SmallInteger >> identityHash [
 
 { #category : #testing }
 SmallInteger >> isImmediateObject [
-	"This is needed for the boostrap"
+	"This is needed for the bootstrap"
 	^ true
 ]
 

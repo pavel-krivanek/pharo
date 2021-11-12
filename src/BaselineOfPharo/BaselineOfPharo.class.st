@@ -13,15 +13,15 @@ BaselineOfPharo class >> icebergRepository [
 { #category : #versions }
 BaselineOfPharo class >> icebergVersion [
 
-	^ 'v2.0.4'
+	^ 'dev-2.0'
 ]
 
 { #category : #versions }
 BaselineOfPharo class >> newToolsReleaseCommit [
 	"The commit corresponding to current release (to be used on bootstrap process)"
 
-	"v0.6.8"
-	^ '5d8b80ed8a8ff01666447d1f8f085296c152b8ab'
+	"Pharo10"
+	^ '0a30d62222168b54ba9c12608bd10a7c1cfed6a1'
 ]
 
 { #category : #'repository urls' }
@@ -33,15 +33,15 @@ BaselineOfPharo class >> newToolsRepository [
 { #category : #versions }
 BaselineOfPharo class >> newToolsVersion [
 
-	^ 'v0.6.8'
+	^ 'Pharo10'
 ]
 
 { #category : #versions }
 BaselineOfPharo class >> specReleaseCommit [
 	"The commit corresponding to current release (to be used on bootstrap process)"
 
-	"v1.0.1"
-	^ 'e0b0cefc64404b4f23c03b6484063534e267f6e8'
+	"Pharo10- fix paginator in presence of fast dragging"
+	^ '8fe65f1d49f090bb739ae6ef5113a05b4e89109f'
 ]
 
 { #category : #'repository urls' }
@@ -53,7 +53,7 @@ BaselineOfPharo class >> specRepository [
 { #category : #versions }
 BaselineOfPharo class >> specVersion [
 
-	^ 'v1.0.1'
+	^ 'Pharo10'
 ]
 
 { #category : #baseline }
@@ -71,6 +71,7 @@ BaselineOfPharo >> baseline: spec [
 			spec repository: repository; loads: #('IcebergSupport'). ].
 
 		spec package: 'Deprecated90'.
+		spec package: 'Deprecated10'.
 		
 		spec package: 'FluidClassBuilder'.
 		spec package: 'FluidClassBuilder-Tests' with: [ spec requires: 'FluidClassBuilder' ].

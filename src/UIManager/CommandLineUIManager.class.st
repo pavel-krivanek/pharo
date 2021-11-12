@@ -69,7 +69,7 @@ CommandLineUIManager >> abort: aStringOrText title: aString [
 
 { #category : #private }
 CommandLineUIManager >> activate [
-	NonInteractiveTranscript stderr install
+	NonInteractiveTranscript stdout install
 ]
 
 { #category : #'ui TEasilyThemed' }
@@ -187,9 +187,11 @@ CommandLineUIManager >> exitFailure [
 ]
 
 { #category : #'handle debug requests' }
-CommandLineUIManager >> handleDebugRequest: aDebugRequest [
-	
-	self unhandledErrorDefaultAction: aDebugRequest exception
+CommandLineUIManager >> handleDebugRequest: aDebugRequest fromDebuggerSystem: anOupsDebuggerSystem [
+
+	anOupsDebuggerSystem
+		logDebugRequest: aDebugRequest
+		withUIManager: self
 ]
 
 { #category : #'error handling' }
@@ -199,9 +201,11 @@ CommandLineUIManager >> handleError: anError log: shouldLog [
 ]
 
 { #category : #'handle debug requests' }
-CommandLineUIManager >> handleWarningDebugRequest: aWarningDebugRequest [
-	
-	self warningDefaultAction: aWarningDebugRequest exception
+CommandLineUIManager >> handleWarningDebugRequest: aDebugRequest fromDebuggerSystem: anOupsDebuggerSystem [
+
+	anOupsDebuggerSystem
+		warningRequest: aDebugRequest
+		withUIManager: self
 ]
 
 { #category : #accessing }

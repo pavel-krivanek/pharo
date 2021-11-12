@@ -14,14 +14,19 @@ Class {
 	#category : #'Refactoring-Environment'
 }
 
-{ #category : #'instance creation' }
+{ #category : #'accessing - defaults' }
+RBPragmaEnvironment class >> defaultName [
+	^ 'Pragmas'
+]
+
+{ #category : #api }
 RBPragmaEnvironment class >> keywords: aKeywordCollection [
 	^ self
 		onEnvironment: self default
 		keywords: aKeywordCollection
 ]
 
-{ #category : #'instance creation' }
+{ #category : #api }
 RBPragmaEnvironment class >> onEnvironment: anEnvironment keywords: aKeywordCollection [
 	^ (self onEnvironment: anEnvironment)
 		keywords: aKeywordCollection;
@@ -31,6 +36,11 @@ RBPragmaEnvironment class >> onEnvironment: anEnvironment keywords: aKeywordColl
 { #category : #adding }
 RBPragmaEnvironment >> addKeyword: aSymbol [
 	keywords add: aSymbol
+]
+
+{ #category : #accessing }
+RBPragmaEnvironment >> basisObjects [
+	^ keywords 
 ]
 
 { #category : #initialization }
@@ -44,11 +54,6 @@ RBPragmaEnvironment >> defaultLabel [
 	stream := String new writeStream.
 	keywords do: [ :each | stream nextPut: $<; nextPutAll: each; nextPut: $>; nextPut: $ ].
 	^ stream contents
-]
-
-{ #category : #testing }
-RBPragmaEnvironment >> definesClass: aClass [
-	^ environment definesClass: aClass
 ]
 
 { #category : #testing }

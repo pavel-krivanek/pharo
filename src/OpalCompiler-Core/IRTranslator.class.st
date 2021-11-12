@@ -205,22 +205,6 @@ IRTranslator >> visitPushArray: array [
 ]
 
 { #category : #visiting }
-IRTranslator >> visitPushClosureCopy: closure [
-
-	closure copiedValues do: [:name | 	
-		gen pushTemp: (self currentScope indexForVarNamed: name).
-	].
-	gen mapBytesTo: closure.
-	gen pushClosureCopyNumCopiedValues: closure copiedValues size 
-			numArgs: closure arguments size 
-			to: closure destination orderNumber.
-	self pushScope: closure.
-	gen pushNClosureTemps: closure definedTemps size
-
-
-]
-
-{ #category : #visiting }
 IRTranslator >> visitPushDup: dup [
 	
 	gen pushDup
@@ -248,18 +232,7 @@ IRTranslator >> visitPushInstVar: instVar [
 
 { #category : #visiting }
 IRTranslator >> visitPushLiteral: lit [
-	| literal |
-	literal := lit literal.
-	"all objects that are not literals we keep writable"
-	literal isLiteral ifFalse: [ ^ gen pushLiteral: literal ].
-	"For symbol we need to set explicitly to writable or read-only. 
-	 Compilation to read-only then back to writable keep the object 
-	 read-only if we don't set it back to writable."
-	compilationContext optionReadOnlyLiterals
-		ifTrue: [ literal beReadOnlyObject ]
-		ifFalse: [ literal beWritableObject ].
-	^ gen pushLiteral: literal
-	
+	^ gen pushLiteral: lit literal beReadOnlyLiteral
 ]
 
 { #category : #visiting }
@@ -354,8 +327,6 @@ IRTranslator >> visitSend: send [
 
 { #category : #visiting }
 IRTranslator >> visitSequence: instructionSequence [
-	self currentScope isPushClosureCopy ifTrue: [ 
-		self currentScope destination = instructionSequence ifTrue: [ self popScope ] ].
 	self label: instructionSequence orderNumber.
 	super visitSequence: instructionSequence
 
